@@ -12,8 +12,10 @@ plt.style.use('ggplot')
 vecinos = 16	#1 + vecinos
 radio   = False
 output  = 'local_15all14155.pdf'
+refer   = 'all14155.dat'
+zinfo   = '../zinfo_img'
 
-se,el,yr = np.genfromtxt('../zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
+se,el,yr = np.genfromtxt(zinfo,unpack=True,usecols=(4,5,6),skiprows=6)
 yrs = (yr-yr[0])/365.25
 
 def linear(coords,a,b,c):
@@ -30,7 +32,7 @@ def linear2(coords,a,b,c,d):
 
 
 
-bid,bx,by = np.genfromtxt('all14155.dat',unpack=True,usecols=(0,3,4))
+bid,bx,by = np.genfromtxt(refer,unpack=True,usecols=(0,3,4))
 
 fig, ax = plt.subplots(nrows=23,ncols=3,figsize=[3.5*3,3.5*23])
 fig.tight_layout()
