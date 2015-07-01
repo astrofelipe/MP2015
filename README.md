@@ -8,7 +8,7 @@ Hola hola hola
 Para instalar recomiendo usar PIP:
 - Bajar este archivo https://bootstrap.pypa.io/get-pip.py
 - Correr python get-pip.py
-- Instalar librerías con "pip install <libreria>"
+- Instalar librerías con "pip install <<libreria>>"
 
 Para los warnings !
 import warnings
