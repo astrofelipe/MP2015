@@ -1,7 +1,14 @@
 # MP2015
 Hola hola hola
 
-master_build, proper_motion = MG
+**Librerias necesarias:**
+- Numpy, scipy (normalmente vienen)
+- Astropy
+
+Para instalar recomiendo usar PIP:
+- Bajar este archivo https://bootstrap.pypa.io/get-pip.py
+- Correr python get-pip.py
+- Instalar librerías con "pip install <libreria>"
 
 Para los warnings !
 import warnings
