@@ -1,7 +1,9 @@
-folder    = 'hola/hola'
-ref_image = 'hola_soy_m28.dao' #Img name
+######### INPUT USUARIO
 
-#########
+folder    = 'hola/hola' #path al directorio de las imagenes/catalogos
+ref_image = 'hola_soy_m28.dao' #Imagen de referencia
+
+######### FIN INPUT USUARIO
 import os
 import glob
 
