@@ -6,7 +6,7 @@ import os
 import sys
 
 path = sys.argv[1]
-os.chdir('path')
+os.chdir(path)
 
 #Transforma de XY a RADEC
 def XYtoRADEC(ep):
