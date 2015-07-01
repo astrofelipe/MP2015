@@ -1,5 +1,3 @@
-#Añade a los .dao los RA DEC
-
 import numpy as np
 from astropy import wcs
 from astropy.io import fits
