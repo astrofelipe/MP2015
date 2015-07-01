@@ -15,4 +15,4 @@ for cat in catalog:
     if cat == ref_cat:
         continue
 
-    os.system('java -jar -Xmx4096M stilts.jar tmatch2 in1='+cat_image+' values1="RA DEC" ifmt1=ascii in2='+cat+' values2="RA DEC" ifmt2=ascii matcher=sky params="0.3" find=best join=all1 out='+cat.replace('.dat','_'+cat[-7:-4]+'.match')+' ofmt=ascii')
+    os.system('java -jar -Xmx4096M stilts.jar tmatch2 in1='+ref_cat+' values1="RA DEC" ifmt1=ascii in2='+cat+' values2="RA DEC" ifmt2=ascii matcher=sky params="0.3" find=best join=all1 out='+cat.replace('.dat','_'+cat[-7:-4]+'.match')+' ofmt=ascii')
