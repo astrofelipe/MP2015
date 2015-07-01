@@ -1,20 +1,18 @@
-######### INPUT USUARIO
-
-folder    = 'hola/hola' #path al directorio de las imagenes/catalogos
-ref_image = 'hola_soy_m28.dao' #Imagen de referencia
-
-######### FIN INPUT USUARIO
 import os
 import glob
+import sys
 
+######### INPUT USUARIO
+#python match1a1.py folder ref_cat
+folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
+ref_cat   = folder+sys.argv[2] #catalogo de referencia
+######### FIN INPUT USUARIO
 
-os.chdir(folder)
-imgs     = sorted(glob.glob('*.fits'))
-catalog  = sorted(glob.glob('*.dao'))
+catalog  = sorted(glob.glob(folder+'*k*.dat'))
 
 for cat in catalog:
 
-    if cat == ref_image:
+    if cat == ref_cat:
         continue
 
-    os.system('java -jar -Xmx4096M stilts.jar tmatch2 in1='+ref_image+' values1="RA DEC" ifmt1=ascii in2='+cat+' values2="RA DEC" ifmt2=ascii matcher=sky params="0.3" find=best join=all1 out='+cat.replace('.dao','_'+cat[-7:-4]+'.match')+' ofmt=ascii')
+    os.system('java -jar -Xmx4096M stilts.jar tmatch2 in1='+cat_image+' values1="RA DEC" ifmt1=ascii in2='+cat+' values2="RA DEC" ifmt2=ascii matcher=sky params="0.3" find=best join=all1 out='+cat.replace('.dat','_'+cat[-7:-4]+'.match')+' ofmt=ascii')
