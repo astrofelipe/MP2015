@@ -16,12 +16,12 @@ import os
 #
 
 path = sys.argv[1]     # Directorio donde estan las imagenes/catalogos
-search_text = path+'*k*.mat'  # Texto para hacer busqueda de archivo/s ('*k*.mat', 'b242_3_k_11-028.mat')
+search_text = path+sys.argv[2]  # Texto para hacer busqueda de archivo/s ('*k*.mat', 'b242_3_k_11-028.mat')
 x_col_1 = 3              # Numero (desde 0) de columna de x_1
 y_col_1 = 4              # Numero (desde 0) de columna de y_1
 x_col_2 = 10             # Numero (desde 0) de columna de x_2
 y_col_2 = 11             # Numero (desde 0) de columna de y_2
-nchip = int(sys.argv[2])      # Numero de chip a corregir
+nchip = int(sys.argv[3])      # Numero de chip a corregir
 
 #
 #  FIN MODIFICACIONES
