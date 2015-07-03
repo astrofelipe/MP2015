@@ -680,5 +680,5 @@ for file in files:
     data[:,y_col_2] = y_dc_2
 
     out_file = open(path+file.replace('.mat','.gc'),'w')
-    np.savetxt(out_file, data, fmt='%5d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f %5d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f %1.4f', header='# ID_1 RA_1 DEC_1 X_1 Y_1 MAG_1 ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 ERR_2 Separation')
+    np.savetxt(out_file, data, fmt='%5d %3.8f %2.8f %4.3f %4.3f %2.3f %1.3f %5d %3.8f %2.8f %4.3f %4.3f %2.3f %1.3f %1.4f', header='# ID_1 RA_1 DEC_1 X_1 Y_1 MAG_1 ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 ERR_2 Separation')
     out_file.close()
