@@ -14,17 +14,17 @@ from astropy.utils.console import ProgressBar
 ## PARAMETROS ##
 
 plt.style.use('ggplot')
-vecinos = 16						#1 + vecinos
-radio   = False						#Usar criterio de radio (True) o vecinos mas cercanos (False)
-endepo  = 001						#Numero con que terminan los archivos (formato de 3 numeros ej 001)
-output  = 'local_15all14155.pdf'	#PDF de Output (verificar siempre o se reemplazara sin avisar!)
-refer   = 'all14155.dat'			#Catalogo con las estrellas (IDs) de referencia
-zinfo   = '../zinfo_img'			#Ubicacion del archivo zinfo con los seeings y elipticidades
-ma1		= 11						#Limite inf de magnitudes para considerar los datos
-ma2		= 15						#Limite sup de magnitudes para considerar los datos
+vecinos = 31							#1 + vecinos
+radio   = False							#Usar criterio de radio (True) o vecinos mas cercanos (False)
+endepo  = 001							#Numero con que terminan los archivos (formato de 3 numeros ej 001)
+output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
+refer   = 'b269_6_h_03-001.dat'	#Catalogo con las estrellas (IDs) de referencia
+zinfo   = 'zinfo_img'					#Ubicacion del archivo zinfo con los seeings y elipticidades
+ma1		= 11							#Limite inf de magnitudes para considerar los datos
+ma2		= 15							#Limite sup de magnitudes para considerar los datos
 
 folder   = sys.argv[1]
-archivos = sorted(glob.glob(folder+'*_%d.match'%endepo))
+archivos = sorted(glob.glob(folder+'*_%03d.match'%endepo))
 
 se,el,yr = np.genfromtxt(zinfo,unpack=True,usecols=(4,5,6),skiprows=6)
 yrs = (yr-yr[0])/365.25
@@ -37,14 +37,16 @@ def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
-bid,bx,by = np.genfromtxt(refer,unpack=True,usecols=(0,3,4))
+bid,bx,by = np.genfromtxt(folder+refer,unpack=True,usecols=(0,3,4))
 
 fig, ax = plt.subplots(nrows=23,ncols=3,figsize=[3.5*3,3.5*23])
 fig.tight_layout()
 
 for i,a in enumerate(np.ravel(ax)):
+	print 'Iteracion %d/%d'%(i+1,ax.size)
+
 	#r1,d1,m,r2,d2 = np.genfromtxt('%s.dat'%(70*j/8+(i+1)),unpack=True,usecols=(1,2,5,7,8))
-	id,x1,y1,m,x2,y2 = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,9,10))
+	id,x1,y1,m,x2,y2 = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,10,11))
 	mask			 = (m<ma2)*(m>ma1)
 	id,x1,y1,m,x2,y2   = np.transpose([id,x1,y1,m,x2,y2])[mask].T
 
@@ -90,11 +92,8 @@ for i,a in enumerate(np.ravel(ax)):
 		dist 	 = dist[:,1:]
 
 	means = np.array([np.mean(d) for d in dist])
-	print means.size, means.shape
 	nbors 	  = np.array([len(d) for d in dist])
 	mednbors, minnbors = np.median(nbors),nbors.min()
-
-
 
 	ctx = np.zeros(x1.size)
 	cty = np.zeros(y1.size)
@@ -139,7 +138,7 @@ for i,a in enumerate(np.ravel(ax)):
 
 		#plt.show()
 	if (i%5)==0:
-		print i
+		print 'Guardando...\n'
 		#fig.suptitle('Neigh = %d'%vecinos)
 		fig.savefig(output,dpi=200)
 fig.savefig(output,dpi=200)
