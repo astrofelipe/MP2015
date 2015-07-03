@@ -53,7 +53,7 @@ for i,a in enumerate(np.ravel(ax)):
 	epinbu = np.in1d(id,bid)
 	buinep = np.in1d(bid,id)
 
-	print (id[epinbu]==bid[buinep]).sum(),id.size
+	print id[epinbu].size,bid[buinep].size
 
 	epxy = np.transpose([x2,y2])[epinbu]
 	epm  = m[epinbu]
@@ -124,8 +124,8 @@ for i,a in enumerate(np.ravel(ax)):
 	a.text(.1,.9,u'$%d$'%(i+2),transform = a.transAxes,alpha=.66,fontsize=14)
 	#a.set_xlim(-6e-5,6e-5)
 	#a.set_ylim(-6e-5,6e-5)
-	a.set_xlim(-10,10)
-	a.set_ylim(-10,10)
+	a.set_xlim(-8,8)
+	a.set_ylim(-8,8)
 	a.set_aspect('equal')
 
 	dx = x1-ctx
