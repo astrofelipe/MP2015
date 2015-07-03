@@ -10,23 +10,34 @@ from sklearn.neighbors import RadiusNeighborsClassifier as RN
 from astropy.utils.console import ProgressBar
 
 #Ejecutar como python tlineal_1a1.py <carpeta con los *_ddd.match> con ddd nro de epoca de referencia
+#Requisito: Archivo 'zinfo_img' en la carpeta de los datos
 
 ## PARAMETROS ##
 
-plt.style.use('ggplot')
-vecinos = 31							#1 + vecinos
-radio   = False							#Usar criterio de radio (True) o vecinos mas cercanos (False)
-endepo  = 001							#Numero con que terminan los archivos (formato de 3 numeros ej 001)
+vecinos = 11							#1 + vecinos (maximo)
+rad_int  = 0							#Radio interior
+rad_ext  = 500							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
+sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
-refer   = 'b269_6_h_03-001.dat'	#Catalogo con las estrellas (IDs) de referencia
-zinfo   = 'zinfo_img'					#Ubicacion del archivo zinfo con los seeings y elipticidades
+refer   = '1114.dat'			#Catalogo con las estrellas locales
 ma1		= 11							#Limite inf de magnitudes para considerar los datos
 ma2		= 15							#Limite sup de magnitudes para considerar los datos
 
-folder   = sys.argv[1]
-archivos = sorted(glob.glob(folder+'*_%03d.match'%endepo))
+rad_clu = 280							#Radio en pixeles del cumulo
+x0,y0 	= 1352,554 						#Coordenadas del centro del cumulo en pixeles
+mc1,mc2 = 11,14							#Limitde de magnitudes para plotear las estrellas del cumulo
 
-se,el,yr = np.genfromtxt(zinfo,unpack=True,usecols=(4,5,6),skiprows=6)
+#Codigo
+
+plt.style.use('ggplot')
+
+folder   = sys.argv[1]
+keywords = sys.argv[2]
+archivos = sorted(glob.glob(folder+keywords))
+nro_arch = np.size(archivos)
+nro_rows = nro_arch/3 + 1
+
+se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
 yrs = (yr-yr[0])/365.25
 
 def linear(coords,a,b,c):
@@ -39,10 +50,13 @@ def quadratic(coords,a,b,c,d,e,f):
 
 bid,bx,by = np.genfromtxt(folder+refer,unpack=True,usecols=(0,3,4))
 
-fig, ax = plt.subplots(nrows=23,ncols=3,figsize=[3.5*3,3.5*23])
+fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
 fig.tight_layout()
 
 for i,a in enumerate(np.ravel(ax)):
+	if i == nro_arch:
+		break
+
 	print 'Iteracion %d/%d'%(i+1,ax.size)
 
 	#r1,d1,m,r2,d2 = np.genfromtxt('%s.dat'%(70*j/8+(i+1)),unpack=True,usecols=(1,2,5,7,8))
@@ -60,33 +74,33 @@ for i,a in enumerate(np.ravel(ax)):
 
 	nbrs = NN(n_neighbors=vecinos, algorithm='auto').fit(epxy)
 
-	if radio:
-		dist, idx = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=400)
+	if rad_int!=0 and rad_ext!=0:
+		dist, idx = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
 		nbors 	  = np.array([len(d) for d in dist])
 
 		mednbors, minnbors = np.median(nbors),nbors.min()
 
 		for j in range(len(dist)):
 			#Elimina la misma estrella
-			msk	    = dist[j]>300
+			msk	    = (dist[j]!=0)*(dist[j]>=rad_int)
 			dist[j] = dist[j][msk]
 			idx[j]  = idx[j][msk]
 
 
-			#Toma las 50 mas brillantes
-			'''
-			if len(dist[j])>15:
-				midx = np.argsort(epm[idx[j]])[:15]
-				dist[j] = dist[j][midx]
-				idx[j]  = idx[j][midx]
-			'''
-
-			if len(dist[j])>15:
-				midx = np.argsort(dist[j])[:15]
-				dist[j] = dist[j][midx]
-				idx[j]  = idx[j][midx]
+			#Toma las mas brillantes
+			if len(dist[j])>vecinos:
+				if sort_mag:
+					midx 	= np.argsort(epm[idx[j]])[:vecinos]
+					dist[j] = dist[j][midx]
+					idx[j]  = idx[j][midx]
 			
-	else:	
+			#Toma las mas cercanas
+				else:
+					midx 	= np.argsort(dist[j])[:vecinos]
+					dist[j] = dist[j][midx]
+					idx[j]  = idx[j][midx]
+			
+	else:
 		dist,idx = nbrs.kneighbors(np.transpose([x2,y2]))
 		idx		 = idx[:,1:]
 		dist 	 = dist[:,1:]
@@ -112,15 +126,12 @@ for i,a in enumerate(np.ravel(ax)):
 
 			bar.update()
 
-	x0,y0 = 1352.,554.
-	#x0,y0 = 1788.,-6359.
-	clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < 280.)
-	#clust = np.sqrt((x1-x0)**2 + (y1-y0)**2) < 350.
-	#clust = ~epinbu
-	#a.plot((r1-r2)[mask],(d1-d2)[mask],'o',ms=.5,alpha=.5)
+	m_clu = (m>mc1)*(m<mc2)
+	clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
+
 	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
-	a.scatter((x1-ctx)[clust*(m<14)],(y1-cty)[clust*(m<14)],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-	a.text(.1,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*(m<14)).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+	a.scatter((x1-ctx)[clust*m_clu],(y1-cty)[clust*m_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
+	a.text(.1,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
 	a.text(.1,.9,u'$%d$'%(i+2),transform = a.transAxes,alpha=.66,fontsize=14)
 	#a.set_xlim(-6e-5,6e-5)
 	#a.set_ylim(-6e-5,6e-5)
@@ -129,7 +140,11 @@ for i,a in enumerate(np.ravel(ax)):
 	a.set_aspect('equal')
 
 	dx = x1-ctx
-	dy = x1-cty
+	dy = y1-cty
+
+	print dx.max(),dy.max()
+	print np.mean(dx),np.mean(dy)
+	print np.median(dx),np.median(dy)
 
 	#np.savetxt()
 
