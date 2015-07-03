@@ -16,12 +16,12 @@ import os
 #
 
 path = sys.argv[1]     # Directorio donde estan las imagenes/catalogos
-search_text = path+'*k*.mat'  # Texto para hacer busqueda de archivo/s ('*k*.dao', 'b242_3_k_11-028.dao')
+search_text = path+'*k*.mat'  # Texto para hacer busqueda de archivo/s ('*k*.mat', 'b242_3_k_11-028.mat')
 x_col_1 = 3              # Numero (desde 0) de columna de x_1
 y_col_1 = 4              # Numero (desde 0) de columna de y_1
 x_col_2 = 10             # Numero (desde 0) de columna de x_2
 y_col_2 = 11             # Numero (desde 0) de columna de y_2
-nchip = sys.argv[2]      # Numero de chip a corregir
+nchip = int(sys.argv[2])      # Numero de chip a corregir
 
 #
 #  FIN MODIFICACIONES
@@ -680,6 +680,5 @@ for file in files:
     data[:,y_col_2] = y_dc_2
 
     out_file = open(path+file.replace('.mat','.gc'),'w')
-    #np.savetxt(out_file, data, fmt='%2d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f')
-    np.savetxt(out_file, data)
+    np.savetxt(out_file, data, fmt='%2d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f %2d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f %1.4f')
     out_file.close()
