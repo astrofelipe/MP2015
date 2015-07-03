@@ -679,7 +679,7 @@ for file in files:
     data[:,x_col_2] = x_dc_2
     data[:,y_col_2] = y_dc_2
 
-    out_file = open(path+file.replace('.','_gc.'),'w')
+    out_file = open(path+file.replace('.mat','.gc'),'w')
     #np.savetxt(out_file, data, fmt='%2d %4.2f %4.2f %2.3f %1.3f %4.2f %1d %1.2f %1.3f')
     np.savetxt(out_file, data)
     out_file.close()
