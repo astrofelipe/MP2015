@@ -23,7 +23,7 @@ sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
 ma1		= 11							#Limite inf de magnitudes para considerar los datos
 ma2		= 15							#Limite sup de magnitudes para considerar los datos
-ml1,ml2 = 11,16							#Corte en magnitud para estrellas locales
+ml1,ml2 = 11,15							#Corte en magnitud para estrellas locales
 
 rad_clu = 300							#Radio en pixeles del cumulo
 x0,y0 	= 1352,554						#Coordenadas del centro del cumulo en pixeles
@@ -55,15 +55,14 @@ def linear(coords,a,b,c):
 def linear2(x,y,a,b,c):
 	return a*x + b*y + c
 
-#def linear(x,a):
-#	return x + a
+delta_x = []
+delta_y = []
 
 def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
-
 print 'Locales: %d' % bid.size
 
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
@@ -78,8 +77,9 @@ for i,a in enumerate(np.ravel(ax)):
 
 	print '\nIteracion %d/%d'%(i+1,ax.size)
 
-	#r1,d1,m,r2,d2 = np.genfromtxt('%s.dat'%(70*j/8+(i+1)),unpack=True,usecols=(1,2,5,7,8))
+	bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 	iid,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
+	#x1,y1,x2,y2 = 10000*np.array([x1,y1,x2,y2])
 	mask			 = (m<ma2)*(m>ma1)
 	#iid,x1,y1,m,x2,y2   = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
 	print 'Estrellas en Epoca: %d'%iid.size
@@ -187,25 +187,17 @@ for i,a in enumerate(np.ravel(ax)):
 		
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
-				coords = np.transpose([x2,y2])[idx[k]].T
+				coords = np.transpose([bx2,by2])[idx[k]].T
 				guessx = [1,0,1]
 				guessy = [0,1,1]
 
-				poptx, pcovx = curve_fit(linear,coords,x1[idx[k]])#,sigma=1e-3,absolute_sigma=True,p0=guessy)
-				popty, pcovy = curve_fit(linear,coords,y1[idx[k]])#,sigma=1e-3,absolute_sigma=True,p0=guessx)
+				poptx, pcovx = curve_fit(linear,coords,bx1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessy)
+				popty, pcovy = curve_fit(linear,coords,by1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessx)
 				
-				the_x = x2[k]
-				the_y = y2[k]
-
-				ctx[k] += linear([the_x,the_y],*poptx)
-				cty[k] += linear([the_x,the_y],*popty)
+				ctx[k] += linear([x2[k],y2[k]],*poptx)
+				cty[k] += linear([x2[k],y2[k]],*popty)
 
 				bar.update()
-		'''
-		fig, ax = plt.subplots()
-		ax.plot(x1[idx[k]],ctx[idx[k]],'o')
-		plt.show()
-		'''
 	
 	#Global
 	else:
@@ -219,10 +211,11 @@ for i,a in enumerate(np.ravel(ax)):
 		nbors = -1
 		mednbors, minnbors = -1,-1
 
+
+	#MAIN PLOT
+
 	m_clu = (m>mc1)*(m<mc2)
 	clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
-
-	#MAIN
 
 	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
 	a.scatter((x1-ctx)[clust*m_clu],(y1-cty)[clust*m_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
@@ -262,7 +255,9 @@ for i,a in enumerate(np.ravel(ax)):
 	ad[2*i+1].scatter(y1[~clust],dy[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
 
-	#np.savetxt()
+	#"FINAL" PLOT
+	delta_x.append(dx)
+	delta_y.append(dy)
 
 	if (i%5)==0:
 		print '\nGuardando...\n'
@@ -270,3 +265,11 @@ for i,a in enumerate(np.ravel(ax)):
 		fig_delta.savefig('delta_'+output,dpi=200)
 fig.savefig(output,dpi=200)
 fig_delta.savefig('delta_'+output,dpi=200)
+
+fig, ax = plt.subplots(nrows=2,figsize=[3*2,4*2])
+
+for i in range(len(delta_x)):
+	equis = np.zeros(len(delta_x[i])) + yrs[i]
+	ax[0].scatter(equis,delta_x[i],c='#FF5500',lw=0,s=1,rasterized=True)
+	ax[1].scatter(equis,delta_y[i],c='#0055FF',lw=0,s=1,rasterized=True)
+fig.savefig('final_'+output,dpi=200)
