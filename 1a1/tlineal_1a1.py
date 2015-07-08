@@ -23,6 +23,7 @@ sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
 ma1		= 11							#Limite inf de magnitudes para considerar los datos
 ma2		= 15							#Limite sup de magnitudes para considerar los datos
+ml1,ml2 = 11,16							#Corte en magnitud para estrellas locales
 
 rad_clu = 300							#Radio en pixeles del cumulo
 x0,y0 	= 1352,554						#Coordenadas del centro del cumulo en pixeles
@@ -61,7 +62,7 @@ def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
-bid,bx,by = np.genfromtxt(folder+refer,unpack=True,usecols=(0,3,4))
+bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 
 print 'Locales: %d' % bid.size
 
@@ -75,13 +76,13 @@ for i,a in enumerate(np.ravel(ax)):
 	if i == nro_arch:
 		break
 
-	print 'Iteracion %d/%d'%(i+1,ax.size)
+	print '\nIteracion %d/%d'%(i+1,ax.size)
 
 	#r1,d1,m,r2,d2 = np.genfromtxt('%s.dat'%(70*j/8+(i+1)),unpack=True,usecols=(1,2,5,7,8))
-	id,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
+	iid,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
 	mask			 = (m<ma2)*(m>ma1)
-	id,x1,y1,m,x2,y2   = np.transpose([id,x1,y1,m,x2,y2])[mask].T
-	print 'Estrellas en Epoca: %d'%id.size
+	#iid,x1,y1,m,x2,y2   = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
+	print 'Estrellas en Epoca: %d'%iid.size
 
 	#print id[:-10]
 	#print linear2(x2,y2,1,0,-17.24)[:-10]
@@ -126,12 +127,20 @@ for i,a in enumerate(np.ravel(ax)):
 	sys.exit()
 	'''
 
+	#Filtro por magnitud de las locales
+	epinbu = np.in1d(iid,bid)
+	buinep = np.in1d(bid,iid)
 
-	epinbu = np.in1d(id,bid)
-	buinep = np.in1d(bid,id)
+	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
+	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[(bm>ml1)*(bm<ml2)].T
 
-	epxy = np.transpose([x2,y2])[epinbu]
-	epm  = m[epinbu]
+	epxy = np.transpose([bx2,by2])
+
+	#Filtro por magnitud del catalogo
+	iid,x1,y1,m,x2,y2 = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
+
+	print "Locales filtradas por mag: %d" % bid.size
+	print "Estrellas del catalogo filtrado por mag: %d" %iid.size
 
 	if local:
 
@@ -162,7 +171,8 @@ for i,a in enumerate(np.ravel(ax)):
 						midx 	= np.argsort(dist[j])[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
-				
+		
+		#Vecinos mas cercanos		
 		else:
 			dist,idx = nbrs.kneighbors(np.transpose([x2,y2]))
 			idx		 = idx[:,1:]
@@ -178,8 +188,11 @@ for i,a in enumerate(np.ravel(ax)):
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
 				coords = np.transpose([x2,y2])[idx[k]].T
-				poptx, pcovx = curve_fit(linear,coords,x1[idx[k]])
-				popty, pcovy = curve_fit(linear,coords,y1[idx[k]])
+				guessx = [1,0,1]
+				guessy = [0,1,1]
+
+				poptx, pcovx = curve_fit(linear,coords,x1[idx[k]])#,sigma=1e-3,absolute_sigma=True,p0=guessy)
+				popty, pcovy = curve_fit(linear,coords,y1[idx[k]])#,sigma=1e-3,absolute_sigma=True,p0=guessx)
 				
 				the_x = x2[k]
 				the_y = y2[k]
@@ -188,6 +201,11 @@ for i,a in enumerate(np.ravel(ax)):
 				cty[k] += linear([the_x,the_y],*popty)
 
 				bar.update()
+		'''
+		fig, ax = plt.subplots()
+		ax.plot(x1[idx[k]],ctx[idx[k]],'o')
+		plt.show()
+		'''
 	
 	#Global
 	else:
@@ -209,7 +227,7 @@ for i,a in enumerate(np.ravel(ax)):
 	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
 	a.scatter((x1-ctx)[clust*m_clu],(y1-cty)[clust*m_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
 	a.text(.1,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
-	a.text(.1,.9,u'$%d$'%(i+2),transform = a.transAxes,alpha=.66,fontsize=14)
+	a.text(.9,.9,u'$%d$'%(i+2),transform = a.transAxes,alpha=.66,fontsize=14)
 
 	xmean_b = np.mean((x1-ctx)[~clust])
 	ymean_b = np.mean((y1-cty)[~clust])
@@ -221,8 +239,8 @@ for i,a in enumerate(np.ravel(ax)):
 	xstd_r	= np.std((x1-ctx)[clust*m_clu])
 	ystd_r	= np.std((y1-cty)[clust*m_clu])
 
-	a.text(.5,.85,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes)
-	a.text(.5,.73,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes)
+	a.text(.1,.83,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes)
+	a.text(.1,.69,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes)
 	a.set_xlim(-lim,lim)
 	a.set_ylim(-lim,lim)
 	a.set_aspect('equal')
@@ -232,10 +250,11 @@ for i,a in enumerate(np.ravel(ax)):
 	dx = x1-ctx
 	dy = y1-cty
 
-	print dx.max(),dy.max()
-	print np.mean(dx),np.mean(dy)
-	print np.median(dx),np.median(dy)
-	print (np.abs(dx)>=5).sum(),(np.abs(dy)>=5).sum()
+	print '        dx, dy'
+	print 'max:    %f, %f' % (dx.max(),dy.max())
+	print 'mean:   %f, %f' % (np.mean(dx),np.mean(dy))
+	print 'median: %f, %f' % (np.median(dx),np.median(dy))
+	print 'std:    %f, %f' % (np.std(dx),np.std(dy))
 
 	ad[2*i].scatter(x1[~clust],dx[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i].scatter(x1[clust*m_clu],dx[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
@@ -243,12 +262,10 @@ for i,a in enumerate(np.ravel(ax)):
 	ad[2*i+1].scatter(y1[~clust],dy[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
 
-
-
 	#np.savetxt()
 
 	if (i%5)==0:
-		print 'Guardando...\n'
+		print '\nGuardando...\n'
 		fig.savefig(output,dpi=200)
 		fig_delta.savefig('delta_'+output,dpi=200)
 fig.savefig(output,dpi=200)
