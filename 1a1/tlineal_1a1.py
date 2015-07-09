@@ -132,7 +132,7 @@ for i,a in enumerate(np.ravel(ax)):
 	buinep = np.in1d(bid,iid)
 
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
-	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[(bm>ml1)*(bm<ml2)].T
+	bid,bx1,by1,bm,bx2,by2 = np.transpose([bid,bx1,by1,bm,bx2,by2])[(bm>ml1)*(bm<ml2)].T
 
 	epxy = np.transpose([bx2,by2])
 
@@ -184,6 +184,9 @@ for i,a in enumerate(np.ravel(ax)):
 
 		ctx = np.zeros(x1.size)
 		cty = np.zeros(y1.size)
+
+		pxt = np.zeros((x1.size,3))
+		pyt = np.zeros((y1.size,3))
 		
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
@@ -194,15 +197,28 @@ for i,a in enumerate(np.ravel(ax)):
 				poptx, pcovx = curve_fit(linear,coords,bx1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessy)
 				popty, pcovy = curve_fit(linear,coords,by1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessx)
 				
+				pxt[k] += poptx
+				pyt[k] += popty
+
 				ctx[k] += linear([x2[k],y2[k]],*poptx)
 				cty[k] += linear([x2[k],y2[k]],*popty)
 
 				bar.update()
+
+		figa,axa = plt.subplots(nrows=2,ncols=3)
+		for i in range(3):
+			axa[0,i].hist(pxt[:,i],bins=100)
+			axa[1,i].hist(pyt[:,i],bins=100)
+		plt.show()
+
 	
 	#Global
 	else:
 		poptx, pcovx = curve_fit(linear,[x2,y2],x1)
 		popty, pcovy = curve_fit(linear,[x2,y2],y1)
+
+		print poptx
+		print popty
 
 		ctx = linear([x2,y2],*poptx)
 		cty = linear([x2,y2],*popty)
