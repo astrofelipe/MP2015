@@ -18,16 +18,16 @@ vecinos = 51							#1 + vecinos (maximo)
 rad_int  = 0							#Radio interior
 rad_ext  = 0							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
-refer   = '1116gc.dat'			#Catalogo con las estrellas locales
+refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
 ma1		= 11							#Limite inf de magnitudes para considerar los datos
 ma2		= 15							#Limite sup de magnitudes para considerar los datos
-ml1,ml2 = 11,15							#Corte en magnitud para estrellas locales
+ml1,ml2 = 11,14							#Corte en magnitud para estrellas locales
 
 rad_clu = 300							#Radio en pixeles del cumulo
 x0,y0 	= 1352,554						#Coordenadas del centro del cumulo en pixeles
-mc1,mc2 = 11,14							#Limitde de magnitudes para plotear las estrellas del cumulo
+mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumulo
 
 lim 	= 8								#Limites del plot (cuadrado, por eso es uno)
 
@@ -50,6 +50,7 @@ yrs = (yr-yr[0])/365.25
 
 def linear(coords,a,b,c):
 	x,y = coords
+	#return a*coords[0] + b*coords[1] + c
 	return a*x + b*y + c
 
 def linear2(x,y,a,b,c):
@@ -191,11 +192,16 @@ for i,a in enumerate(np.ravel(ax)):
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
 				coords = np.transpose([bx2,by2])[idx[k]].T
+				#coords = (coords.T - np.mean(coords,axis=1)).T
+
 				guessx = [1,0,1]
 				guessy = [0,1,1]
 
-				poptx, pcovx = curve_fit(linear,coords,bx1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessy)
-				popty, pcovy = curve_fit(linear,coords,by1[idx[k]],ftol=1e-10,xtol=1e-10)#,sigma=1e-3,absolute_sigma=True,p0=guessx)
+				ep1_x = bx1[idx[k]]# - np.mean(bx1[idx[k]])
+				ep1_y = by1[idx[k]]# - np.mean(by1[idx[k]])
+
+				poptx, pcovx = curve_fit(linear,coords,ep1_x)
+				popty, pcovy = curve_fit(linear,coords,ep1_y)
 				
 				pxt[k] += poptx
 				pyt[k] += popty
@@ -205,11 +211,13 @@ for i,a in enumerate(np.ravel(ax)):
 
 				bar.update()
 
+		'''
 		figa,axa = plt.subplots(nrows=2,ncols=3)
 		for i in range(3):
 			axa[0,i].hist(pxt[:,i],bins=100)
 			axa[1,i].hist(pyt[:,i],bins=100)
 		plt.show()
+		'''
 
 	
 	#Global
@@ -282,10 +290,22 @@ for i,a in enumerate(np.ravel(ax)):
 fig.savefig(output,dpi=200)
 fig_delta.savefig('delta_'+output,dpi=200)
 
+#Final Plot cont
+
+fit_meansx = np.array([np.mean(dd) for dd in delta_x])
+fit_meansy = np.array([np.mean(dd) for dd in delta_y])
+
 fig, ax = plt.subplots(nrows=2,figsize=[3*2,4*2])
 
 for i in range(len(delta_x)):
 	equis = np.zeros(len(delta_x[i])) + yrs[i]
 	ax[0].scatter(equis,delta_x[i],c='#FF5500',lw=0,s=1,rasterized=True)
 	ax[1].scatter(equis,delta_y[i],c='#0055FF',lw=0,s=1,rasterized=True)
+
+coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
+coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
+
+ax[0].plot(yrs[:len(delta_x)],np.polyval(coeffx,yrs[:len(delta_x)]))
+ax[1].plot(yrs[:len(delta_y)],np.polyval(coeffy,yrs[:len(delta_y)]))
+
 fig.savefig('final_'+output,dpi=200)
