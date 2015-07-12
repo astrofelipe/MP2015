@@ -2,6 +2,9 @@ import os
 import glob
 import sys
 import multiprocessing as mp
+
+#####Informacion extra
+
 ######### INPUT USUARIO
 #python match1a1.py folder ref_cat
 folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
