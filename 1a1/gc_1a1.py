@@ -4,6 +4,20 @@ import glob
 import sys
 import os
 
+#####Informacion extra
+if len(sys.argv) == 1:
+
+    print
+    print 'Como ejecutar:', sys.argv[0]
+    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>', 'Nro chip'
+    print '<texto para busqueda> puede ser una o mas imagenes: "*k*.mat", "b242_3_k_11-028.mat" '
+    print
+    print 'Output: archivos *.gc'
+    print 'Correccion de distorsion geometrica de Libralato para las imagenes seleccionadas'
+    print
+
+    sys.exit(1)
+
 #!!!!!!!!!!!!!!!!!!!
 #!                 !
 #! AUTHOR COMMENTS !
