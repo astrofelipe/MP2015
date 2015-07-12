@@ -4,6 +4,17 @@ import sys
 import multiprocessing as mp
 
 #####Informacion extra
+if len(sys.argv) == 1:
+
+    print
+    print 'Como ejecutar:', sys.argv[0]
+    print 'python', sys.argv[0], 'path/to/catalogs/', 'reference_catalog'
+    print
+    print 'Output: archivos *.mat'
+    print 'Match con el catalogo de referencia de cara archivo *k* en el path'
+    print
+
+    sys.exit(1)
 
 ######### INPUT USUARIO
 #python match1a1.py folder ref_cat

@@ -2,13 +2,25 @@ import numpy as np
 import os
 import sys
 import glob
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
-from sklearn.neighbors import NearestNeighbors as NN 
-from sklearn.neighbors import RadiusNeighborsClassifier as RN 
+from sklearn.neighbors import NearestNeighbors as NN
+from sklearn.neighbors import RadiusNeighborsClassifier as RN
 from astropy.utils.console import ProgressBar
 
+#####Informacion extra
+if len(sys.argv) == 1:
+
+    print
+    print 'Como ejecutar:', sys.argv[0]
+    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
+    print
+    print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
+    print 'Output: archivo final_test.pdf de VPD para imagenes seleccionadas con respecto a archivo de referencia'
+    print
+
+    sys.exit(1)
 #Ejecutar como python tlineal_1a1.py <carpeta de las imagenes> <comodines de busqueda (ej *k*001.match)>
 #Requisito: Archivo 'zinfo_img' en la carpeta de los datos
 
@@ -33,7 +45,7 @@ lim 	= 8								#Limites del plot (cuadrado, por eso es uno)
 
 
 #Con dist:  x0 1352 y0 554 r 280
-#Libralato: x0 1795 y0 -6355 r 300 
+#Libralato: x0 1795 y0 -6355 r 300
 
 #Codigo
 
@@ -166,14 +178,14 @@ for i,a in enumerate(np.ravel(ax)):
 						midx 	= np.argsort(epm[idx[j]])[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
-				
+
 				#Toma las mas cercanas
 					else:
 						midx 	= np.argsort(dist[j])[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
-		
-		#Vecinos mas cercanos		
+
+		#Vecinos mas cercanos
 		else:
 			dist,idx = nbrs.kneighbors(np.transpose([x2,y2]))
 			idx		 = idx[:,1:]
@@ -188,7 +200,7 @@ for i,a in enumerate(np.ravel(ax)):
 
 		pxt = np.zeros((x1.size,3))
 		pyt = np.zeros((y1.size,3))
-		
+
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
 				coords = np.transpose([bx2,by2])[idx[k]].T
@@ -202,7 +214,7 @@ for i,a in enumerate(np.ravel(ax)):
 
 				poptx, pcovx = curve_fit(linear,coords,ep1_x)
 				popty, pcovy = curve_fit(linear,coords,ep1_y)
-				
+
 				pxt[k] += poptx
 				pyt[k] += popty
 
@@ -219,7 +231,7 @@ for i,a in enumerate(np.ravel(ax)):
 		plt.show()
 		'''
 
-	
+
 	#Global
 	else:
 		poptx, pcovx = curve_fit(linear,[x2,y2],x1)
