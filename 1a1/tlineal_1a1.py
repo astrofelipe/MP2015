@@ -42,6 +42,8 @@ mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumu
 
 lim 	= 2								#Limites del plot (cuadrado, por eso es uno)
 
+plot_PM = False 						#Plot de delta x o delta y vs epocas
+
 #Codigo
 
 plt.style.use('ggplot')
@@ -233,25 +235,26 @@ for i,a in enumerate(np.ravel(ax)):
 		fig.savefig(output,dpi=200)
 		fig_delta.savefig('delta_'+output,dpi=200)
 fig.savefig(output,dpi=200)
-fig_delta.savefig('delta_'+output,dpi=200)
+#fig_delta.savefig('delta_'+output,dpi=200)
 
 #Final Plot cont
-yrs = (yr-yr[0])/365.25
+if plot_PM:
+	yrs = (yr-yr[0])/365.25
 
-fit_meansx = np.array([np.mean(dd) for dd in delta_x])
-fit_meansy = np.array([np.mean(dd) for dd in delta_y])
+	fit_meansx = np.array([np.mean(dd) for dd in delta_x])
+	fit_meansy = np.array([np.mean(dd) for dd in delta_y])
 
-fig, ax = plt.subplots(nrows=2,figsize=[3*2,4*2])
+	fig, ax = plt.subplots(nrows=2,figsize=[3*2,4*2])
 
-for i in range(len(delta_x)):
-	equis = np.zeros(len(delta_x[i])) + yrs[i]
-	ax[0].scatter(equis,delta_x[i],c='#FF5500',lw=0,s=1,rasterized=True)
-	ax[1].scatter(equis,delta_y[i],c='#0055FF',lw=0,s=1,rasterized=True)
+	for i in range(len(delta_x)):
+		equis = np.zeros(len(delta_x[i])) + yrs[i]
+		ax[0].scatter(equis,delta_x[i],c='#FF5500',lw=0,s=1,rasterized=True)
+		ax[1].scatter(equis,delta_y[i],c='#0055FF',lw=0,s=1,rasterized=True)
 
-coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
-coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
+	coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
+	coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
 
-ax[0].plot(yrs[:len(delta_x)],np.polyval(coeffx,yrs[:len(delta_x)]))
-ax[1].plot(yrs[:len(delta_y)],np.polyval(coeffy,yrs[:len(delta_y)]))
+	ax[0].plot(yrs[:len(delta_x)],np.polyval(coeffx,yrs[:len(delta_x)]))
+	ax[1].plot(yrs[:len(delta_y)],np.polyval(coeffy,yrs[:len(delta_y)]))
 
-fig.savefig('final_'+output,dpi=200)
+	fig.savefig('final_'+output,dpi=200)
