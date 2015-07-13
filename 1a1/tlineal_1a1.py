@@ -27,13 +27,13 @@ if len(sys.argv) == 1:
 ## PARAMETROS ##
 
 vecinos = 56							#1 + vecinos (maximo)
-rad_int  = 0							#Radio interior
+rad_int  = 1							#Radio interior
 rad_ext  = 300							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
 refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
-ma1, ma2 = 11,17							#Limites de magnitudes para considerar los datos
+ma1, ma2 = 11,15							#Limites de magnitudes para considerar los datos
 ml1,ml2 = 11,14							#Corte en magnitud para estrellas locales
 
 rad_clu = 280							#Radio en pixeles del cumulo
@@ -42,15 +42,21 @@ mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumu
 
 lim 	= 2								#Limites del plot (cuadrado, por eso es uno)
 
-plot_PM = False 						#Plot de delta x o delta y vs epocas
+plot_PM = True						#Plot de delta x o delta y vs epocas
 
 #Codigo
 
 plt.style.use('ggplot')
 
 folder   = sys.argv[1]
-keywords = sys.argv[2]
-archivos = sorted(glob.glob(folder+keywords))
+
+if sys.argv[2]=='-f':
+	archivos = np.genfromtxt('files_match',unpack=True,dtype='string')
+
+else:
+	keywords = sys.argv[2]
+	archivos = sorted(glob.glob(folder+keywords))
+
 nro_arch = np.size(archivos)
 nro_rows = nro_arch/3 + 1
 
@@ -74,7 +80,6 @@ fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 ad = np.ravel(ax_delta)
 
 fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
-fig.tight_layout()
 
 for i,a in enumerate(np.ravel(ax)):
 	if i == nro_arch:
@@ -82,13 +87,12 @@ for i,a in enumerate(np.ravel(ax)):
 
 	print '\nIteracion %d/%d'%(i+1,ax.size)
 
-	bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 	iid,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
-	mask = (m<ma2)*(m>ma1)
 
 	print 'Estrellas en Epoca: %d'%iid.size
 
 	#Filtro por magnitud de las locales
+	bid    = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 	epinbu = np.in1d(iid,bid)
 
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
@@ -97,6 +101,7 @@ for i,a in enumerate(np.ravel(ax)):
 	epxy = np.transpose([bx2,by2])
 
 	#Filtro por magnitud del catalogo
+	mask = (m<ma2)*(m>ma1)
 	iid,x1,y1,m,x2,y2 = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
 
 	print "Locales filtradas por mag: %d" % bid.size
@@ -106,23 +111,23 @@ for i,a in enumerate(np.ravel(ax)):
 
 		nbrs = NN(n_neighbors=vecinos, algorithm='auto').fit(epxy)
 
-		if rad_int!=0 and rad_ext!=0:
+		if rad_ext!=0:
 			dist, idx = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
 			nbors 	  = np.array([len(d) for d in dist])
 
 			mednbors, minnbors = np.median(nbors),nbors.min()
 
 			for j in range(len(dist)):
-				#Elimina la misma estrella
+				#Elimina la misma estrella y las interiores a rad_int
 				msk	    = (dist[j]!=0)*(dist[j]>=rad_int)
 				dist[j] = dist[j][msk]
 				idx[j]  = idx[j][msk]
 
-
 				#Toma las mas brillantes
 				if len(dist[j])>vecinos:
 					if sort_mag:
-						midx 	= np.argsort(epm[idx[j]])[:vecinos]
+						lbm		= bm[idx[j]]
+						midx 	= np.argsort(lbm)[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
 
@@ -234,6 +239,7 @@ for i,a in enumerate(np.ravel(ax)):
 		print '\nGuardando...\n'
 		fig.savefig(output,dpi=200)
 		fig_delta.savefig('delta_'+output,dpi=200)
+fig.tight_layout()
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
 
@@ -248,8 +254,8 @@ if plot_PM:
 
 	for i in range(len(delta_x)):
 		equis = np.zeros(len(delta_x[i])) + yrs[i]
-		ax[0].scatter(equis,delta_x[i],c='#FF5500',lw=0,s=1,rasterized=True)
-		ax[1].scatter(equis,delta_y[i],c='#0055FF',lw=0,s=1,rasterized=True)
+		ax[0].scatter(yrs[:len(delta_x)],fit_meansx,c='#FF5500',lw=0,s=1,rasterized=True)
+		ax[1].scatter(yrs[:len(delta_y)],fit_meansy,c='#0055FF',lw=0,s=1,rasterized=True)
 
 	coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
 	coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
