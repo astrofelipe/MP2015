@@ -119,7 +119,7 @@ for i,a in enumerate(np.ravel(ax)):
 
 			for j in range(len(dist)):
 				#Elimina la misma estrella y las interiores a rad_int
-				msk	    = (dist[j]!=0)*(dist[j]>=rad_int)
+				msk	    = (dist[j]!=0)*(dist[j]>rad_int)
 				dist[j] = dist[j][msk]
 				idx[j]  = idx[j][msk]
 
