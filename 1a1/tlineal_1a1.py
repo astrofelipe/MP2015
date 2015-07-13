@@ -26,26 +26,21 @@ if len(sys.argv) == 1:
 
 ## PARAMETROS ##
 
-vecinos = 51							#1 + vecinos (maximo)
+vecinos = 56							#1 + vecinos (maximo)
 rad_int  = 0							#Radio interior
-rad_ext  = 0							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
+rad_ext  = 300							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
 refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
-ma1		= 11							#Limite inf de magnitudes para considerar los datos
-ma2		= 15							#Limite sup de magnitudes para considerar los datos
+ma1, ma2 = 11,17							#Limites de magnitudes para considerar los datos
 ml1,ml2 = 11,14							#Corte en magnitud para estrellas locales
 
-rad_clu = 300							#Radio en pixeles del cumulo
+rad_clu = 280							#Radio en pixeles del cumulo
 x0,y0 	= 1352,554						#Coordenadas del centro del cumulo en pixeles
 mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumulo
 
-lim 	= 8								#Limites del plot (cuadrado, por eso es uno)
-
-
-#Con dist:  x0 1352 y0 554 r 280
-#Libralato: x0 1795 y0 -6355 r 300
+lim 	= 2								#Limites del plot (cuadrado, por eso es uno)
 
 #Codigo
 
@@ -58,22 +53,17 @@ nro_arch = np.size(archivos)
 nro_rows = nro_arch/3 + 1
 
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
-yrs = (yr-yr[0])/365.25
 
 def linear(coords,a,b,c):
 	x,y = coords
-	#return a*coords[0] + b*coords[1] + c
 	return a*x + b*y + c
-
-def linear2(x,y,a,b,c):
-	return a*x + b*y + c
-
-delta_x = []
-delta_y = []
 
 def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
+
+delta_x = []
+delta_y = []
 
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 print 'Locales: %d' % bid.size
@@ -92,57 +82,12 @@ for i,a in enumerate(np.ravel(ax)):
 
 	bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 	iid,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
-	#x1,y1,x2,y2 = 10000*np.array([x1,y1,x2,y2])
-	mask			 = (m<ma2)*(m>ma1)
-	#iid,x1,y1,m,x2,y2   = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
+	mask = (m<ma2)*(m>ma1)
+
 	print 'Estrellas en Epoca: %d'%iid.size
-
-	#print id[:-10]
-	#print linear2(x2,y2,1,0,-17.24)[:-10]
-	#print linear2(x2,y2,0,1,8.7682)[:-10]
-
-	'''
-
-	print linear2(2015.206,2070.265,0.999867313,-0.00146659,-17.2477)
-	print linear2(2015.206,2070.265,0.001487624,0.999924547,8.7682)
-
-	tx = linear2(x2,y2,0.999867313,-0.00146659,-17.2477)
-
-	aaa = x1-tx
-	ty = linear2(x2,y2,0.001487624,0.999924547,8.7682)
-	eee = y1-linear2(x2,y2,0.001487624,0.999924547,8.7682)
-	print aaa.min(),eee.min()
-	print aaa.max(),eee.max()
-
-	mask2 = aaa>3
-	print mask2.sum()
-
-
-	print id[mask2]
-	print id2[mask2]
-	print x1[mask2]
-	print tx[mask2]
-	print y1[mask2]
-	print ty[mask2]
-
-	fig, ax = plt.subplots(nrows=2)
-	#ax.hist(aaa,bins=np.linspace(-4,4,100))
-	#ax[0].scatter(x1,aaa,s=5,lw=0)
-	#ax[1].scatter(y1,eee,s=5,lw=0)
-	#ax.scatter(aaa,eee,lw=0,s=2,alpha=.5)
-	#ax.set_aspect('equal')
-	sca = ax[0].scatter(x1,y1,lw=.25,c=aaa,alpha=.5)
-	scb = ax[1].scatter(x1,y1,lw=.25,c=eee,alpha=.5)
-	plt.colorbar(sca,ax=ax[0])
-	plt.colorbar(scb,ax=ax[1])
-	plt.show()
-
-	sys.exit()
-	'''
 
 	#Filtro por magnitud de las locales
 	epinbu = np.in1d(iid,bid)
-	buinep = np.in1d(bid,iid)
 
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([bid,bx1,by1,bm,bx2,by2])[(bm>ml1)*(bm<ml2)].T
@@ -223,22 +168,10 @@ for i,a in enumerate(np.ravel(ax)):
 
 				bar.update()
 
-		'''
-		figa,axa = plt.subplots(nrows=2,ncols=3)
-		for i in range(3):
-			axa[0,i].hist(pxt[:,i],bins=100)
-			axa[1,i].hist(pyt[:,i],bins=100)
-		plt.show()
-		'''
-
-
 	#Global
 	else:
 		poptx, pcovx = curve_fit(linear,[x2,y2],x1)
 		popty, pcovy = curve_fit(linear,[x2,y2],y1)
-
-		print poptx
-		print popty
 
 		ctx = linear([x2,y2],*poptx)
 		cty = linear([x2,y2],*popty)
@@ -303,6 +236,7 @@ fig.savefig(output,dpi=200)
 fig_delta.savefig('delta_'+output,dpi=200)
 
 #Final Plot cont
+yrs = (yr-yr[0])/365.25
 
 fit_meansx = np.array([np.mean(dd) for dd in delta_x])
 fit_meansy = np.array([np.mean(dd) for dd in delta_y])
