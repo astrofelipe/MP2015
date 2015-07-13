@@ -7,7 +7,7 @@ import numpy as np
 import sys
 import os
 
-folder = './%s' % sys.argv[1]
+folder = sys.argv[1]
 
 ###
 ### FUNCIONES
@@ -35,11 +35,11 @@ def XYtoRADEC(ep):
 
 	id,x,y,mag = np.loadtxt(folder+cfn,usecols=range(4),skiprows=3,unpack=True)
 	id = id.astype(int)
-	
+
 	hdr    = fits.open(folder+ffn)[0].header
 	w      = wcs.WCS(hdr)
 	ra,dec = np.transpose(w.wcs_pix2world(np.transpose([x,y]),1))
-	
+
 	head = 'ID RA DEC X Y MAG'
 	fmt  = '%d %.7f %.7f %.3f %.3f %.3f'
 	np.savetxt(folder+ffn.replace('fits','dat'),np.transpose([id,ra,dec,x,y,mag]),header=head,fmt=fmt)
@@ -102,7 +102,7 @@ print '\tMenor seeing en J: %s (%f)' % (cmd_fits[0],js)
 
 #Obtiene los RA y DEC con WCS
 color_print('-Obteniendo RADEC...','cyan')
-if get_RADEC: 
+if get_RADEC:
 	ProgressBar.map(XYtoRADEC,np.transpose([fits_k,catalog_k]),multiprocess=True)
 	ProgressBar.map(XYtoRADEC,np.transpose([fits_j,catalog_j]),multiprocess=True)
 cmd_dat = cmd_fits[0].replace('fits','dat'), cmd_fits[1].replace('fits','dat')
@@ -133,7 +133,7 @@ mid,mx,my,mk,mj = np.genfromtxt(results+'CMD.dat',usecols=(0,3,4,5,11),unpack=Tr
 
 def masterframe(fn):
 	fn = results+match_path+fn.replace('fits','match')
-	
+
 	eid,ex,ey = np.genfromtxt(fn,usecols=(0,16,17),unpack=True)
 	eid = eid.astype(int)
 	epinma	  = np.in1d(eid,mid)
@@ -142,7 +142,7 @@ def masterframe(fn):
 	coords = np.transpose([ex,ey])[epinma].T
 
 	poptX, pcovX = curve_fit(quadratic,coords,mx[mainep])
-	poptY, pcovY = curve_fit(quadratic,coords,my[mainep])	
+	poptY, pcovY = curve_fit(quadratic,coords,my[mainep])
 
 	ptx = quadratic(coords,*poptX)
 	pty = quadratic(coords,*poptY)
@@ -166,7 +166,7 @@ for i in range(master_iterations):
 		for k in range(fits_k.size):
 			masterframe(fits_k[k])
 			bar.update()
-	
+
 	id_counts = np.sum(counts,axis=0)	#Nro de veces que se encontro el ID en la epoca de referencia
 	ep_counts = np.sum(counts,axis=1)	#Nro de estrellas en el match de cada epoca
 
