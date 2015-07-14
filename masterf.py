@@ -175,11 +175,11 @@ for i in range(master_iterations):
 			masterframe(fits_k[k])
 			bar.update()
 
-	print id_counts
-	print ep_counts
-
 	id_counts = np.sum(counts,axis=0)	#Nro de veces que se encontro el ID en la epoca de referencia
 	ep_counts = np.sum(counts,axis=1)	#Nro de estrellas en el match de cada epoca
+
+	print id_counts
+	print ep_counts
 
 	sum_x = np.sum(added_x,axis=0)
 	sum_y = np.sum(added_y,axis=0)
