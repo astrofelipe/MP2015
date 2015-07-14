@@ -1,4 +1,4 @@
-#FR
+#Crea el master frame
 from astropy.io import fits
 from astropy import wcs
 from astropy.utils.console import ProgressBar, color_print
@@ -7,7 +7,16 @@ import numpy as np
 import sys
 import os
 
-folder = sys.argv[1]
+###
+### PARAMETROS
+###
+
+master_iterations = 4
+star_treshold	  = 50
+match_tolerance   = 0.3
+
+import warnings
+warnings.filterwarnings("ignore")
 
 ###
 ### FUNCIONES
@@ -29,7 +38,7 @@ def makedir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 
-#Transforma de XY a RADEC
+#Transforma de XY a RADEC (.dao a .dat)
 def XYtoRADEC(ep):
 	ffn,cfn = ep
 
@@ -44,11 +53,13 @@ def XYtoRADEC(ep):
 	fmt  = '%d %.7f %.7f %.3f %.3f %.3f'
 	np.savetxt(folder+ffn.replace('fits','dat'),np.transpose([id,ra,dec,x,y,mag]),header=head,fmt=fmt)
 
-#Transformacion cuadratica
+#Transformaciones
+def linear(coords,a,b,c):
+	x,y = coords
+	return a + b*c + c*y
+
 def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
-	#a,b,c,d,e,f = params
-
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
 
@@ -57,16 +68,12 @@ def quadratic(coords,a,b,c,d,e,f):
 ##
 
 #Carpetas
+folder 	   = sys.argv[1]
 match_path = 'matched_epochs/'
 results    = folder.replace('/data','').split('_')[0] + '/'
 
 makedir(results)
 makedir(results+match_path)
-
-#Parametros
-master_iterations = 4
-star_treshold	  = 50
-match_tolerance   = 0.3
 
 #Control
 get_RADEC, match_CMD, match_epo = [False for i in range(3)]
@@ -87,7 +94,7 @@ archivos  = np.sort([f for f in os.listdir(folder)])
 fits_all  = np.sort([f for f in archivos if f.endswith('.fits')])
 fits_k    = np.sort([f for f in fits_all if "k" in f])
 fits_j    = np.sort([f for f in fits_all if "j" in f])
-catalog   = np.sort([f for f in archivos if f.endswith('.dao') or f.endswith('.cxc')])
+catalog   = np.sort([f for f in archivos if f.endswith('.dao')])
 catalog_k = np.sort([f for f in catalog if "k" in f])
 catalog_j = np.sort([f for f in catalog if "j" in f])
 
@@ -140,12 +147,13 @@ def masterframe(fn):
 	mainep	  = np.in1d(mid,eid)
 
 	coords = np.transpose([ex,ey])[epinma].T
+	mmx,mmy = mx[mainep],my[mainep]
 
-	poptX, pcovX = curve_fit(quadratic,coords,mx[mainep])
-	poptY, pcovY = curve_fit(quadratic,coords,my[mainep])
+	poptX, pcovX = curve_fit(linear,coords,mmx)
+	poptY, pcovY = curve_fit(linear,coords,mmy)
 
-	ptx = quadratic(coords,*poptX)
-	pty = quadratic(coords,*poptY)
+	ptx = linear(coords,*poptX)
+	pty = linear(coords,*poptY)
 
 	#Anade todo
 	counts[k][mainep]  += 1
@@ -167,11 +175,17 @@ for i in range(master_iterations):
 			masterframe(fits_k[k])
 			bar.update()
 
+	print id_counts
+	print ep_counts
+
 	id_counts = np.sum(counts,axis=0)	#Nro de veces que se encontro el ID en la epoca de referencia
 	ep_counts = np.sum(counts,axis=1)	#Nro de estrellas en el match de cada epoca
 
-	mx = np.divide(np.sum(added_x,axis=0),id_counts)
-	my = np.divide(np.sum(added_y,axis=0),id_counts)
+	sum_x = np.sum(added_x,axis=0)
+	sum_y = np.sum(added_y,axis=0)
+
+	mx = np.divide(sum_x,id_counts)
+	my = np.divide(sum_y,id_counts)
 
 	del counts,added_x,added_y
 
@@ -215,7 +229,3 @@ masterframe = np.transpose([mid,mx,my,mk,mj])[tidx]
 fmt = '%d %.3f %.3f %.3f %.3f'
 hdr = '#ID X Y MAG_K MAG_J'
 np.savetxt(results+'Master.dat',masterframe,fmt=fmt,header=hdr)
-
-
-#import pandas as pd
-#wuo = pd.read_table(results+'CMD.dat',sep=' ',skipinitialspace=True,usecols=[0,3,4],comment='#',header=None)
