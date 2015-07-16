@@ -7,6 +7,7 @@ from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
 from sklearn.neighbors import NearestNeighbors as NN
 from sklearn.neighbors import RadiusNeighborsClassifier as RN
+from astropy.io import fits
 from astropy.utils.console import ProgressBar
 
 #####Informacion extra
@@ -27,8 +28,8 @@ if len(sys.argv) == 1:
 ## PARAMETROS ##
 
 vecinos = 56							#1 + vecinos (maximo)
-rad_int  = 1							#Radio interior
-rad_ext  = 300							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
+rad_int  = 0							#Radio interior
+rad_ext  = 0							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
 refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
@@ -72,6 +73,17 @@ def quadratic(coords,a,b,c,d,e,f):
 
 delta_x = []
 delta_y = []
+
+#Promedios de los 2 grupos (campo y cumulo)
+meansx_clu = np.zeros(nro_arch)
+meansy_clu = np.zeros(nro_arch)
+stdx_clu   = np.zeros(nro_arch)
+stdy_clu   = np.zeros(nro_arch)
+
+meansx_fie = np.zeros(nro_arch)
+meansy_fie = np.zeros(nro_arch)
+stdx_fie   = np.zeros(nro_arch)
+stdy_fie   = np.zeros(nro_arch)
 
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 print 'Locales: %d' % bid.size
@@ -187,6 +199,9 @@ for i,a in enumerate(np.ravel(ax)):
 		nbors = -1
 		mednbors, minnbors = -1,-1
 
+	#Guarda en archivos
+	data = np.transpose([iid,x1-ctx,y1-cty])
+	np.savetxt('PM_%03d.dat' % i, data, header='ID DX DY', fmt='%d %f %f')
 
 	#MAIN PLOT
 
@@ -207,6 +222,16 @@ for i,a in enumerate(np.ravel(ax)):
 	ymean_r = np.mean((y1-cty)[clust*m_clu])
 	xstd_r	= np.std((x1-ctx)[clust*m_clu])
 	ystd_r	= np.std((y1-cty)[clust*m_clu])
+
+	meansx_clu[i] += xmean_r
+	meansy_clu[i] += ymean_r
+	stdx_clu[i]   += xstd_r
+	stdy_clu[i]   += ystd_r
+
+	meansx_fie[i] += xmean_b
+	meansy_fie[i] += ymean_b
+	stdx_fie[i]   += xstd_b
+	stdy_fie[i]   += ystd_b
 
 	a.text(.1,.83,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes)
 	a.text(.1,.69,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes)
@@ -232,8 +257,8 @@ for i,a in enumerate(np.ravel(ax)):
 	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
 
 	#"FINAL" PLOT
-	delta_x.append(dx)
-	delta_y.append(dy)
+	#delta_x.append(dx)
+	#delta_y.append(dy)
 
 	if (i%5)==0:
 		print '\nGuardando...\n'
@@ -245,22 +270,19 @@ fig.savefig(output,dpi=200)
 
 #Final Plot cont
 if plot_PM:
+	nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
 	yrs = (yr-yr[0])/365.25
+	eff_yrs = yrs[nro_epoca-1]
 
-	fit_meansx = np.array([np.mean(dd) for dd in delta_x])
-	fit_meansy = np.array([np.mean(dd) for dd in delta_y])
+	fig, ax = plt.subplots(nrows=2,figsize=[6*2,2*2])
 
-	fig, ax = plt.subplots(nrows=2,figsize=[3*2,4*2])
+	ax[0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=25,rasterized=True)
+	ax[1].plot(eff_yrs,meansy_clu,'.',c='#0055FF',ms=25,rasterized=True)
 
-	for i in range(len(delta_x)):
-		equis = np.zeros(len(delta_x[i])) + yrs[i]
-		ax[0].scatter(yrs[:len(delta_x)],fit_meansx,c='#FF5500',lw=0,s=25,rasterized=True)
-		ax[1].scatter(yrs[:len(delta_y)],fit_meansy,c='#0055FF',lw=0,s=25,rasterized=True)
+	coeffx = np.polyfit(eff_yrs,meansx_clu,1)
+	coeffy = np.polyfit(eff_yrs,meansy_clu,1)
 
-	coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
-	coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
-
-	ax[0].plot(yrs[:len(delta_x)],np.polyval(coeffx,yrs[:len(delta_x)]))
-	ax[1].plot(yrs[:len(delta_y)],np.polyval(coeffy,yrs[:len(delta_y)]))
+	ax[0].plot(eff_yrs,np.polyval(coeffx,eff_yrs))
+	ax[1].plot(eff_yrs,np.polyval(coeffy,eff_yrs))
 
 	fig.savefig('final_'+output,dpi=200)
