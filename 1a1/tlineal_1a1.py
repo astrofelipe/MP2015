@@ -46,7 +46,7 @@ plot_PM = True						#Plot de delta x o delta y vs epocas
 
 #Codigo
 
-plt.style.use('ggplot')
+#plt.style.use('ggplot')
 
 folder   = sys.argv[1]
 
