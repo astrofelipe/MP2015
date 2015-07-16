@@ -254,8 +254,8 @@ if plot_PM:
 
 	for i in range(len(delta_x)):
 		equis = np.zeros(len(delta_x[i])) + yrs[i]
-		ax[0].scatter(yrs[:len(delta_x)],fit_meansx,c='#FF5500',lw=0,s=1,rasterized=True)
-		ax[1].scatter(yrs[:len(delta_y)],fit_meansy,c='#0055FF',lw=0,s=1,rasterized=True)
+		ax[0].scatter(yrs[:len(delta_x)],fit_meansx,c='#FF5500',lw=0,s=25,rasterized=True)
+		ax[1].scatter(yrs[:len(delta_y)],fit_meansy,c='#0055FF',lw=0,s=25,rasterized=True)
 
 	coeffx = np.polyfit(yrs[:len(delta_x)],fit_meansx,1)
 	coeffy = np.polyfit(yrs[:len(delta_y)],fit_meansy,1)
