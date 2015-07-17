@@ -32,13 +32,13 @@ yrs = yrs[1:nro_arch]
 
 dxdy_data = np.genfromtxt('PM.dat')
 
-dx = dxdy_data[:,8::3]
-dy = dxdy_data[:,9::3]
+ids = dxdy_data[:,0]
+mag = dxdy_data[:,5]
+dx  = dxdy_data[:,8::3]
+dy  = dxdy_data[:,9::3]
 
 dx_fin = np.isfinite(dx)
 dy_fin = np.isfinite(dy)
-
-rid = np.genfromtxt(referencia,usecols=(0,),unpack=True)
 
 PM_X = np.zeros(dx_fin.shape[0]) - 999
 PM_Y = np.zeros(dy_fin.shape[0]) - 999
@@ -70,3 +70,5 @@ PM_Y[PM_Y == -999] = np.nan
 fig, ax = plt.subplots()
 ax.plot(PM_X,PM_Y,'.')
 plt.show()
+
+np.savetxt('PM_final.dat',np.transpose([ids,PM_X,PM_Y,mag]))
