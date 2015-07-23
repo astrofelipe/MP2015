@@ -18,6 +18,8 @@ vc_pix = 0.34
 match_folder = 'matched_epochs'
 match_master = 'matched_mf'
 
+stilts_folder = os.path.dirname(os.path.realpath(__file__)) #STILTS debe estar con el archivo .py
+
 #FUNCIONES
 def makedir(directory):
 	if not os.path.exists(directory):
@@ -38,7 +40,7 @@ color_print('Recopilando archivos de epocas...','cyan')
 epochs = glob.glob('./%s/*.*' % matched_epochs)
 
 color_print('Realizando match de la MF con las epocas','cyan')
-ejecuta = 'java -jar stilts.jar tmatch2 in1=%s values1="ID" ifmt1=ascii ' % master
+ejecuta = 'java -jar %s/stilts.jar tmatch2 in1=%s values1="ID" ifmt1=ascii ' % (stilts_folder, master)
 
 for i in range(len(epochs)):
 def mf_match(ep):
