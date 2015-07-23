@@ -44,6 +44,6 @@ ejecuta = 'java -jar %s/stilts.jar tmatch2 in1=%s values1="ID" ifmt1=ascii ' % (
 
 def mf_match(ep):
     ej2 = 'in2=%s values2="ID" ifmt2=ascii matcher=exact find=best join=1and2 out=./%s/%s ofmt=ascii progress=none' % (ep, match_master, ep.split('/')[-1].replace('.match','.mfma'))
-    print ejecuta + ej2
+    os.system(ejecuta + ej2)
 
 ProgressBar.map(mf_match,epochs,multiprocess=True)
