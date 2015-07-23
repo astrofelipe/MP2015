@@ -41,7 +41,7 @@ color_print('Recopilando archivos de epocas...','cyan')
 epochs = glob.glob('./%s/*.*' % match_folder)
 
 color_print('Realizando match de la MF con las epocas','cyan')
-ejecuta = 'java -jar %s/stilts.jar tmatch2 in1=%s values1="ID" ifmt1=ascii ' % (stilts_folder, master)
+ejecuta = 'java -jar %s/stilts.jar tmatch2 in1=./%s values1="ID" ifmt1=ascii ' % (stilts_folder, master)
 
 def mf_match(ep):
     ej2 = 'in2=%s values2="ID_1" ifmt2=ascii icmd2=\'keepcols "ID_1 X_2 Y_2"\' matcher=exact find=best join=1and2 out=./%s/%s ofmt=ascii progress=none' % (ep, match_master, ep.split('/')[-1].replace('.match','.mfma'))
