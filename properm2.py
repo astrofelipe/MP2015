@@ -24,17 +24,18 @@ stilts_folder = os.path.dirname(os.path.realpath(__file__)) #STILTS debe estar c
 
 #FUNCIONES
 def makedir(directory):
-	if not os.path.exists(directory):
-		os.makedirs(directory)
+        if not os.path.exists(directory):
+                os.makedirs(directory)
 
 def linear(coords,a,b,c):
-	x,y = coords
-	return a + b*x + c*y
+        x,y = coords
+        return a + b*x + c*y
 
 #PIPELINE
 folder = sys.argv[1]
 makedir(match_folder)
 makedir(match_master)
+makedir(pm_folder)
 
 color_print('Leyendo informacion de epocas')
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skip_header=6)
@@ -64,8 +65,8 @@ def shift(ep):
     loc_xy = np.transpose([lx2,ly2])
     nbrs   = NN(n_neighbors=vecinos, algorithm='auto').fit(loc_xy)
 
-    coords = np.transpose([x2,y2])
-    dist, idx = nbrs.kneighbors(coords)
+    coo_xy = np.transpose([x2,y2])
+    dist, idx = nbrs.kneighbors(coo_xy)
     idx  = idx[:,1:]
     dist = dist[:,1:]
 
@@ -73,12 +74,12 @@ def shift(ep):
     cty = np.zeros(y1.size)
 
     for i in range(x1.size):
-        star_locales = np.transpose(coords)[idx[i]].T
-        ep1_x = bx1[idx[i]]
-        ep1_y = by1[idx[i]]
+        star_locales = coo_xy[idx[i]]
+        ep1_x = lx1[idx[i]]
+        ep1_y = ly1[idx[i]]
 
-        poptx, pcovx = curve_fit(linear,star_locales,ep1_x)
-        popty, pcovy = curve_fit(linear,star_locales,ep1_y)
+        poptx, pcovx = curve_fit(linear,star_locales.T,ep1_x)
+        popty, pcovy = curve_fit(linear,star_locales.T,ep1_y)
 
         ctx[i] += linear([x2[i],y2[i]],*poptx)
         cty[i] += linear([x2[i],y2[i]],*popty)
@@ -89,6 +90,6 @@ def shift(ep):
     hdr  = 'ID X Y MAG_K MAG_J PMX PMY'
     fmt  = '%d %.3f %.3f %.3f %.3f %f %f'
     data = np.transpose([ids,x1,y1,mk,mj,shift_x,shift_y])
-    np.savetxt(ep.replace('.mfma','.pm'),data,header=hdr,fmt=fmt)
+    np.savetxt('./%s/%s' % (pm_folder,ep.split('/')[-1].replace('.mfma','.pm')), data, header=hdr, fmt=fmt)
 
 ProgressBar.map(shift,matches,multiprocess=True)

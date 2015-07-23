@@ -135,7 +135,7 @@ if match_epo:
 #Crea el Master Frame!
 color_print('-Creando Master Frame...','lightcyan')
 
-mid,mx,my,mk,mj = np.genfromtxt(results+'CMD.dat',usecols=(0,3,4,5,11),unpack=True) #Toma el CMD (epoca de referencia + J)
+mid,mx,my,mk,mj = np.genfromtxt('CMD.dat',usecols=(0,3,4,5,11),unpack=True) #Toma el CMD (epoca de referencia + J)
 #mid,mx,my = mid.astype(np.int32),mx.astype(np.float32),my.astype(np.float32)
 
 def masterframe(fn):
@@ -224,5 +224,5 @@ tidx = id_counts >= star_treshold	#Para descartar las estrellas que se encontrar
 masterframe = np.transpose([mid,mx,my,mk,mj])[tidx]
 
 fmt = '%d %.3f %.3f %.3f %.3f'
-hdr = '#ID X Y MAG_K MAG_J'
-np.savetxt(results+'Master.dat',masterframe,fmt=fmt,header=hdr)
+hdr = 'ID X Y MAG_K MAG_J'
+np.savetxt('Master.dat',masterframe,fmt=fmt,header=hdr)
