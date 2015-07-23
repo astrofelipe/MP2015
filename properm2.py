@@ -32,6 +32,7 @@ def linear(coords,a,b,c):
 #PIPELINE
 folder = sys.argv[1]
 makedir(match_folder)
+makedir(match_master)
 
 color_print('Leyendo informacion de epocas')
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
