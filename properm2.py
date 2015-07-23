@@ -37,7 +37,7 @@ color_print('Leyendo informacion de epocas')
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
 
 color_print('Recopilando archivos de epocas...','cyan')
-epochs = glob.glob('./%s/*.*' % matched_epochs)
+epochs = glob.glob('./%s/*.*' % match_folder)
 
 color_print('Realizando match de la MF con las epocas','cyan')
 ejecuta = 'java -jar %s/stilts.jar tmatch2 in1=%s values1="ID" ifmt1=ascii ' % (stilts_folder, master)
