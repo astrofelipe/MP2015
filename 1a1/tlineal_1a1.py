@@ -170,10 +170,9 @@ for i,a in enumerate(np.ravel(ax)):
 
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
-				#if len(idx[k]) <=3:
-				#	print len(idx[k])
-				#	print 'Muy pocas locales!'
-					#sys.exit()
+				if len(idx[k]) <=3:
+					print 'ERROR: Encontro %d locales!' % len(idx[k])
+					sys.exit()
 
 				coords = np.transpose([bx2,by2])[idx[k]].T
 				#coords = (coords.T - np.mean(coords,axis=1)).T
@@ -184,12 +183,8 @@ for i,a in enumerate(np.ravel(ax)):
 				ep1_x = bx1[idx[k]]# - np.mean(bx1[idx[k]])
 				ep1_y = by1[idx[k]]# - np.mean(by1[idx[k]])
 
-				try:
-					poptx, pcovx = curve_fit(linear,coords,ep1_x)
-					popty, pcovy = curve_fit(linear,coords,ep1_y)
-				except TypeError:
-					print '\n\nMuy pocas locales!'
-					raise
+				poptx, pcovx = curve_fit(linear,coords,ep1_x)
+				popty, pcovy = curve_fit(linear,coords,ep1_y)
 
 				pxt[k] += poptx
 				pyt[k] += popty
