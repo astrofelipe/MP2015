@@ -22,6 +22,7 @@ if len(sys.argv) == 1:
 	print 'si se cambia "<texto para busquedas>" por "-f"'
 	print 'Output: archivo final_test.pdf con ajuste lineal y test.pdf con diagrama PM'
 	print
+	print 'El programa se interrumpira si encuentra menos de 4 estrellas locales.'
 
 	sys.exit(1)
 #Ejecutar como python tlineal_1a1.py <carpeta de las imagenes> <comodines de busqueda (ej *k*001.match)>
@@ -31,13 +32,13 @@ if len(sys.argv) == 1:
 
 vecinos = 56							#1 + vecinos (maximo)
 rad_int  = 0						  #Radio interior
-rad_ext  = 300							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
+rad_ext  = 1000							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
 refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
 ma1, ma2 = 14,15							#Limites de magnitudes para considerar los datos
-ml1,ml2 = 11,14							#Corte en magnitud para estrellas locales
+ml1,ml2 = 11,12							#Corte en magnitud para estrellas locales
 
 rad_clu = 280							#Radio en pixeles del cumulo
 x0,y0	 = 1352,554						#Coordenadas del centro del cumulo en pixeles
@@ -65,6 +66,7 @@ else:
 
 nro_arch = np.size(archivos)
 nro_rows = nro_arch/3 + 1
+nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
 
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
 
@@ -75,6 +77,10 @@ def linear(coords,a,b,c):
 def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
+
+def makedir(directory):
+	if not os.path.exists(directory):
+		os.makedirs(directory)
 
 delta_x = []
 delta_y = []
@@ -172,8 +178,8 @@ for i,a in enumerate(np.ravel(ax)):
 
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
-				if len(idx[k]) <=3:
-					print 'ERROR: Encontro %d locales!' % len(idx[k])
+				if len(idx[k]) < 4:
+					print '\nERROR: Encontro muy pocas locales!'
 					sys.exit()
 
 				coords = np.transpose([bx2,by2])[idx[k]].T
@@ -210,7 +216,8 @@ for i,a in enumerate(np.ravel(ax)):
 
 	#Guarda en archivos
 	data = np.transpose([iid,x1-ctx,y1-cty])
-	np.savetxt('PM_%03d.dat' % i, data, header='ID DX DY', fmt='%d %f %f')
+	makedir('PMs')
+	np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
 
 	#MAIN PLOT
 
@@ -219,8 +226,8 @@ for i,a in enumerate(np.ravel(ax)):
 
 	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
 	a.scatter((x1-ctx)[clust*m_clu],(y1-cty)[clust*m_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-	a.text(.1,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
-	a.text(.9,.9,u'$%d$'%(i+2),transform = a.transAxes,alpha=.66,fontsize=14)
+	a.text(.05,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+	a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
 
 	xmean_b = np.mean((x1-ctx)[~clust])
 	ymean_b = np.mean((y1-cty)[~clust])
@@ -242,8 +249,8 @@ for i,a in enumerate(np.ravel(ax)):
 	stdx_fie[i]   += xstd_b
 	stdy_fie[i]   += ystd_b
 
-	a.text(.1,.83,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes)
-	a.text(.1,.69,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes)
+	a.text(.05,.83,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes,fontsize=10)
+	a.text(.05,.69,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes,fontsize=10)
 	a.set_xlim(-lim,lim)
 	a.set_ylim(-lim,lim)
 	a.set_aspect('equal')
@@ -265,32 +272,32 @@ for i,a in enumerate(np.ravel(ax)):
 	ad[2*i+1].scatter(y1[~clust],dy[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
 
-	#"FINAL" PLOT
-	#delta_x.append(dx)
-	#delta_y.append(dy)
-
-	if (i%5)==0:
-		print '\nGuardando...\n'
+	#if (i%5)==0:
+	if i==2:
+		print '\nGuardando plot de primeras 3 epocas...\n'
 		fig.savefig(output,dpi=200)
 		fig_delta.savefig('delta_'+output,dpi=200)
+print '\nGuardando plot final...'
 fig.tight_layout()
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
 
 #Final Plot cont
 if plot_PM:
-	nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
-	print nro_epoca
+	if len(nro_epoca) < 2:
+		print "Hay solo un catalogo. El plot de delta vs tiempo no se genera."
+		sys.exit()
+
 	yrs = (yr-yr[0])/365.25
 	eff_yrs = yrs[nro_epoca-1]
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 
-	ax[0,0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=25,rasterized=True)
-	ax[0,1].plot(eff_yrs,meansy_clu,'.',c='#FF5500',ms=25,rasterized=True)
+	ax[0,0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=13,rasterized=True)
+	ax[0,1].plot(eff_yrs,meansy_clu,'.',c='#FF5500',ms=13,rasterized=True)
 
-	ax[1,0].plot(eff_yrs,meansx_fie,'.',c='#0055FF',ms=25,rasterized=True)
-	ax[1,1].plot(eff_yrs,meansy_fie,'.',c='#0055FF',ms=25,rasterized=True)
+	ax[1,0].plot(eff_yrs,meansx_fie,'.',c='#0055FF',ms=13,rasterized=True)
+	ax[1,1].plot(eff_yrs,meansy_fie,'.',c='#0055FF',ms=13,rasterized=True)
 
 	coeffxc = np.polyfit(eff_yrs,meansx_clu,1)
 	coeffyc = np.polyfit(eff_yrs,meansy_clu,1)
@@ -304,24 +311,16 @@ if plot_PM:
 	ax[1,0].plot(eff_yrs,np.polyval(coeffxf,eff_yrs))
 	ax[1,1].plot(eff_yrs,np.polyval(coeffyf,eff_yrs))
 
-	#diferencias = (np.abs(np.nanmax(meansx_clu) - np.nanmin(meansx_clu)),
-	#			np.abs(np.nanmax(meansy_clu) - np.nanmin(meansy_clu)),
-	#			np.abs(np.nanmax(meansx_fie) - np.nanmin(meansx_fie)),
-	#			np.abs(np.nanmax(meansy_fie) - np.nanmin(meansy_fie)))
-
 	diferencias = np.zeros(4)
 	for i,a in enumerate(np.ravel(ax)):
 		lmin, lmax = a.get_ylim()
 		diferencias[i] += np.abs(lmax-lmin)
 
 	max_dif = np.nanmax(diferencias)
-	print max_dif
-
 	add_dif = (max_dif - diferencias) / 2.
 
 	for i,a in enumerate(np.ravel(ax)):
 		lmin, lmax = a.get_ylim()
 		a.set_ylim(lmin - add_dif[i], lmax + add_dif[i])
-		print np.diff(a.get_ylim())
 
 	fig.savefig('final_'+output,dpi=200)
