@@ -58,7 +58,7 @@ print '\tEncontradas %d epocas en J' % len(j_files)
 
 #Carga la info de seeing, anios, etc
 color_print('Obteniendo informacion de seeing y BJD...','cyan')
-eps,se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(0,4,5,6))
+eps,se,el,yr = np.genfromtxt(data_folder+'zinfo_img',unpack=True,usecols=(0,4,5,6))
 info_k    = ['k' in e for e in eps]
 info_j    = ['j' in e for e in eps]
 
