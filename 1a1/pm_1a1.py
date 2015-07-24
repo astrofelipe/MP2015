@@ -4,18 +4,24 @@ import glob
 import numpy as np
 import matplotlib.pyplot as plt
 
-match = False
+#PARAMETROS
+threshold = 2
+
+match = True
+stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
 #Lee los archivos con DX DY
 nro_ref    = int(sys.argv[1])
 referencia = glob.glob('*k*%03d.dat' % nro_ref)[0]
 
-archivos   = glob.glob('PM_*')
+archivos   = glob.glob('./PMs/PM_*')
 nro_arch   = len(archivos)
+
+nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 
 #Realiza un match de los IDs de referencia con los DX DY
 if match:
-    ejecuta  = 'java -jar stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % nro_arch
+    ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder,nro_arch)
     ejecuta += 'in1=%s ifmt1=ascii values1="ID" ' % referencia
 
     for i in range(1,nro_arch):
@@ -28,7 +34,7 @@ if match:
 #Calcula los PM
 yr = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,),skiprows=6)
 yrs = (yr-yr[0])/365.25
-yrs = yrs[1:nro_arch]
+yrs = yrs[nro_epoca-1]
 
 dxdy_data = np.genfromtxt('PM.dat')
 
@@ -45,7 +51,7 @@ PM_Y = np.zeros(dy_fin.shape[0]) - 999
 
 for i in range(dx_fin.shape[0]):
     #Calcula PM_X
-    if dx_fin[i].sum() > 49:
+    if dx_fin[i].sum() > threshold:
         ma = dx_fin[i]
         x  = yrs[ma]
         y  = dx[i][ma]
@@ -54,7 +60,7 @@ for i in range(dx_fin.shape[0]):
         PM_X[i] = coeffx[0]
 
     #Calcula PM_Y
-    if dy_fin[i].sum() > 49:
+    if dy_fin[i].sum() > threshold:
         ma = dy_fin[i]
         x  = yrs[ma]
         y  = dy[i][ma]

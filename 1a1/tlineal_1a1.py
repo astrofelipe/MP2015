@@ -47,6 +47,9 @@ mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumu
 lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
 
 plot_PM = True						#Plot de delta x o delta y vs epocas
+plot_delta = False 					#Plot de delta vs x o y
+plot_IDs = True 					#Plot de PM para ciertos IDs
+IDs_file = 'plot_ids'				#Archivo con los IDs a plotear
 
 #Codigo
 
@@ -99,6 +102,13 @@ stdy_fie   = np.zeros(nro_arch)
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 print 'Locales: %d' % bid.size
 
+#Carga los IDs para plotear
+pid = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
+id_pms = np.zeros((nro_arch,pid.size))
+
+print id_pms
+print id_pms.shape
+
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 ad = np.ravel(ax_delta)
 
@@ -126,6 +136,9 @@ for i,a in enumerate(np.ravel(ax)):
 	#Filtro por magnitud del catalogo
 	mask = (m<ma2)*(m>ma1)
 	iid,x1,y1,m,x2,y2 = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
+
+	#Mascara para los IDs a plotear
+	epinid = np.in1d(iid,pid)
 
 	print "Locales filtradas por mag: %d" % bid.size
 	print "Estrellas del catalogo filtrado por mag: %d" %iid.size
@@ -214,6 +227,8 @@ for i,a in enumerate(np.ravel(ax)):
 		nbors = -1
 		mednbors, minnbors = -1,-1
 
+	print iid.size,epinid.size
+
 	#Guarda en archivos
 	data = np.transpose([iid,x1-ctx,y1-cty])
 	makedir('PMs')
@@ -276,7 +291,8 @@ for i,a in enumerate(np.ravel(ax)):
 	if i==2:
 		print '\nGuardando plot de primeras 3 epocas...\n'
 		fig.savefig(output,dpi=200)
-		fig_delta.savefig('delta_'+output,dpi=200)
+		if plot_delta:
+			fig_delta.savefig('delta_'+output,dpi=200)
 print '\nGuardando plot final...'
 fig.tight_layout()
 fig.savefig(output,dpi=200)
