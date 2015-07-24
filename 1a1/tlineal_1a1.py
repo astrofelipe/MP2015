@@ -18,6 +18,8 @@ if len(sys.argv) == 1:
 	print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
 	print
 	print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
+	print 'Funciona con una lista de catalogos (archivo files_match)'
+	print 'si se cambia "<texto para busquedas>" por "-f"'
 	print 'Output: archivo final_test.pdf con ajuste lineal y test.pdf con diagrama PM'
 	print
 

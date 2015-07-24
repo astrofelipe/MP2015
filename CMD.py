@@ -5,6 +5,19 @@ import numpy as np
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
+#####Informacion extra
+if len(sys.argv) == 1:
+
+    print
+    print 'Como ejecutar:', sys.argv[0]
+    print 'python', sys.argv[0], 'Numero de epoca en Ks', 'Numero de epoca en J'
+    print
+    print 'Output: CMD_*-*.dat match de las epocas en J y Ks '
+    print 'Opcionalmente hace el plot del CMD si esta la opcion "-p" luego de la epoca en J'
+    print
+
+    sys.exit(1)
+
 #Numero de epocas a usar
 k_epoch = int(sys.argv[1])
 j_epoch = int(sys.argv[2])
