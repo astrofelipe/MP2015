@@ -51,8 +51,8 @@ if not data_folder.endswith('/'):
 
 #Busca archivos .dao en la carpeta
 color_print('Buscando archivos .dao...','cyan')
-k_files = np.sort(glob.glob('%s*k*.dao') % data_folder)
-j_files = np.sort(glob.glob('%s*j*.dao') % data_folder)
+k_files = np.sort(glob.glob('%s*k*.dao' % data_folder))
+j_files = np.sort(glob.glob('%s*j*.dao' % data_folder))
 print '\tEncontradas %d epocas en Ks' % len(k_files)
 print '\tEncontradas %d epocas en J' % len(j_files)
 
@@ -95,7 +95,7 @@ def match_epo(ep):
 
     os.system(com_epo)
 
-K_dat = np.sort(glob.glob('%s*k*.dat') % data_folder)
+K_dat = np.sort(glob.glob('%s*k*.dat' % data_folder))
 print '\tRealizando match de %d epocas Ks con la de referencia' % len(K_dat)
 ProgressBar.map(match_epo,K_dat)
 
@@ -104,7 +104,7 @@ color_print('Creando Master Frame...','cyan')
 print '\tNumero de iteraciones: %d' % iteraciones
 
 mid,mx,my,mk,mj = np.genfromtxt('CMD.dat',usecols=(0,3,4,5,11),unpack=True)
-K_matches = np.sort(glob.glob('.%s/*k*.match') % match_folder)
+K_matches = np.sort(glob.glob('.%s/*k*.match' % match_folder))
 
 for i in range(iteraciones):
     counts = np.zeros((len(K_matches),mid.size))
