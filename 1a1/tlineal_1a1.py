@@ -18,7 +18,7 @@ if len(sys.argv) == 1:
 	print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
 	print
 	print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
-	print 'Output: archivo final_test.pdf de VPD para imagenes seleccionadas con respecto a archivo de referencia'
+	print 'Output: archivo final_test.pdf con ajuste lineal y test.pdf con diagrama PM'
 	print
 
 	sys.exit(1)
