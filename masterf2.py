@@ -23,17 +23,13 @@ def makedir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 
-def lowest_seeing(epochs):
-    n = len(epochs)
-    s = np.zeros(n)
-
 def linear(coords,a,b,c):
 	x,y = coords
 	return a + b*c + c*y
 
 def XYtoRADEC(ep):
     cfn = ep
-	ffn = ep.replace('.dao','.fits')
+    ffn = ep.replace('.dao','.fits')
 
 	rid,rx,ry,rmag = np.loadtxt(cfn,usecols=range(4),skiprows=3,unpack=True)
 
