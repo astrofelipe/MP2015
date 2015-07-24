@@ -13,35 +13,35 @@ from astropy.utils.console import ProgressBar
 #####Informacion extra
 if len(sys.argv) == 1:
 
-    print
-    print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
-    print
-    print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
-    print 'Output: archivo final_test.pdf de VPD para imagenes seleccionadas con respecto a archivo de referencia'
-    print
+	print
+	print 'Como ejecutar:', sys.argv[0]
+	print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
+	print
+	print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
+	print 'Output: archivo final_test.pdf de VPD para imagenes seleccionadas con respecto a archivo de referencia'
+	print
 
-    sys.exit(1)
+	sys.exit(1)
 #Ejecutar como python tlineal_1a1.py <carpeta de las imagenes> <comodines de busqueda (ej *k*001.match)>
 #Requisito: Archivo 'zinfo_img' en la carpeta de los datos
 
 ## PARAMETROS ##
 
 vecinos = 56							#1 + vecinos (maximo)
-rad_int  = 0							#Radio interior
-rad_ext  = 0							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
+rad_int  = 0						  #Radio interior
+rad_ext  = 300							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
 refer   = 'rgb.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
-ma1, ma2 = 11,15							#Limites de magnitudes para considerar los datos
+ma1, ma2 = 14,15							#Limites de magnitudes para considerar los datos
 ml1,ml2 = 11,14							#Corte en magnitud para estrellas locales
 
 rad_clu = 280							#Radio en pixeles del cumulo
-x0,y0 	= 1352,554						#Coordenadas del centro del cumulo en pixeles
+x0,y0	 = 1352,554						#Coordenadas del centro del cumulo en pixeles
 mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumulo
 
-lim 	= 2								#Limites del plot (cuadrado, por eso es uno)
+lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
 
 plot_PM = True						#Plot de delta x o delta y vs epocas
 
@@ -104,7 +104,7 @@ for i,a in enumerate(np.ravel(ax)):
 	print 'Estrellas en Epoca: %d'%iid.size
 
 	#Filtro por magnitud de las locales
-	bid    = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
+	bid	= np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 	epinbu = np.in1d(iid,bid)
 
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
@@ -125,13 +125,13 @@ for i,a in enumerate(np.ravel(ax)):
 
 		if rad_ext!=0:
 			dist, idx = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
-			nbors 	  = np.array([len(d) for d in dist])
+			nbors	   = np.array([len(d) for d in dist])
 
 			mednbors, minnbors = np.median(nbors),nbors.min()
 
 			for j in range(len(dist)):
 				#Elimina la misma estrella y las interiores a rad_int
-				msk	    = (dist[j]!=0)*(dist[j]>rad_int)
+				msk		= (dist[j]!=0)*(dist[j]>rad_int)
 				dist[j] = dist[j][msk]
 				idx[j]  = idx[j][msk]
 
@@ -139,13 +139,13 @@ for i,a in enumerate(np.ravel(ax)):
 				if len(dist[j])>vecinos:
 					if sort_mag:
 						lbm		= bm[idx[j]]
-						midx 	= np.argsort(lbm)[:vecinos]
+						midx	 = np.argsort(lbm)[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
 
 				#Toma las mas cercanas
 					else:
-						midx 	= np.argsort(dist[j])[:vecinos]
+						midx	 = np.argsort(dist[j])[:vecinos]
 						dist[j] = dist[j][midx]
 						idx[j]  = idx[j][midx]
 
@@ -153,10 +153,10 @@ for i,a in enumerate(np.ravel(ax)):
 		else:
 			dist,idx = nbrs.kneighbors(np.transpose([x2,y2]))
 			idx		 = idx[:,1:]
-			dist 	 = dist[:,1:]
+			dist	  = dist[:,1:]
 
 		means = np.array([np.mean(d) for d in dist])
-		nbors 	  = np.array([len(d) for d in dist])
+		nbors	   = np.array([len(d) for d in dist])
 		mednbors, minnbors = np.median(nbors),nbors.min()
 
 		ctx = np.zeros(x1.size)
@@ -167,6 +167,11 @@ for i,a in enumerate(np.ravel(ax)):
 
 		with ProgressBar(x1.size) as bar:
 			for k in range(x1.size):
+				#if len(idx[k]) <=3:
+				#	print len(idx[k])
+				#	print 'Muy pocas locales!'
+					#sys.exit()
+
 				coords = np.transpose([bx2,by2])[idx[k]].T
 				#coords = (coords.T - np.mean(coords,axis=1)).T
 
@@ -176,8 +181,12 @@ for i,a in enumerate(np.ravel(ax)):
 				ep1_x = bx1[idx[k]]# - np.mean(bx1[idx[k]])
 				ep1_y = by1[idx[k]]# - np.mean(by1[idx[k]])
 
-				poptx, pcovx = curve_fit(linear,coords,ep1_x)
-				popty, pcovy = curve_fit(linear,coords,ep1_y)
+				try:
+					poptx, pcovx = curve_fit(linear,coords,ep1_x)
+					popty, pcovy = curve_fit(linear,coords,ep1_y)
+				except TypeError:
+					print '\n\nMuy pocas locales!'
+					raise
 
 				pxt[k] += poptx
 				pyt[k] += popty
@@ -244,11 +253,11 @@ for i,a in enumerate(np.ravel(ax)):
 	dx = x1-ctx
 	dy = y1-cty
 
-	print '        dx, dy'
-	print 'max:    %f, %f' % (dx.max(),dy.max())
+	print '		dx, dy'
+	print 'max:	%f, %f' % (dx.max(),dy.max())
 	print 'mean:   %f, %f' % (np.mean(dx),np.mean(dy))
 	print 'median: %f, %f' % (np.median(dx),np.median(dy))
-	print 'std:    %f, %f' % (np.std(dx),np.std(dy))
+	print 'std:	%f, %f' % (np.std(dx),np.std(dy))
 
 	ad[2*i].scatter(x1[~clust],dx[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i].scatter(x1[clust*m_clu],dx[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
