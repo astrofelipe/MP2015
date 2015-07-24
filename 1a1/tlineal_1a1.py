@@ -280,18 +280,48 @@ fig.savefig(output,dpi=200)
 #Final Plot cont
 if plot_PM:
 	nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
+	print nro_epoca
 	yrs = (yr-yr[0])/365.25
 	eff_yrs = yrs[nro_epoca-1]
 
-	fig, ax = plt.subplots(nrows=2,figsize=[6*2,2*2])
+	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 
-	ax[0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=25,rasterized=True)
-	ax[1].plot(eff_yrs,meansy_clu,'.',c='#0055FF',ms=25,rasterized=True)
+	ax[0,0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=25,rasterized=True)
+	ax[0,1].plot(eff_yrs,meansy_clu,'.',c='#FF5500',ms=25,rasterized=True)
 
-	coeffx = np.polyfit(eff_yrs,meansx_clu,1)
-	coeffy = np.polyfit(eff_yrs,meansy_clu,1)
+	ax[1,0].plot(eff_yrs,meansx_fie,'.',c='#0055FF',ms=25,rasterized=True)
+	ax[1,1].plot(eff_yrs,meansy_fie,'.',c='#0055FF',ms=25,rasterized=True)
 
-	ax[0].plot(eff_yrs,np.polyval(coeffx,eff_yrs))
-	ax[1].plot(eff_yrs,np.polyval(coeffy,eff_yrs))
+	coeffxc = np.polyfit(eff_yrs,meansx_clu,1)
+	coeffyc = np.polyfit(eff_yrs,meansy_clu,1)
+
+	coeffxf = np.polyfit(eff_yrs,meansx_fie,1)
+	coeffyf = np.polyfit(eff_yrs,meansy_fie,1)
+
+	ax[0,0].plot(eff_yrs,np.polyval(coeffxc,eff_yrs))
+	ax[0,1].plot(eff_yrs,np.polyval(coeffyc,eff_yrs))
+
+	ax[1,0].plot(eff_yrs,np.polyval(coeffxf,eff_yrs))
+	ax[1,1].plot(eff_yrs,np.polyval(coeffyf,eff_yrs))
+
+	#diferencias = (np.abs(np.nanmax(meansx_clu) - np.nanmin(meansx_clu)),
+	#			np.abs(np.nanmax(meansy_clu) - np.nanmin(meansy_clu)),
+	#			np.abs(np.nanmax(meansx_fie) - np.nanmin(meansx_fie)),
+	#			np.abs(np.nanmax(meansy_fie) - np.nanmin(meansy_fie)))
+
+	diferencias = np.zeros(4)
+	for i,a in enumerate(np.ravel(ax)):
+		lmin, lmax = a.get_ylim()
+		diferencias[i] += np.abs(lmax-lmin)
+
+	max_dif = np.nanmax(diferencias)
+	print max_dif
+
+	add_dif = (max_dif - diferencias) / 2.
+
+	for i,a in enumerate(np.ravel(ax)):
+		lmin, lmax = a.get_ylim()
+		a.set_ylim(lmin - add_dif[i], lmax + add_dif[i])
+		print np.diff(a.get_ylim())
 
 	fig.savefig('final_'+output,dpi=200)
