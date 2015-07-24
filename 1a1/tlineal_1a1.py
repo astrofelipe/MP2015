@@ -50,6 +50,9 @@ plot_PM = True						#Plot de delta x o delta y vs epocas
 #plt.style.use('ggplot')
 
 folder   = sys.argv[1]
+if not os.path.isfile(folder+refer):
+    print '\nNo encuenta archivo de locales', refer
+    sys.exit(1)
 
 if sys.argv[2]=='-f':
 	archivos = np.genfromtxt('files_match',unpack=True,dtype='string')
