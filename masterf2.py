@@ -31,17 +31,17 @@ def XYtoRADEC(ep):
     cfn = ep
     ffn = ep.replace('.dao','.fits')
 
-	rid,rx,ry,rmag = np.loadtxt(cfn,usecols=range(4),skiprows=3,unpack=True)
+    rid,rx,ry,rmag = np.loadtxt(cfn,usecols=range(4),skiprows=3,unpack=True)
 
-	hdr    = fits.getheader(ffn)
-	w      = wcs.WCS(hdr)
+    hdr    = fits.getheader(ffn)
+    w      = wcs.WCS(hdr)
     rcoo   = np.transpose([rx,ry])
-	ra,dec = np.transpose(w.wcs_pix2world(rcoo,1))
+    ra,dec = np.transpose(w.wcs_pix2world(rcoo,1))
 
-	head = 'ID RA DEC X Y MAG'
-	fmt  = '%d %f %f %.3f %.3f %.3f'
+    head = 'ID RA DEC X Y MAG'
+    fmt  = '%d %f %f %.3f %.3f %.3f'
     of   = ep.replace('.dao','.dat')
-	np.savetxt('./%s/%s' % (matched_epochs,of),np.transpose([rid,ra,dec,rx,ry,rmag]),header=head,fmt=fmt)
+    np.savetxt('./%s/%s' % (matched_epochs,of),np.transpose([rid,ra,dec,rx,ry,rmag]),header=head,fmt=fmt)
 
 
 #PIPELINE
