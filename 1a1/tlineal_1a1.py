@@ -141,7 +141,7 @@ for i,a in enumerate(np.ravel(ax)):
 	iid,x1,y1,m,x2,y2 = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
 
 	#Mascara para los IDs a plotear
-	epinid = np.in1d(iid,pid)
+	#epinid = np.in1d(iid,pid)
 
 	print "Locales filtradas por mag: %d" % bid.size
 	print "Estrellas del catalogo filtrado por mag: %d" %iid.size
