@@ -108,10 +108,6 @@ stdy_fie   = np.zeros(nro_arch)
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 print 'Locales: %d' % bid.size
 
-#Carga los IDs para plotear
-pid = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
-#id_pms = np.zeros((nro_arch,pid.size))
-
 #print id_pms
 #print id_pms.shape
 
@@ -310,6 +306,11 @@ fig.tight_layout()
 fig.subplots_adjust(top=0.95)
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
+
+#Carga los IDs para plotear
+if plot_IDs:
+	pid = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
+	id_pms = np.zeros((nro_arch,pid.size))
 
 #Final Plot cont
 if plot_PM:
