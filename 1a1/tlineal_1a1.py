@@ -51,7 +51,7 @@ lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
 
 plot_PM = True						#Plot de delta x o delta y vs epocas
 plot_delta = False 					#Plot de delta vs x o y
-plot_IDs = False 					#Plot de PM para ciertos IDs
+plot_IDs = True 					#Plot de PM para ciertos IDs
 IDs_file = 'plot_ids'				#Archivo con los IDs a plotear
 
 #Codigo
@@ -112,12 +112,6 @@ if plot_IDs:
 	pid   = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
 	pdx,pdy 	  = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
 	pdx,pdy = pdx - 9999, pdy - 9999
-
-	print pid
-	print pdx
-	print pdy
-
-	sys.exit()
 
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 ad = np.ravel(ax_delta)
@@ -306,6 +300,10 @@ for i,a in enumerate(np.ravel(ax)):
 	if plot_IDs:
 		pidinep = np.in1d(iid,pid)
 
+		if np.any(pidinep):
+			pdx[:,i] = (x1 - ctx)[pidinep]
+			pdy[:,i] = (y1 - cty)[pidinep]
+
 	#if (i%5)==0:
 	if i==2:
 		print '\nGuardando plot de primeras 3 epocas...\n'
@@ -319,14 +317,27 @@ fig.subplots_adjust(top=0.95)
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
 
+yrs = (yr-yr[0])/365.25
+eff_yrs = yrs[nro_epoca-1]
+
+#Plot estrellas individuales
+if plot_IDs:
+	for i in range(len(pdx)):
+		fig, ax = plt.subplots(nrows=2, figsize=[4*2,3*2])
+		poptx, pcovx = curve_fit(recta, eff_yrs, pdx[i], sigma=1, absolute_sigma=False)
+		ax[0].plot(eff_yrs, pdx[i], '.', ms=13, rasterized=True)
+		ax[0].plot(eff_yrs, recta(eff_yrs, *poptx))
+		popty, pcovy = curve_fit(recta, eff_yrs, pdy[i], sigma=1, absolute_sigma=False)
+		ax[1].plot(eff_yrs, pdy[i], '.', ms=13, rasterized=True)
+		ax[1].plot(eff_yrs, recta(eff_yrs, *popty))
+		fig.tight_layout()
+		fig.savefig('%s.png' % pid[i])
+
 #Final Plot cont
 if plot_PM:
 	if len(nro_epoca) < 2:
 		print "Hay solo un catalogo. El plot de delta vs tiempo no se genera."
 		sys.exit()
-
-	yrs = (yr-yr[0])/365.25
-	eff_yrs = yrs[nro_epoca-1]
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 

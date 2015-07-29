@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 #PARAMETROS
-threshold = 2
+threshold = 50
 
 match = True
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
