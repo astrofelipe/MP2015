@@ -314,6 +314,8 @@ if plot_PM:
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 
+	fig.suptitle('Vecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2 )
+
 	ax[0,0].errorbar(eff_yrs, meansx_clu, yerr=stdx_clu ,fmt='.', c='#FF5500', ms=13, rasterized=True)
 	ax[0,1].errorbar(eff_yrs, meansy_clu, yerr=stdy_clu, fmt='.', c='#FF5500', ms=13, rasterized=True)
 
