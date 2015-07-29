@@ -51,7 +51,7 @@ lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
 
 plot_PM = True						#Plot de delta x o delta y vs epocas
 plot_delta = False 					#Plot de delta vs x o y
-plot_IDs = True 					#Plot de PM para ciertos IDs
+plot_IDs = False 					#Plot de PM para ciertos IDs
 IDs_file = 'plot_ids'				#Archivo con los IDs a plotear
 
 #Codigo
@@ -108,8 +108,16 @@ stdy_fie   = np.zeros(nro_arch)
 bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
 print 'Locales: %d' % bid.size
 
-#print id_pms
-#print id_pms.shape
+if plot_IDs:
+	pid   = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
+	pdx,pdy 	  = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
+	pdx,pdy = pdx - 9999, pdy - 9999
+
+	print pid
+	print pdx
+	print pdy
+
+	sys.exit()
 
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 ad = np.ravel(ax_delta)
@@ -294,6 +302,10 @@ for i,a in enumerate(np.ravel(ax)):
 	ad[2*i+1].scatter(y1[~clust],dy[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
 	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
 
+	#Plot IDs
+	if plot_IDs:
+		pidinep = np.in1d(iid,pid)
+
 	#if (i%5)==0:
 	if i==2:
 		print '\nGuardando plot de primeras 3 epocas...\n'
@@ -306,11 +318,6 @@ fig.tight_layout()
 fig.subplots_adjust(top=0.95)
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
-
-#Carga los IDs para plotear
-if plot_IDs:
-	pid = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
-	id_pms = np.zeros((nro_arch,pid.size))
 
 #Final Plot cont
 if plot_PM:
