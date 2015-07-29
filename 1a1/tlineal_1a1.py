@@ -2,6 +2,8 @@ import numpy as np
 import os
 import sys
 import glob
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
@@ -80,6 +82,9 @@ def linear(coords,a,b,c):
 def quadratic(coords,a,b,c,d,e,f):
 	x,y = coords
 	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
+
+def recta(x,a,b):
+	return a*x + b
 
 def makedir(directory):
 	if not os.path.exists(directory):
@@ -309,23 +314,27 @@ if plot_PM:
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 
-	ax[0,0].plot(eff_yrs,meansx_clu,'.',c='#FF5500',ms=13,rasterized=True)
-	ax[0,1].plot(eff_yrs,meansy_clu,'.',c='#FF5500',ms=13,rasterized=True)
+	ax[0,0].errorbar(eff_yrs, meansx_clu, yerr=stdx_clu ,fmt='.', c='#FF5500', ms=13, rasterized=True)
+	ax[0,1].errorbar(eff_yrs, meansy_clu, yerr=stdy_clu, fmt='.', c='#FF5500', ms=13, rasterized=True)
 
-	ax[1,0].plot(eff_yrs,meansx_fie,'.',c='#0055FF',ms=13,rasterized=True)
-	ax[1,1].plot(eff_yrs,meansy_fie,'.',c='#0055FF',ms=13,rasterized=True)
+	ax[1,0].errorbar(eff_yrs, meansx_fie, yerr=stdx_fie, fmt='.', c='#0055FF', ms=13, rasterized=True)
+	ax[1,1].errorbar(eff_yrs, meansy_fie, yerr=stdy_fie, fmt='.', c='#0055FF', ms=13, rasterized=True)
 
-	coeffxc = np.polyfit(eff_yrs,meansx_clu,1)
-	coeffyc = np.polyfit(eff_yrs,meansy_clu,1)
+	poptrxc, pcovrxc = curve_fit(recta, eff_yrs, meansx_clu, sigma=stdx_clu, absolute_sigma=True)
+	poptryc, pcovryc = curve_fit(recta, eff_yrs, meansy_clu, sigma=stdy_clu, absolute_sigma=True)
 
-	coeffxf = np.polyfit(eff_yrs,meansx_fie,1)
-	coeffyf = np.polyfit(eff_yrs,meansy_fie,1)
+	poptrxf, pcovrxf = curve_fit(recta, eff_yrs, meansx_fie, sigma=stdx_fie, absolute_sigma=True)
+	poptryf, pcovryf = curve_fit(recta, eff_yrs, meansy_fie, sigma=stdy_fie, absolute_sigma=True)
 
-	ax[0,0].plot(eff_yrs,np.polyval(coeffxc,eff_yrs))
-	ax[0,1].plot(eff_yrs,np.polyval(coeffyc,eff_yrs))
+	ax[0,0].plot(eff_yrs, recta(eff_yrs, *poptrxc))
+	ax[0,0].text(.6,.8,r'$y = %fx + %f$' % tuple(poptrxc),transform=ax[0,0].transAxes)
+	ax[0,1].plot(eff_yrs, recta(eff_yrs, *poptryc))
+	ax[0,1].text(.6,.8,r'$y = %fx + %f$' % tuple(poptryc),transform=ax[0,1].transAxes)
 
-	ax[1,0].plot(eff_yrs,np.polyval(coeffxf,eff_yrs))
-	ax[1,1].plot(eff_yrs,np.polyval(coeffyf,eff_yrs))
+	ax[1,0].plot(eff_yrs, recta(eff_yrs, *poptrxf))
+	ax[1,0].text(.6,.8,r'$y = %fx + %f$' % tuple(poptrxf),transform=ax[1,0].transAxes)
+	ax[1,1].plot(eff_yrs, recta(eff_yrs, *poptryf))
+	ax[1,1].text(.6,.8,r'$y = %fx + %f$' % tuple(poptryf),transform=ax[1,1].transAxes)
 
 	diferencias = np.zeros(4)
 	for i,a in enumerate(np.ravel(ax)):
@@ -339,4 +348,5 @@ if plot_PM:
 		lmin, lmax = a.get_ylim()
 		a.set_ylim(lmin - add_dif[i], lmax + add_dif[i])
 
+	fig.tight_layout()
 	fig.savefig('final_'+output,dpi=200)
