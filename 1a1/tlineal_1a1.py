@@ -110,10 +110,10 @@ print 'Locales: %d' % bid.size
 
 #Carga los IDs para plotear
 pid = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
-id_pms = np.zeros((nro_arch,pid.size))
+#id_pms = np.zeros((nro_arch,pid.size))
 
-print id_pms
-print id_pms.shape
+#print id_pms
+#print id_pms.shape
 
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 ad = np.ravel(ax_delta)
@@ -321,8 +321,6 @@ if plot_PM:
 	eff_yrs = yrs[nro_epoca-1]
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
-
-	fig.suptitle('Vecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2 )
 
 	ax[0,0].errorbar(eff_yrs, meansx_clu, yerr=stdx_clu ,fmt='.', c='#FF5500', ms=13, rasterized=True)
 	ax[0,1].errorbar(eff_yrs, meansy_clu, yerr=stdy_clu, fmt='.', c='#FF5500', ms=13, rasterized=True)
