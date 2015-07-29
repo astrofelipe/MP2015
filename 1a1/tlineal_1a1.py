@@ -36,15 +36,16 @@ vecinos = 56							#1 + vecinos (maximo)
 rad_int  = 0						  #Radio interior
 rad_ext  = 1000							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
 output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
-refer   = 'rgb.dat'			#Catalogo con las estrellas locales
+refer   = 'locales0.dat'			#Catalogo con las estrellas locales
 sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
 local   = True							#True para usar transf locales, False para usar global
-ma1, ma2 = 14,15							#Limites de magnitudes para considerar los datos
+ma1,ma2 = 11,14							#Limites de magnitudes para considerar los datos
 ml1,ml2 = 11,12							#Corte en magnitud para estrellas locales
+mr1,mr2 = 11,12							#Magnitud para plotear las locales
 
-rad_clu = 280							#Radio en pixeles del cumulo
-x0,y0	 = 1352,554						#Coordenadas del centro del cumulo en pixeles
-mc1,mc2 = 11,15							#Limitde de magnitudes para plotear las estrellas del cumulo
+
+rad_clu = 3000							#Radio en pixeles para las locales
+x0,y0	 = 1352,554						#Coordenadas del centro del cumulo (locales) en pixeles
 
 lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
 
@@ -134,6 +135,7 @@ for i,a in enumerate(np.ravel(ax)):
 	epinbu = np.in1d(iid,bid)
 
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
+	bbid = np.copy(bid)
 	bid,bx1,by1,bm,bx2,by2 = np.transpose([bid,bx1,by1,bm,bx2,by2])[(bm>ml1)*(bm<ml2)].T
 
 	epxy = np.transpose([bx2,by2])
@@ -232,8 +234,6 @@ for i,a in enumerate(np.ravel(ax)):
 		nbors = -1
 		mednbors, minnbors = -1,-1
 
-	print iid.size,epinid.size
-
 	#Guarda en archivos
 	data = np.transpose([iid,x1-ctx,y1-cty])
 	makedir('PMs')
@@ -241,12 +241,18 @@ for i,a in enumerate(np.ravel(ax)):
 
 	#MAIN PLOT
 
-	m_clu = (m>mc1)*(m<mc2)
-	clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
+	clust  = np.in1d(iid,bbid)
+	m_clu  = (m>mr1)*(m<mr2)
+	r_clu  = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
+
+	#m_clu = (m>mc1)*(m<mc2)
+	#clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
 
 	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
-	a.scatter((x1-ctx)[clust*m_clu],(y1-cty)[clust*m_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-	a.text(.05,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu).sum(),clust.size,np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+	a.scatter((x1-ctx)[clust*m_clu*r_clu],(y1-cty)[clust*m_clu*r_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
+	#a.scatter((x1-ctx)[~m_loc],(y1-cty)[~m_loc],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
+	#a.scatter((x1-ctx)[m_loc*m_loc2],(y1-cty)[m_loc*m_loc2],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
+	a.text(.05,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu*r_clu).sum(),(~clust).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
 	a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
 
 	xmean_b = np.mean((x1-ctx)[~clust])
@@ -254,10 +260,10 @@ for i,a in enumerate(np.ravel(ax)):
 	xstd_b	= np.std((x1-ctx)[~clust])
 	ystd_b	= np.std((y1-cty)[~clust])
 
-	xmean_r = np.mean((x1-ctx)[clust*m_clu])
-	ymean_r = np.mean((y1-cty)[clust*m_clu])
-	xstd_r	= np.std((x1-ctx)[clust*m_clu])
-	ystd_r	= np.std((y1-cty)[clust*m_clu])
+	xmean_r = np.mean((x1-ctx)[clust*m_clu*r_clu])
+	ymean_r = np.mean((y1-cty)[clust*m_clu*r_clu])
+	xstd_r	= np.std((x1-ctx)[clust*m_clu*r_clu])
+	ystd_r	= np.std((y1-cty)[clust*m_clu*r_clu])
 
 	meansx_clu[i] += xmean_r
 	meansy_clu[i] += ymean_r
@@ -299,7 +305,9 @@ for i,a in enumerate(np.ravel(ax)):
 		if plot_delta:
 			fig_delta.savefig('delta_'+output,dpi=200)
 print '\nGuardando plot final...'
+fig.suptitle('Vecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % (vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2) )
 fig.tight_layout()
+fig.subplots_adjust(top=0.95)
 fig.savefig(output,dpi=200)
 #fig_delta.savefig('delta_'+output,dpi=200)
 
@@ -350,5 +358,7 @@ if plot_PM:
 		lmin, lmax = a.get_ylim()
 		a.set_ylim(lmin - add_dif[i], lmax + add_dif[i])
 
+	fig.suptitle('\nVecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % (vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2) )
 	fig.tight_layout()
+	fig.subplots_adjust(top=0.85)
 	fig.savefig('final_'+output,dpi=200)
