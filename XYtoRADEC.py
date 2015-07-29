@@ -5,6 +5,9 @@ from astropy import wcs
 from astropy.utils.console import ProgressBar, color_print
 import os
 import sys
+import warnings
+
+warnings.filterwarnings("ignore")
 
 #####Informacion extra
 if len(sys.argv) == 1:
