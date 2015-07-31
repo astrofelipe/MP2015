@@ -1,18 +1,23 @@
-# Genera listas de archivos
-
-# Ejecutar como
-# python select_files.py <keywords> <output> [<rango de archivos> <intervalo de archivos>]
-
-# Los parametros entre [] son opcionales, pero deben ir ambos si es que se usan
-
-# El rango de archivos debe tener el formato "archivo_inicial-archivo_final" ej. "4-10" (sin comillas)
-
-# El intervalo de archivos define cada cuantas epocas va a guardar, ej "4-10 2"
-# guarda los archivos encontrados numero 4, 6, 8 y 10
-
 import glob
 import sys
 import numpy as np
+
+#####Informacion extra
+if len(sys.argv) == 1:
+
+	print
+	print 'Como ejecutar:', sys.argv[0]
+	print 'python', sys.argv[0], '<keywords> <output> [<rango de archivos> <intervalo de archivos>]'
+	print
+	print 'Genera listas de archivos'
+	print     
+	print 'Los parametros entre [] son opcionales, pero deben ir ambos si es que se usan'
+	print 'El rango de archivos debe tener el formato "archivo_inicial-archivo_final" ej. "4-10" (sin comillas)'
+	print 'El intervalo de archivos define cada cuantas epocas va a guardar'
+	print 'Output: "4-10 2": guarda los archivos encontrados numero 4, 6, 8 y 10'
+	print
+
+	sys.exit(1)
 
 keywords = sys.argv[1]
 output   = sys.argv[2]
