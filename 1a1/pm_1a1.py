@@ -32,7 +32,12 @@ if match:
     os.system(ejecuta)
 
 #Calcula los PM
-yr = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,),skiprows=6)
+yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
+yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
+
+yr_ma = ['k' in y for y in yep]
+yr    = yr[yr_ma]
+
 yrs = (yr-yr[0])/365.25
 yrs = yrs[nro_epoca-1]
 
