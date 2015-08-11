@@ -5,14 +5,16 @@ import numpy as np
 from sklearn.neighbors import NearestNeighbors as NN
 from astropy.utils.console import ProgressBar, color_print
 from scipy.optimize import curve_fit
+from fit import polyfitr
 
 #PARAMETROS
 vecinos = 56
-output  = 'PM_.dat'
-locales = 'disk.dat'
+output  = 'PM_'
+locales = 'brgb.dat'
 master  = 'Master.dat'
 ma1,ma2 = 9, 20
 ml1,ml2 = 11, 14
+thresh  = 40
 
 vc_pix = 0.34
 
@@ -24,12 +26,16 @@ stilts_folder = os.path.dirname(os.path.realpath(__file__)) #STILTS debe estar c
 
 #FUNCIONES
 def makedir(directory):
-        if not os.path.exists(directory):
-                os.makedirs(directory)
+	if not os.path.exists(directory):
+		os.makedirs(directory)
 
 def linear(coords,a,b,c):
-        x,y = coords
-        return a + b*x + c*y
+	x,y = coords
+	return a + b*x + c*y
+
+def quad(coords,a,b,c,d,e,f):
+	x,y = coords
+	return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
 #PIPELINE
 folder = sys.argv[1]
@@ -37,8 +43,12 @@ makedir(match_folder)
 makedir(match_master)
 makedir(pm_folder)
 
-color_print('Leyendo informacion de epocas')
-se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skip_header=6)
+color_print('Leyendo informacion de epocas','cyan')
+se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6))
+name     = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(0,),dtype='string')
+k_mask   = np.array(['k' in f for f in name])
+sek,elk,yrk = np.transpose([se,el,yr])[k_mask].T
+yrk = (yrk-yrk[0])/365.242199
 
 color_print('Recopilando archivos de epocas...','cyan')
 epochs = glob.glob('./%s/*.*' % match_folder)
@@ -52,7 +62,7 @@ def mf_match(ep):
 
 ProgressBar.map(mf_match,epochs,multiprocess=True)
 
-color_print('Realizando transformaciones lineales')
+color_print('Realizando transformaciones lineales','cyan')
 matches = glob.glob('./%s/*.*' % match_master)
 bid     = np.genfromtxt(locales,unpack=True,usecols=(0,))
 
@@ -74,7 +84,7 @@ def shift(ep):
     cty = np.zeros(y1.size)
 
     for i in range(x1.size):
-        star_locales = coo_xy[idx[i]]
+        star_locales = loc_xy[idx[i]]
         ep1_x = lx1[idx[i]]
         ep1_y = ly1[idx[i]]
 
@@ -93,3 +103,51 @@ def shift(ep):
     np.savetxt('./%s/%s' % (pm_folder,ep.split('/')[-1].replace('.mfma','.pm')), data, header=hdr, fmt=fmt)
 
 ProgressBar.map(shift,matches,multiprocess=True)
+
+color_print('Calculando PMs...','cyan')
+shifts = np.sort(glob.glob('./%s/*k*.*' % pm_folder))
+print '\tRealizando match de los desplazamientos por epoca...'
+ejec  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, len(shifts)+1)
+ejec += 'in1=%s ifmt1=ascii values1="ID" ' % master
+
+for i in range(1,len(shifts)+1):
+	ejec += 'in%d=%s ifmt%d=ascii values%d="ID" ' % (i+1, shifts[i-1], i+1, i+1)
+ejec += ' join1=match out=./%s/match.pm ofmt=ascii' % (pm_folder)
+os.system(ejec)
+
+shift_data = np.genfromtxt('./%s/match.pm' % pm_folder, unpack=True)
+
+ids,x,y,mag,col = shift_data[0:5]
+dx  = shift_data[10::7]
+dy  = shift_data[11::7]
+
+PM_X, PM_Y = np.empty(dx.shape[1]), np.empty(dy.shape[1])
+PM_X[:], PM_Y[:] = np.nan, np.nan
+
+dx_fin = np.isfinite(dx)
+dy_fin = np.isfinite(dy)
+
+with ProgressBar(len(dx.T)) as bar:
+    for i in range(len(dx.T)):
+        if dx_fin[:,i].sum() > thresh:
+            ma = dx_fin[:,i]
+            xx = yrk[ma]
+            yy = dx[:,i][ma]
+            try:
+                #coeffx  = polyfitr(xx,yy,order=1,clip=3)[0]
+                coeffx  = np.polyfit(xx,yy,1)
+		PM_X[i] = coeffx[0]
+
+                yy = dy[:,i][ma]
+		coeffx  = np.polyfit(xx,yy,1)
+                #coeffy  = polyfitr(xx,yy,order=1,clip=3)[0]
+                PM_Y[i] = coeffy[0]
+            except:
+                continue
+        bar.update()
+
+fmt = '%d %.3f %.3f %.3f %.3f %f %f'
+hdr = 'ID X Y MAG_K COL_JK PM_X PM_Y'
+np.savetxt(output+locales, np.transpose([ids,x,y,mag,col,PM_X,PM_Y]), fmt=fmt, header=hdr)
+
+#10 7
