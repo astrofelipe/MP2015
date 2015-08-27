@@ -17,11 +17,12 @@ if len(sys.argv) == 1:
 
 	print
 	print 'Como ejecutar:', sys.argv[0]
-	print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
+	print 'python', sys.argv[0], 'path/to/catalogs/', '<input>'
+	print 'input debe ser al menos un catalogo .match'
 	print
 	print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
-	print 'Funciona con una lista de catalogos (archivo files_match)'
-	print 'si se cambia "<texto para busquedas>" por "-f"'
+	print 'Con -f en vez de <input>, usa una lista de catalogos (archivo files_match)'
+	print
 	print 'Output: archivo final_test.pdf con ajuste lineal y test.pdf con diagrama PM'
 	print
 	print 'El programa se interrumpira si encuentra menos de 4 estrellas locales.'
