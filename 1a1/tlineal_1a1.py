@@ -15,65 +15,74 @@ from astropy.utils.console import ProgressBar
 #####Informacion extra
 if len(sys.argv) == 1:
 
-	print
-	print 'Como ejecutar:', sys.argv[0]
-	print 'python', sys.argv[0], 'path/to/catalogs/', '<input>'
-	print 'input debe ser al menos un catalogo .match'
-	print
-	print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
-	print 'Con -f en vez de <input>, usa una lista de catalogos (archivo files_match)'
-	print
-	print 'Output: archivo final_test.pdf con ajuste lineal y test.pdf con diagrama PM'
-	print
-	print 'El programa se interrumpira si encuentra menos de 4 estrellas locales.'
+    print
+    print 'Como ejecutar:', sys.argv[0]
+    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
+    print
+    print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
+    print 'Funciona con una lista de catalogos (archivo files_match)'
+    print 'si se cambia "<texto para busquedas>" por "-f"'
+    print 'Outputs:'
+    print 'output.psf: delta_x vs delta_y para cada catalogo'
+    print 'output_del_xy.pdf: delta_x vs x + delta_y vs y'
+    print 'output_del_ep.pdf: med_delta vs time'
+    print 'El programa se interrumpira si encuentra menos de 4 estrellas locales.'
 
-	sys.exit(1)
+    sys.exit(1)
+
 #Ejecutar como python tlineal_1a1.py <carpeta de las imagenes> <comodines de busqueda (ej *k*001.match)>
 #Requisito: Archivo 'zinfo_img' en la carpeta de los datos
 
 ## PARAMETROS ##
+## Las estrellas de referencia (refstars) son las que se usan para llevar a cabo las transformaciones
+## de coordenadas de cada estrella analizada
 
-vecinos = 56							#1 + vecinos (maximo)
-rad_int  = 0						  #Radio interior
-rad_ext  = 1000							#Radio exterior (Ambos en 0 = vecinos mas cercanos)
-output  = 'test.pdf'					#PDF de Output (verificar siempre o se reemplazara sin avisar!)
-refer   = 'locales0.dat'			#Catalogo con las estrellas locales
-sort_mag = True							#Ordenar vecinos segun magnitud (toma los mas brillantes)
-local   = True							#True para usar transf locales, False para usar global
-ma1,ma2 = 11,14							#Limites de magnitudes para considerar los datos
-ml1,ml2 = 11,12							#Corte en magnitud para estrellas locales
-mr1,mr2 = 11,12							#Magnitud para plotear las locales
+nrefstars = 11		 #numero de refstars(+1) deseadas
+rad_int = 1		 #Radio interior
+rad_ext = 500		 #Radio exterior (0 -> selecciona nrefstars mas cercanas)
+output  = 'test'	 #PDF de Output (reemplazara sin avisar!)
+refer   = 'refstars.mat' #Catalogo con las estrellas de referencia
+sort_mag = False 	 #Sort refstars segun mag y toma las nrefstars mas brillantes
+local   = True           #True para usar transf locales, False para usar global
+ma1,ma2 = 11.0,13.0      #Corte en magnitud para considerar estrellas a analizar
+mr1,mr2 = 11.0,13.0      #Corte en magnitud para las refstars
+mp1,mp2 = 11.0,12.0 	 #Corte en magnitud para plotear las refstars
 
+rad_ref = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
+x0,y0	= 1352,554       #Coordenadas centrales del circulo a considerar
 
-rad_clu = 3000							#Radio en pixeles para las locales
-x0,y0	 = 1352,554						#Coordenadas del centro del cumulo (locales) en pixeles
+lim	= 2		 #Limites del plot (cuadrado, por eso es uno)
 
-lim	 = 2								#Limites del plot (cuadrado, por eso es uno)
+plot_del_ep = True	 #Plot delta vs epocas
+plot_del_xy = True 	 #Plot delta vs coor_x o coor_y
+plot_IDs = False 	 #Plot delta vs epocas para ciertos IDs
+IDs_file = 'plot_ids'	 #Archivo con los IDs a plotear (if plot_IDs = True)
 
-plot_PM = True						#Plot de delta x o delta y vs epocas
-plot_delta = False 					#Plot de delta vs x o y
-plot_IDs = True 					#Plot de PM para ciertos IDs
-IDs_file = 'plot_ids'				#Archivo con los IDs a plotear
-
-#Codigo
-
-#plt.style.use('ggplot')
+############################################# CODIGO
 
 folder   = sys.argv[1]
 if not os.path.isfile(folder+refer):
-    print '\nNo encuenta archivo de locales', refer
+    print '\nNo encuenta archivo de refstars', refer
     sys.exit(1)
 
 if sys.argv[2]=='-f':
+        #numpy usa genfromtxt para abrir archivos
+        #numpy lee numeros, por eso en este caso se especifica string.
 	archivos = np.genfromtxt('files_match',unpack=True,dtype='string')
 
 else:
 	keywords = sys.argv[2]
+        #glog es un paquete, el segundo glob es como un ls
 	archivos = sorted(glob.glob(folder+keywords))
 
 nro_arch = np.size(archivos)
+print 'archivos =',nro_arch
+##esto es para asignar numero de filas al disegno del plot output.pdf
 nro_rows = nro_arch/3 + 1
+print 'rows =',nro_rows
+#?que hace este?
 nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
+print 'epocas =',nro_epoca
 
 se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skiprows=6)
 
@@ -92,236 +101,398 @@ def makedir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 
-delta_x = []
-delta_y = []
-
-#Promedios de los 2 grupos (campo y cumulo)
-meansx_clu = np.zeros(nro_arch)
-meansy_clu = np.zeros(nro_arch)
-stdx_clu   = np.zeros(nro_arch)
-stdy_clu   = np.zeros(nro_arch)
+#Promedios de los 2 grupos (campo y refstars)
+#Creo vectores con tantos ceros como numero de archivos. Los vectores son horiz.
+#?por que hay que crearlos?
+meansx_ref = np.zeros(nro_arch)
+meansy_ref = np.zeros(nro_arch)
+stdx_ref   = np.zeros(nro_arch)
+stdy_ref   = np.zeros(nro_arch)
 
 meansx_fie = np.zeros(nro_arch)
 meansy_fie = np.zeros(nro_arch)
 stdx_fie   = np.zeros(nro_arch)
 stdy_fie   = np.zeros(nro_arch)
-
-bid = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
-print 'Locales: %d' % bid.size
+#print 'meansx_ref',meansx_ref
+#sys.exit()
 
 if plot_IDs:
-	pid   = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
-	pdx,pdy 	  = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
+	pid     = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
+	pdx,pdy = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
 	pdx,pdy = pdx - 9999, pdy - 9999
 
 fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
+#?que hace ravel?
 ad = np.ravel(ax_delta)
+#print 'ad', ad.shape
+#sys.exit()
 
 fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
 
+#aca empieza el for para todos los catalogos de input
 for i,a in enumerate(np.ravel(ax)):
 	if i == nro_arch:
 		break
-
+        #?que es ax?
 	print '\nIteracion %d/%d'%(i+1,ax.size)
 
-	iid,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
+        #abro el catalogo i
+	id1,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
+        print '\nAnalizando el catalogo %s' %(archivos[i])
+	print 'Estrellas en Epoca: %d' %id1.size
 
-	print 'Estrellas en Epoca: %d'%iid.size
+	#abro archivo de refstars para contar
+	rid0 = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
+	print 'Estrellas de ref en archivo refstars: %d' %(rid0.size)
+	#np.in1d es un match en 1 dimension y genera un vector de tantos true or false
+	#como entradas hay en catalogo i (manda el primero)
+	epinbu = np.in1d(id1,rid0)
+	#print 'epinbu', epinbu.size
+	#sys.exit()
 
-	#Filtro por magnitud de las locales
-	bid	= np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
-	epinbu = np.in1d(iid,bid)
+	#selecciono solo las estrellas del catalogo en cuestion que son refstars
+	rid1,rx1,ry1,rm,rx2,ry2 = np.transpose([id1,x1,y1,m,x2,y2])[epinbu].T
+	print 'Refstars filtradas por match: %d' %(rid1.size)
+	rid_cat = np.copy(rid1)
+        #print 'rid_cat=%d' %(rid_cat.size)
+        #Estas son las refstars que aparecen en rojo en el plot: [(rm>mp1)*(rm<mp2)] -> if true & true
+        #Falta el constrain relacionado a estar dentro del circulo
+        prid,prx1,pry1,prm,prx2,pry2 = np.transpose([rid1,rx1,ry1,rm,rx2,ry2])[(rm>mp1)*(rm<mp2)].T
+	#filtro las refstars por magnitud
+	rid1,rx1,ry1,rm,rx2,ry2 = np.transpose([rid1,rx1,ry1,rm,rx2,ry2])[(rm>mr1)*(rm<mr2)].T
 
-	bid,bx1,by1,bm,bx2,by2 = np.transpose([iid,x1,y1,m,x2,y2])[epinbu].T
-	bbid = np.copy(bid)
-	bid,bx1,by1,bm,bx2,by2 = np.transpose([bid,bx1,by1,bm,bx2,by2])[(bm>ml1)*(bm<ml2)].T
+	print 'Refstars para transformaciones (%.1f<Ks<%.1f): %d' %(mr1,mr2,rid1.size)
+	print 'Refstars a incluir en el plot (%.1f<Ks<%.1f): %d' %(mp1,mp2,prid.size)
 
-	epxy = np.transpose([bx2,by2])
-
-	#Filtro por magnitud del catalogo
+	#Filtro catalogo por magnitudes
 	mask = (m<ma2)*(m>ma1)
-	iid,x1,y1,m,x2,y2 = np.transpose([iid,x1,y1,m,x2,y2])[mask].T
+	id1,x1,y1,m,x2,y2 = np.transpose([id1,x1,y1,m,x2,y2])[mask].T
+	print "Estrellas a analizar (%.1f<Ks<%.1f): %d" %(ma1,ma2,id1.size)
+	#como imprimo la ubicacion?
+        #print 'id1', id1
+	#print np.argwhere (id1==55)
+        #print id1==55
+	#sys.exit()
 
-	#Mascara para los IDs a plotear
-	#epinid = np.in1d(iid,pid)
-
-	print "Locales filtradas por mag: %d" % bid.size
-	print "Estrellas del catalogo filtrado por mag: %d" %iid.size
+        #defino epxy para la funcion que busca refstars cercanas (nbrs)
+	epxy = np.transpose([rx2,ry2])
 
 	if local:
-
-		nbrs = NN(n_neighbors=vecinos, algorithm='auto').fit(epxy)
+                #?esta funcion usa el parametro nrefstars?
+		nbrs = NN(n_neighbors=nrefstars, algorithm='auto').fit(epxy)
 
 		if rad_ext!=0:
-			dist, idx = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
-			nbors	   = np.array([len(d) for d in dist])
 
-			mednbors, minnbors = np.median(nbors),nbors.min()
+                        print '\nQuieres %d refstars para transformar cada estrella' %(nrefstars)
+
+			dist, nei = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
+			nbors	  = np.array([len(d) for d in dist])
+
+                        #los nei son tantos arreglos con la posicion (indice) de las refstars
+                        #como estrellas a analizar
+                        #si imprimo nei da el indice de las refstars seleccionadas para todas las estrellas
+                        #print 'nei:', nei
+                        #print 'nei:', nei.shape
+                        #print 'nei:', nei[0]
+                        #print 'refstars a distancia < rad_ext (id) \n', rid1[nei[0]]
+                        #print 'Numero de refstars encontradas por estrella (r<rad_ext):', nbors
+
+                        #los dist son tantos arreglos con las distancias de las refstars como
+                        #estrellas a analizar
+                        #?como imprimo las distancias de menor a mayor
+                        #print 'Distancias de las refstars por estrella:\n', dist[0]
+                        #sys.exit()
+
+			mednbors, minnbors,maxnbors = np.median(nbors),nbors.min(),nbors.max()
+                        print'valor min,medio,max de refstars:',minnbors,mednbors,maxnbors
+                        #sys.exit()
+
+                        print '\nElegimos para cada estrella las %d refstars...' %(nrefstars)
+                        if sort_mag:
+                           print 'mas brillantes'
+                        else:
+                           print 'mas cercanas'
 
 			for j in range(len(dist)):
 				#Elimina la misma estrella y las interiores a rad_int
-				msk		= (dist[j]!=0)*(dist[j]>rad_int)
+				msk	= (dist[j]!=0)*(dist[j]>rad_int)
 				dist[j] = dist[j][msk]
-				idx[j]  = idx[j][msk]
-
-				#Toma las mas brillantes
-				if len(dist[j])>vecinos:
+				nei[j]  = nei[j][msk]
+                                #print'j =',j
+                                #print'nei[j] =', nei
+                                #print'id', rid1[nei[j]]
+                                #print'numero de refstars', len(dist[j])
+                                #print'distancia de refstars\n', (dist[j])
+				#Toma las mas brillantes si tengo mas que nrefstars
+				if len(dist[j])>nrefstars:
 					if sort_mag:
-						lbm		= bm[idx[j]]
-						midx	 = np.argsort(lbm)[:vecinos]
-						dist[j] = dist[j][midx]
-						idx[j]  = idx[j][midx]
-
-				#Toma las mas cercanas
+						lrm	= rm[nei[j]]
+                                                #?porque los :?
+						mnei	= np.argsort(lrm)[:nrefstars]
+						dist[j] = dist[j][mnei]
+						nei[j]  = nei[j][mnei]
+                                                #print'numero de refstars', len(dist[j])
+				#Toma las mas cercanas si tengo mas que nrefstars
 					else:
-						midx	 = np.argsort(dist[j])[:vecinos]
-						dist[j] = dist[j][midx]
-						idx[j]  = idx[j][midx]
+						mnei	 = np.argsort(dist[j])[:nrefstars]
+						dist[j] = dist[j][mnei]
+						nei[j]  = nei[j][mnei]
+                                                #print'numero de refstars', len(dist[j])
+                                #con este lo paro cuando termina de analizar j=0
+                                #sys.exit()
+                        #con este lo paro cuando termina el for
+                        #sys.exit()
 
-		#Vecinos mas cercanos
+		#Refstars mas cercanos sin restriccion de distancias (rad_ext=0)
 		else:
-			dist,idx = nbrs.kneighbors(np.transpose([x2,y2]))
-			idx		 = idx[:,1:]
+			dist,nei = nbrs.kneighbors(np.transpose([x2,y2]))
+                        print '\nBuscando refstars sin restriccion de distancias (rad_ext=0)'
+			print 'Estrellas a transformar, refstars por estrella:', nei.shape
+			##recordar: los nei son arreglos con el indice de las refstars
+			#print 'refstars mas cercanas', nei
+			#print 'refstars mas cercanas (id) \n', id1[nei]
+			#print '\ndistancias refstars mas cercanos \n', dist
+
+			#le saca el primero porque puede contener la misma estrella
+			nei	  = nei[:,1:]
 			dist	  = dist[:,1:]
 
+		#print '\nrefstars mas cercanas', nei.shape
+		#print 'refstars mas cercanas', nei
+                #sys.exit()
+
+                #?porque no np.mean(dist)?
 		means = np.array([np.mean(d) for d in dist])
 		nbors	   = np.array([len(d) for d in dist])
 		mednbors, minnbors = np.median(nbors),nbors.min()
 
+		#coords transformadas. Se crea arreglo de ceros
 		ctx = np.zeros(x1.size)
 		cty = np.zeros(y1.size)
+		#print '\nctx', ctx.shape
+		#print 'ctx', ctx
 
-		pxt = np.zeros((x1.size,3))
-		pyt = np.zeros((y1.size,3))
-
+		#este progressBar muestra las flecha moviendose a medida que hace la regresion para
+                #cada estrella del catalogo que se esta analizando
+		#x1.size son la cantidad de estrellas del catalogo que se esta analizando (dp de filtar)
 		with ProgressBar(x1.size) as bar:
+                        #para cada estrella del catalogo:
 			for k in range(x1.size):
-				if len(idx[k]) < 4:
-					print '\nERROR: Encontro muy pocas locales!'
+				if len(nei[k]) < 4:
+					print '\nERROR: Encontro muy pocas refstars!'
 					sys.exit()
+				#recordar: los nei son arreglos con el indice de las refstars seleccionadas
+				#print'\n\nnei[k]', nei[k].shape
+				#print'', nei[k]
+				#imprime id de refstars (vecinas) a usar
+				#print'\nid correspondiente \n', id1[nei[k]]
 
-				coords = np.transpose([bx2,by2])[idx[k]].T
-				#coords = (coords.T - np.mean(coords,axis=1)).T
+				#coordenadas originales de las refstars seleccionadas
+				coords = np.transpose([rx2,ry2])[nei[k]].T
+				#print'\ncoords a transformar', coords.shape
+				#print'', coords
+				#sys.exit()
 
-				guessx = [1,0,1]
-				guessy = [0,1,1]
+				#coordenadas en el sist de referencia de las refstars seleccionadas
+				ep1_x = rx1[nei[k]]
+				ep1_y = ry1[nei[k]]
+				#print'\ncoords de las refstars en reference catalog\n', ep1_x
+				#print'', ep1_y
+				#sys.exit()
 
-				ep1_x = bx1[idx[k]]# - np.mean(bx1[idx[k]])
-				ep1_y = by1[idx[k]]# - np.mean(by1[idx[k]])
-
+                                #queremos resolver rx1=a*rx2+b*ry2+c
+				#coords=rx2 ry2, ep1_x/ep1_y son las coord en ref catalog (rx1,ry1)
 				poptx, pcovx = curve_fit(linear,coords,ep1_x)
 				popty, pcovy = curve_fit(linear,coords,ep1_y)
+				#print'\npoptx', poptx
+				#print'popty', popty
 
-				pxt[k] += poptx
-				pyt[k] += popty
 
+		                #calcula las coords transformadas (ct):se le dan x2,y2 y usa poptx,popty
 				ctx[k] += linear([x2[k],y2[k]],*poptx)
 				cty[k] += linear([x2[k],y2[k]],*popty)
+                                #print'\nx_refcat:', x1[k]
+                                #print'y_refcat:', y1[k]
+				#print'\nx_transformed:', ctx[k]
+				#print'y_transformed:', cty[k]
 
+				#sys.exit()
 				bar.update()
 
-	#Global
+	#Global:No usa las refstars mas cercanas
+        #usa todas las x2,y2 para el fit, o sea todas las estrellas del catalogo dp de filtrar
 	else:
+                print'\nTransformacion Global:usando las %d estrellas filtradas' %(x2.size)
+		#?Porque non-linear? ####Use non-linear least squares to fit a function, f, to data.
 		poptx, pcovx = curve_fit(linear,[x2,y2],x1)
 		popty, pcovy = curve_fit(linear,[x2,y2],y1)
+		#print'\nx2', x2
+		#print'y2', y2
+		#print'\nx1', x1
+		#print'y1', y1
 
+		#obtengo los valores del fit ax+by+c
+		#print'\npoptx', poptx
+		#print'popty', popty
+		#matrices de cov
+		#print'\npcovx', pcovx
+		#print'\npcovy', pcovy
+
+		#calcula las coords transformadas (ct):se le dan x2,y2 y usa poptx,popty
 		ctx = linear([x2,y2],*poptx)
 		cty = linear([x2,y2],*popty)
+		#print'\nx_transformed:\n', ctx
+		#print'y_transformed\n', cty
 
+                #cuando se usan? En el plot de output, se dan estos valores para la dist_med,
+                #dist_max, media_vec, min_vec
 		means = -1
 		nbors = -1
 		mednbors, minnbors = -1,-1
+                #aqui termina Global
 
-	#Guarda en archivos
-	data = np.transpose([iid,x1-ctx,y1-cty])
+        #Terminadas las transformaciones (Local o Global)
+	#se guarda id, delta_x y delta_y que se usan cuando plot_IDs es True
+	data = np.transpose([id1,x1-ctx,y1-cty])
+	#print'\ndata', data.shape
+	#print'\nid delta_x delta_y \n', data
+	#sys.exit()
+
+        #?Se puede mandar al if plot_Ids de abajo?
 	makedir('PMs')
 	np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
 
-	#MAIN PLOT
+        #VALORES PARA TODAS LAS ESTRELLAS
+	dx = x1-ctx
+	dy = y1-cty
 
-	clust  = np.in1d(iid,bbid)
-	m_clu  = (m>mr1)*(m<mr2)
-	r_clu  = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
+	print '\n		dx, dy'
+        print 'num:     %d, %d' % (dx.size,dy.size)
+	print 'max:     %8.8f, %8.8f' % (dx.max(),dy.max())
+        print 'min:     %8.8f, %8.8f' % (dx.min(),dy.min())
+	print 'mean:    %8.8f, %8.8f' % (np.mean(dx),np.mean(dy))
+	print 'median:  %8.8f, %8.8f' % (np.median(dx),np.median(dy))
+	print 'std:     %8.8f, %8.8f' % (np.std(dx),np.std(dy))
 
-	#m_clu = (m>mc1)*(m<mc2)
-	#clust = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_clu)
+	#PLOT OUTPUT.PSF
 
-	a.scatter((x1-ctx)[~clust],(y1-cty)[~clust],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
-	a.scatter((x1-ctx)[clust*m_clu*r_clu],(y1-cty)[clust*m_clu*r_clu],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-	#a.scatter((x1-ctx)[~m_loc],(y1-cty)[~m_loc],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
-	#a.scatter((x1-ctx)[m_loc*m_loc2],(y1-cty)[m_loc*m_loc2],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-	a.text(.05,.1,u'$S = %f$\n$E = %s$\n$N = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(clust*m_clu*r_clu).sum(),(~clust).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+        #print 'Estrellas analizadas (id1)', id1.size
+        #print 'Refstars usadas (rid1)', rid1.size
+        #print 'Refstars en mi catalogo (rid_cat)', rid_cat.size
+
+        #ref son solo true y false, tantos como elementos en id1(catalogo). El 1ero manda
+	#ref  = np.in1d(id1,rid_cat) ###este es original de Felipe
+        #m_ref son solo true y false, tantos como rm o m, segun sea el caso. Los true son los que
+        #estan en el rango de mp1 y mp2
+	#m_ref  = (m>mp1)*(m<mp2) ###este es original de Felipe
+	#r_ref  = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_ref) ###este es original de Felipe
+        #print'\nref:', ref.shape
+        #print'm_ref:', m_ref.shape
+        #print'r_ref:', r_ref.shape
+
+        #rplot   = np.size((x1)[ref])
+        #print '\nrpoints_1:', rplot
+        #rplot   = np.size((x1)[ref*m_ref*r_ref])
+        #print 'rpoints_2:', rplot
+        #bplot   = np.size((x1)[~ref])
+        #print 'bpoints:', bplot
+
+	ref  = np.in1d(id1,rid1)
+	m_ref  = (m>mp1)*(m<mp2)
+	r_ref  = (np.sqrt((x1-x0)**2 + (y1-y0)**2) < rad_ref) ###este es original de Felipe
+        #print'\nref:', ref.shape
+        #print'm_ref:', m_ref.shape
+        #rplot   = np.size((x1)[ref])
+        #print '\nrpoints_1:', rplot
+        #rplot   = np.size((x1)[ref*m_ref*r_ref])
+        #print 'rpoints_2:', rplot
+        #bplot   = np.size((x1)[~ref])
+        #print 'bpoints:', bplot
+        #sys.exit()
+
+        #####PTOS AZULES (CATALOGO-REFSTARS)
+	a.scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
+        #este lo puse yo para plotear circulos
+	#a.scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1, facecolors='none', edgecolors='b',lw=.5)
+
+        #####PTOS ROJOS (REFSTARS)
+	a.scatter((x1-ctx)[ref*m_ref*r_ref],(y1-cty)[ref*m_ref*r_ref],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
+
+        #TEXTO INFERIOR EN PLOT output.pdf
+	a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
 	a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
 
-	xmean_b = np.mean((x1-ctx)[~clust])
-	ymean_b = np.mean((y1-cty)[~clust])
-	xstd_b	= np.std((x1-ctx)[~clust])
-	ystd_b	= np.std((y1-cty)[~clust])
+        #sys.exit()
 
-	xmean_r = np.mean((x1-ctx)[clust*m_clu*r_clu])
-	ymean_r = np.mean((y1-cty)[clust*m_clu*r_clu])
-	xstd_r	= np.std((x1-ctx)[clust*m_clu*r_clu])
-	ystd_r	= np.std((y1-cty)[clust*m_clu*r_clu])
+        #Estadistica estrellas azules a incluir en plot output.psf
+	xmean_b = np.mean((x1-ctx)[~ref])
+	ymean_b = np.mean((y1-cty)[~ref])
+	xstd_b	= np.std((x1-ctx)[~ref])
+	ystd_b	= np.std((y1-cty)[~ref])
 
-	meansx_clu[i] += xmean_r
-	meansy_clu[i] += ymean_r
-	stdx_clu[i]   += xstd_r
-	stdy_clu[i]   += ystd_r
+        #Estadistica estrellas rojas (refstars) a incluir en plot output.psf
+        #se cae si uso los .gc y rad_ref o x0,y0 referido a los archivos.mat
+	xmean_r = np.mean((x1-ctx)[ref*m_ref*r_ref])
+	ymean_r = np.mean((y1-cty)[ref*m_ref*r_ref])
+	xstd_r	= np.std((x1-ctx)[ref*m_ref*r_ref])
+	ystd_r	= np.std((y1-cty)[ref*m_ref*r_ref])
+        #print 'xmean_r', xmean_r
 
+        #?Porque definir esto?
 	meansx_fie[i] += xmean_b
 	meansy_fie[i] += ymean_b
 	stdx_fie[i]   += xstd_b
 	stdy_fie[i]   += ystd_b
 
-	a.text(.05,.83,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes,fontsize=10)
-	a.text(.05,.69,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes,fontsize=10)
+	meansx_ref[i] += xmean_r
+	meansy_ref[i] += ymean_r
+	stdx_ref[i]   += xstd_r
+	stdy_ref[i]   += ystd_r
+
+        #?como se imprime la epoca?
+        #TEXTO SUPERIOR EN PLOT output.pdf
+	a.text(.05,.85,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes,fontsize=10)
+	a.text(.05,.73,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes,fontsize=10)
 	a.set_xlim(-lim,lim)
 	a.set_ylim(-lim,lim)
 	a.set_aspect('equal')
 
-	#x vs dx / y vs dy
+        #PLOT OUTPUT_DEL_XY.PSF
+	ad[2*i].scatter(x1[~ref],dx[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
+	ad[2*i].scatter(x1[ref*m_ref],dx[ref*m_ref],s=1,rasterized=True,lw=0,color='#FF5500')
 
-	dx = x1-ctx
-	dy = y1-cty
+	ad[2*i+1].scatter(y1[~ref],dy[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
+	ad[2*i+1].scatter(y1[ref*m_ref],dy[ref*m_ref],s=1,rasterized=True,lw=0,color='#FF5500')
 
-	print '		dx, dy'
-	print 'max:	%f, %f' % (dx.max(),dy.max())
-	print 'mean:   %f, %f' % (np.mean(dx),np.mean(dy))
-	print 'median: %f, %f' % (np.median(dx),np.median(dy))
-	print 'std:	%f, %f' % (np.std(dx),np.std(dy))
-
-	ad[2*i].scatter(x1[~clust],dx[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
-	ad[2*i].scatter(x1[clust*m_clu],dx[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
-
-	ad[2*i+1].scatter(y1[~clust],dy[~clust],s=1,rasterized=True,lw=0,color='#0055FF')
-	ad[2*i+1].scatter(y1[clust*m_clu],dy[clust*m_clu],s=1,rasterized=True,lw=0,color='#FF5500')
-
-	#Plot IDs
+        #?Se puede mandar al if plot_Ids de abajo?
 	if plot_IDs:
-		pidinep = np.in1d(iid,pid)
+		pidinep = np.in1d(id1,pid)
 
 		if np.any(pidinep):
 			pdx[:,i] = (x1 - ctx)[pidinep]
 			pdy[:,i] = (y1 - cty)[pidinep]
 
-	#if (i%5)==0:
 	if i==2:
 		print '\nGuardando plot de primeras 3 epocas...\n'
-		fig.savefig(output,dpi=200)
-		if plot_delta:
-			fig_delta.savefig('delta_'+output,dpi=200)
+		fig.savefig(output+'.pdf',dpi=200)
+		if plot_del_xy:
+			fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+
+#Aca termina el for para todos los catalogos de input
+
 print '\nGuardando plot final...'
-fig.suptitle('Vecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % (vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2) )
+
+#HEADER PLOT OUTPUT.PSF
+fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f; Mag ref_plot:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2))
 fig.tight_layout()
 fig.subplots_adjust(top=0.95)
-fig.savefig(output,dpi=200)
-#fig_delta.savefig('delta_'+output,dpi=200)
+fig.savefig(output+'.pdf',dpi=200)
+fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
 
-#Plot estrellas individuales
+#Plot delta vs tiempo para estrellas individuales
 if plot_IDs:
 	for i in range(len(pdx)):
 		fig, ax = plt.subplots(nrows=2, figsize=[4*2,3*2])
@@ -334,22 +505,22 @@ if plot_IDs:
 		fig.tight_layout()
 		fig.savefig('%s.png' % pid[i])
 
-#Final Plot cont
-if plot_PM:
+#Plot deltas vs tiempo
+if plot_del_ep:
 	if len(nro_epoca) < 2:
 		print "Hay solo un catalogo. El plot de delta vs tiempo no se genera."
 		sys.exit()
 
 	fig, ax = plt.subplots(nrows=2,ncols=2,figsize=[6*2,2*2])
 
-	ax[0,0].errorbar(eff_yrs, meansx_clu, yerr=stdx_clu ,fmt='.', c='#FF5500', ms=13, rasterized=True)
-	ax[0,1].errorbar(eff_yrs, meansy_clu, yerr=stdy_clu, fmt='.', c='#FF5500', ms=13, rasterized=True)
+	ax[0,0].errorbar(eff_yrs, meansx_ref, yerr=stdx_ref ,fmt='.', c='#FF5500', ms=13, rasterized=True)
+	ax[0,1].errorbar(eff_yrs, meansy_ref, yerr=stdy_ref, fmt='.', c='#FF5500', ms=13, rasterized=True)
 
 	ax[1,0].errorbar(eff_yrs, meansx_fie, yerr=stdx_fie, fmt='.', c='#0055FF', ms=13, rasterized=True)
 	ax[1,1].errorbar(eff_yrs, meansy_fie, yerr=stdy_fie, fmt='.', c='#0055FF', ms=13, rasterized=True)
 
-	poptrxc, pcovrxc = curve_fit(recta, eff_yrs, meansx_clu, sigma=stdx_clu, absolute_sigma=True)
-	poptryc, pcovryc = curve_fit(recta, eff_yrs, meansy_clu, sigma=stdy_clu, absolute_sigma=True)
+	poptrxc, pcovrxc = curve_fit(recta, eff_yrs, meansx_ref, sigma=stdx_ref, absolute_sigma=True)
+	poptryc, pcovryc = curve_fit(recta, eff_yrs, meansy_ref, sigma=stdy_ref, absolute_sigma=True)
 
 	poptrxf, pcovrxf = curve_fit(recta, eff_yrs, meansx_fie, sigma=stdx_fie, absolute_sigma=True)
 	poptryf, pcovryf = curve_fit(recta, eff_yrs, meansy_fie, sigma=stdy_fie, absolute_sigma=True)
@@ -366,17 +537,17 @@ if plot_PM:
 
 	diferencias = np.zeros(4)
 	for i,a in enumerate(np.ravel(ax)):
-		lmin, lmax = a.get_ylim()
-		diferencias[i] += np.abs(lmax-lmin)
+		rmin, rmax = a.get_ylim()
+		diferencias[i] += np.abs(rmax-rmin)
 
 	max_dif = np.nanmax(diferencias)
 	add_dif = (max_dif - diferencias) / 2.
 
 	for i,a in enumerate(np.ravel(ax)):
-		lmin, lmax = a.get_ylim()
-		a.set_ylim(lmin - add_dif[i], lmax + add_dif[i])
+		rmin, rmax = a.get_ylim()
+		a.set_ylim(rmin - add_dif[i], rmax + add_dif[i])
 
-	fig.suptitle('\nVecinos: %3d, Radios: (%3d,%4d), Mags: (%2d,%2d), Mag Locales (%2d,%2d)' % (vecinos, rad_int, rad_ext, ma1, ma2, ml1, ml2) )
+	fig.suptitle('\nRefstars:%3d; Radios:%3d,%4d; Mags:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2) )
 	fig.tight_layout()
 	fig.subplots_adjust(top=0.85)
-	fig.savefig('final_'+output,dpi=200)
+	fig.savefig(output+'_del_ep.pdf',dpi=200)
