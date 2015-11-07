@@ -41,13 +41,13 @@ if len(sys.argv) == 1:
 nrefstars = 51         #numero de refstars(+1) deseadas
 rad_int = 1         #Radio interior
 rad_ext = 300         #Radio exterior (0 -> selecciona nrefstars mas cercanas)
-output  = 'test'     #PDF de Output (reemplazara sin avisar!)
-refer   = 'refstars.mat' #Catalogo con las estrellas de referencia
+output  = 'test1'     #PDF de Output (reemplazara sin avisar!)
+refer   = 'refstars1.gc' #Catalogo con las estrellas de referencia
 sort_mag = False      #Sort refstars segun mag y toma las nrefstars mas brillantes
 local   = True           #True para usar transf locales, False para usar global
 ma1,ma2 = 11.0,14.0      #Corte en magnitud para considerar estrellas a analizar
-mr1,mr2 = 11.0,13.0      #Corte en magnitud para las refstars
-mp1,mp2 = 11.0,12.0      #Corte en magnitud para plotear las refstars
+mr1,mr2 = 11.0,14.0      #Corte en magnitud para las refstars
+mp1,mp2 = 11.0,12.5      #Corte en magnitud para plotear las refstars
 
 rad_ref = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
 x0,y0    = 1352,554       #Coordenadas centrales del circulo a considerar
@@ -56,16 +56,29 @@ lim    = 2         #Limites del plot (cuadrado, por eso es uno)
 
 plot_del_ep = True     #Plot delta vs epocas
 plot_del_xy = True      #Plot delta vs coor_x o coor_y
-plot_IDs = True      #Plot delta vs epocas para ciertos IDs
+plot_IDs = False      #Plot delta vs epocas para ciertos IDs
 IDs_file = 'plot_ids'     #Archivo con los IDs a plotear (if plot_IDs = True)
-sigma   = 2        #Numero de sigmas para sigma clip (0 = no sigma clip)
+sigma   = 8        #Numero de sigmas para sigma clip (0 = no sigma clip)
 
 ############################################# CODIGO
 
 folder   = sys.argv[1]
 if not os.path.isfile(folder+refer):
-    print '\nNo encuenta archivo de refstars', refer
+    print '\nNo encuentro archivo con estrellas de referencia -->', refer
+    print 'Bye Bye...'
     sys.exit(1)
+
+#if not os.path.isfile(folder+zinfo_img):
+#    print '\nNo encuentro archivo con la info -->', zinfo_img
+#    print 'Bye Bye...'
+#    sys.exit(1)
+
+if plot_IDs:
+    if not os.path.isfile(folder+IDs_file):
+        print '\nplot_IDs = True' 
+        print 'Y no encuentro archivo con Ids -->', IDs_file 
+        print 'Bye Bye...'
+        sys.exit(1)
 
 if sys.argv[2]=='-f':
     #numpy usa genfromtxt para abrir archivos
@@ -87,7 +100,13 @@ print 'rows =',nro_rows
 nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
 print 'epocas =',nro_epoca
 
-se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6),skip_header=6)
+se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6))
+zn = np.genfromtxt(folder+'zinfo_img', unpack=True, usecols=(0,), dtype='string')
+ky = np.array(['k' in z for z in zn])
+yr = yr[ky]
+
+se = se[ky][nro_epoca-1]
+el = el[ky][nro_epoca-1]
 
 def linear(coords,a,b,c):
     x,y = coords
@@ -124,6 +143,8 @@ if plot_IDs:
     pdx,pdy = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
     pdx,pdy = pdx - 9999, pdy - 9999
 
+#fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
+#con el que sigue plotea test_del_xy.pdf de 2 en 2
 fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_rows])
 #?que hace ravel?
 ad = np.ravel(ax_delta)
@@ -135,7 +156,7 @@ fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
 #aca empieza el for para todos los catalogos de input
 for i,a in enumerate(np.ravel(ax)):
     if i == nro_arch:
-        break
+            break
 
     #?que es ax?
     print '\nIteracion %d/%d'%(i+1,ax.size)
@@ -187,7 +208,7 @@ for i,a in enumerate(np.ravel(ax)):
 
         if rad_ext!=0:
 
-            print '\nQuieres %d refstars para transformar cada estrella' %(nrefstars)
+            print '\nQuieres %d refstars para transformar cada estrella' %(nrefstars-1)
 
             dist, nei = nbrs.radius_neighbors(np.transpose([x2,y2]),radius=rad_ext)
             nbors      = np.array([len(d) for d in dist])
@@ -211,7 +232,7 @@ for i,a in enumerate(np.ravel(ax)):
             print'valor min,medio,max de refstars:',minnbors,mednbors,maxnbors
             #sys.exit()
 
-            print '\nElegimos para cada estrella las %d refstars...' %(nrefstars)
+            print '\nElegimos para cada estrella las %d refstars...' %(nrefstars-1)
             if sort_mag:
                 print 'mas brillantes'
             else:
@@ -423,7 +444,7 @@ for i,a in enumerate(np.ravel(ax)):
     a.scatter((x1-ctx)[ref*m_ref*r_ref],(y1-cty)[ref*m_ref*r_ref],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
 
     #TEXTO INFERIOR EN PLOT output.pdf
-    a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i+1],el[i+1],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+    a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i],el[i],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
     a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
 
     #sys.exit()
@@ -462,24 +483,30 @@ for i,a in enumerate(np.ravel(ax)):
     a.set_aspect('equal')
 
     #Cambia tamano de la fuente de los ticks
+    #?en cual plot se usa esta instruccion?
     a.tick_params(axis='both', which='major', labelsize=8)
 
     #PLOT OUTPUT_DEL_XY.PSF
     ad[2*i].scatter(x1[~ref],dx[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
     ad[2*i].scatter(x1[ref*m_ref],dx[ref*m_ref],s=1,rasterized=True,lw=0,color='#FF5500')
+    ##esto es nuevo
     ad[2*i].tick_params(axis='both', which='major', labelsize=8)
     ad[2*i].set_xlim(x1.min()-100,x1.max()+100)
+    ad[2*i].set_ylim(-1,1)
 
     ad[2*i+1].scatter(y1[~ref],dy[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
     ad[2*i+1].scatter(y1[ref*m_ref],dy[ref*m_ref],s=1,rasterized=True,lw=0,color='#FF5500')
+    ##esto es nuevo
     ad[2*i+1].tick_params(axis='both', which='major', labelsize=8)
-    ad[2*i+1].text(.9,.8,'%d' % nro_epoca[i], transform=ad[2*i+1].transAxes, fontsize=8)
     ad[2*i+1].set_xlim(y1.min()-100, y1.max()+100)
-
+    ad[2*i].set_ylim(-1,1)
+    ad[2*i+1].text(.9,.8,'%d' % nro_epoca[i], transform=ad[2*i+1].transAxes, fontsize=8)
 
     #?Se puede mandar al if plot_Ids de abajo?
+    #no se puede pues guarda delta_x/y para cada catalogo i
     if plot_IDs:
         #pidinep = np.in1d(id1,pid)
+        #Este es nuevo
         pidinep = [id1==ppid for ppid in pid]
 
         for j,pi in enumerate(pidinep):
@@ -491,6 +518,7 @@ for i,a in enumerate(np.ravel(ax)):
         print '\nGuardando plot de primeras 3 epocas...\n'
         fig.savefig(output+'.pdf',dpi=200)
         if plot_del_xy:
+            #?esto es nuevo...a que sirve?
             fig_delta.tight_layout()
             fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
@@ -507,8 +535,11 @@ fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
+print 'yrs:', yrs
+print 'eff_yrs:', eff_yrs 
+sys.exit()
 
-#Plot delta vs tiempo para estrellas individuales
+#PLOT DELTA VS TIEMPO PARA ESTRELLAS INDIVIDUALES
 if plot_IDs:
     for i in range(len(pdx)):
         #Mascara que descarta los valores -9999 (no estan en la epoca)
@@ -558,7 +589,7 @@ if plot_IDs:
         #fig.tight_layout()
         fig.savefig('%d.png' % int(pid[i]))
 
-#Plot deltas vs tiempo
+#PLOT DELTAS VS TIEMPO
 if plot_del_ep:
     if len(nro_epoca) < 2:
         print "Hay solo un catalogo. El plot de delta vs tiempo no se genera."
