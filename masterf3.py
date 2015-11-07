@@ -7,7 +7,7 @@ from astropy import wcs
 from astropy.utils.console import ProgressBar, color_print
 from astropy.io import fits
 from scipy.optimize import curve_fit
-from MP2015utils import XYtoRADEC, makedir, linear
+from MP2015utils import *
 
 #Para ignorar los warnings de WCS
 import warnings
@@ -47,9 +47,36 @@ if not data_folder.endswith('/'):
 makedir(radec_folder)
 makedir(match_folder)
 
+#Lee ref_master y zinfo
+color_print('Leyendo archivo con referencias...', 'cyan')
+epn         = np.genfromtxt(data_folder+'zinfo_img', usecols=(0,), dtype='string')
+se, el, yr  = np.genfromtxt(data_folder+'zinfo_img', unpack=True, usecols=(4,5,6))
+
+km = np.array(['k' in e for e in epn])
+
+refs = np.genfromtxt('ref_master', dtype='string')
+kr   = refs[np.array(['k' in r for r in refs])]
+jr   = refs[np.array(['j' in r for r in refs])]
+print '\t%d referencias a usar' % len(kr)
+
 #Busca archivos
 color_print('Buscando archivos...', 'cyan')
 k_files = np.sort(glob.glob('%s*k*.dao' % data_folder))
 j_files = np.sort(glob.glob('%s*j*.dao' % data_folder))
 print '\t%d Ks encontradas' % len(k_files)
 print '\t%d J encontradas' % len(j_files)
+
+#Convierte a RADEC
+color_print('Convirtiendo XY a RADEC...','cyan')
+print '\tConvirtiendo Ks'
+ProgressBar.map(XYtoRADEC,k_files,multiprocess=True)
+print '\tConvirtiendo J'
+ProgressBar.map(XYtoRADEC,j_files,multiprocess=True)
+
+#Crea el CMD
+color_print('Creando CMDs...', 'cyan')
+k_dats = np.sort(glob.glob('RADEC/*k*.dat'))
+j_dats = np.sort(glob.glob('RADEC/*j*.dat'))
+
+for k in k_dats:
+    make_CMD(k, j_dats[0])
