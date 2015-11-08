@@ -5,18 +5,19 @@ import os
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
-def make_CMD(epk, epj):
+def make_CMD(epx, tol=0.3):
+    epk, epj = epx
     kn = int(epk.split('.')[0].split('-')[-1])
     jn = int(epj.split('.')[0].split('-')[-1])
 
     output = 'CMD_%03d-%03d.dat' % (kn, jn)
 
+    #print '\tCreando %s' % output
     os.system('java -jar %s/stilts.jar tmatch2 \
                in1=%s values1="RA DEC" ifmt1=ascii \
                in2=%s values2="RA DEC" ifmt2=ascii \
-               matcher=sky params=0.3 find=best join=1and2 \
-               out=%s ofmt=ascii' % (stilts_folder,epk,epj,output) )
-
+               matcher=sky params=%f find=best join=1and2 \
+               out=%s ofmt=ascii progress=none' % (stilts_folder,epk,epj,tol,output) )
 
 def XYtoRADEC(ep, folder='RADEC'):
     cfn = ep

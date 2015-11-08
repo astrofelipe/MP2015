@@ -75,8 +75,28 @@ ProgressBar.map(XYtoRADEC,j_files,multiprocess=True)
 
 #Crea el CMD
 color_print('Creando CMDs...', 'cyan')
-k_dats = np.sort(glob.glob('RADEC/*k*.dat'))
-j_dats = np.sort(glob.glob('RADEC/*j*.dat'))
+jcmd = np.repeat(['RADEC/%s' % jr[0].replace('.dao', '.dat')], len(kr))
+kcmd = np.array(['RADEC/%s' % k.replace('.dao', '.dat') for k in kr])
+acmd = np.transpose([kcmd, jcmd])
 
-for k in k_dats:
-    make_CMD(k, j_dats[0])
+ProgressBar.map(make_CMD, acmd, multiprocess=True)
+
+#Matches de CMD (referencia) con epocas
+color_print('Iniciando matches de cada CMD con todas las epocas...','cyan')
+def match_epo(ep, cmd, ofn):
+    com_epo = 'java -jar %s/stilts.jar tmatch2 ifmt1=ascii ifmt2=ascii matcher=sky ofmt=ascii values1="RA_1 DEC_1" values2="RA DEC" \
+            in1=%s in2=%s out=%s params=%.1f progress=none join=1and2' % (stilts_folder,cmd,ep,ofn,match_tol)
+
+    os.system(com_epo)
+
+cmds = glob.glob('CMD*')
+krd  = glob.glob('RADEC/*k*.dat')
+
+for cmd in cmds:
+    suf = cmd.split('_')[-1].replace('.dat','.match')
+
+    def me2(ep):
+        ofn = ep.split('.')[0].replace('RADEC', 'MATCH') + '_' + suf
+        match_epo(ep, cmd, ofn)
+
+    ProgressBar.map(me2, krd, multiprocess=True)
