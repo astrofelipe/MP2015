@@ -67,7 +67,7 @@ for i in range(dx_fin.shape[0]):
 
         coeffx  = np.polyfit(x,y,1)
         print modelx.estimator_.coef_
-        print coeffx
+        print coeffx[0]
         PM_X[i] = coeffx[0]
 
     #Calcula PM_Y
