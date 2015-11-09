@@ -33,7 +33,7 @@ print 'Archivos para generar el CMD: %s %s\n' % (k_catalog, j_catalog)
 os.system('java -jar %s/stilts.jar tmatch2 \
            in1=%s values1="RA DEC" ifmt1=ascii \
            in2=%s values2="RA DEC" ifmt2=ascii \
-           matcher=sky params=0.3 find=best join=1and2 \
+           matcher=sky params=0.3 find=best join=all1 \
            out=%s ofmt=ascii' % (stilts_folder,k_catalog,j_catalog,output) )
 
 if len(sys.argv) >3:
