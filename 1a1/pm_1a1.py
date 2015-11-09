@@ -62,7 +62,7 @@ for i in range(dx_fin.shape[0]):
         x  = yrs[ma]
         y  = dx[i][ma]
 
-        modelx = linear_model.RANSACRegressor(linear_mode.LinearRegression())
+        modelx = linear_model.RANSACRegressor(linear_model.LinearRegression())
         modelx.fit(x[:,np.newaxis], y)
 
         coeffx  = np.polyfit(x,y,1)
