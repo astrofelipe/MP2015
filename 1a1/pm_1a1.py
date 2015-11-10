@@ -15,7 +15,7 @@ stilts_folder = os.path.dirname(os.path.realpath(__file__))
 nro_ref    = int(sys.argv[1])
 referencia = glob.glob('*k*%03d.dat' % nro_ref)[0]
 
-archivos   = glob.glob('./PMs/PM_*')
+archivos   = np.sort(glob.glob('./PMs/PM_*'))
 nro_arch   = len(archivos)
 
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
