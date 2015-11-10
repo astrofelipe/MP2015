@@ -3,6 +3,7 @@ import numpy as np
 import glob
 import sys
 import os
+from astropy.utils.console import ProgressBar
 
 #####Informacion extra
 if len(sys.argv) == 1:
@@ -665,8 +666,7 @@ def basic_gc_biquad(xr,yr,chip,xtab,ytab):
 
 files = glob.glob(search_text)
 
-for file in files:
-
+def ejecuta(file):
     x_in_1, y_in_1, x_in_2, y_in_2 = np.genfromtxt(path+file, usecols=(x_col_1,y_col_1,x_col_2,y_col_2), unpack=True)
     # Cortar el chip
     idx_1 = np.logical_and(x_in_1 < 2048, y_in_1 < 2048)
@@ -696,3 +696,5 @@ for file in files:
     out_file = open(path+file.replace('.mat','.gc'),'w')
     np.savetxt(out_file, data, fmt='%5d %3.7f %2.7f %4.3f %4.3f %2.3f %1.3f %5d %3.7f %2.7f %4.3f %4.3f %2.3f %1.3f %1.4f', header='# ID_1 RA_1 DEC_1 X_1 Y_1 MAG_1 ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 ERR_2 Separation')
     out_file.close()
+
+ProgressBar.map(ejecuta, files, multiprocess=True)
