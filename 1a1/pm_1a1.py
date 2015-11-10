@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn import linear_model
 
 #PARAMETROS
-threshold = 5
+threshold = 55
 
 match = True
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
@@ -63,12 +63,13 @@ for i in range(dx_fin.shape[0]):
         y  = dx[i][ma]
 
         modelx = linear_model.RANSACRegressor(linear_model.LinearRegression())
+	#modelx = linear_model.LinearRegression()
         modelx.fit(x[:,np.newaxis], y)
 
-        coeffx  = np.polyfit(x,y,1)
-        print modelx.estimator_.coef_
-        print coeffx[0]
-        PM_X[i] = coeffx[0]
+        #coeffx  = np.polyfit(x,y,1)
+        #print modelx.estimator_.coef_[0,0]
+        #print coeffx[0]
+        PM_X[i] = modelx.estimator_.coef_[0,0]
 
     #Calcula PM_Y
     if dy_fin[i].sum() > threshold:
@@ -76,8 +77,11 @@ for i in range(dx_fin.shape[0]):
         x  = yrs[ma]
         y  = dy[i][ma]
 
-        coeffy  = np.polyfit(x,y,1)
-        PM_Y[i] = coeffy[0]
+	modely = linear_model.RANSACRegressor(linear_model.LinearRegression())
+	modely.fit(x[:,np.newaxis], y)
+
+        #coeffy  = np.polyfit(x,y,1)
+        PM_Y[i] = modely.estimator_.coef_[0,0]
 
 #Deja como NaN donde no hay PM
 PM_X[PM_X == -999] = np.nan
