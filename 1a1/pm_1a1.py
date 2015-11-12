@@ -146,6 +146,7 @@ PM_Y[np.isnan(PM_Y)] = 999.9
 
 fmt = '%d %.6f %.6f %.6f %.6f %.3f'
 hdr = 'ID RA DEC PM_X PM_Y MAG_K'
+#aa
 
 np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag]), fmt=fmt, header=hdr)
 
