@@ -57,8 +57,6 @@ dxdy_data = np.genfromtxt('PM.dat')
 
 ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
-ra  = dxdy_data[:,1]
-dec = dxdy_data[:,2]
 dx  = dxdy_data[:,8::3]
 dy  = dxdy_data[:,9::3]
 
@@ -144,12 +142,6 @@ ax2.set_ylim(-lim, lim)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
-PM_X[np.isnan(PM_X)] = 999.9
-PM_Y[np.isnan(PM_Y)] = 999.9
-
-fmt = '%d %.6f %.6f %.6f %.6f %.3f'
-hdr = 'ID RA DEC PM_X PM_Y MAG_K'
-
-np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag]), fmt=fmt, header=hdr)
+np.savetxt('PM_final.dat',np.transpose([ids, PM_X, PM_Y, mag]))
 
 plt.show()
