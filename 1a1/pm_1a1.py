@@ -21,8 +21,7 @@ def recta(x,a,b):
     return a*x + b
 
 #Lee los archivos con DX DY
-#nro_ref    = int(sys.argv[1])
-#referencia = glob.glob('*k*%03d.dat' % nro_ref)[0]
+referencia = sys.argv[1]
 
 archivos   = np.sort(glob.glob('./PMs/PM_*'))
 nro_arch   = len(archivos)
@@ -33,9 +32,10 @@ print 'Epocas: ', nro_epoca
 
 #Realiza el match entre los PM_.dat
 
-ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=exact ' % (stilts_folder, nro_arch)
+ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
+ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always ' % referencia
 for i in range(1,nro_arch+1):
-    ejecuta += 'in%d=%s ifmt%d=ascii values%d="ID" ' % (i, archivos[i-1], i, i)
+    ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" ' % (i+1, archivos[i-1], i+1, i+1)
 ejecuta += 'out=PM.dat ofmt=ascii'
 
 os.system(ejecuta)
@@ -56,9 +56,9 @@ see = see[nro_epoca-1]
 dxdy_data = np.genfromtxt('PM.dat')
 
 ids = dxdy_data[:,0]
-#mag = dxdy_data[:,5]
-dx  = dxdy_data[:,1::3]
-dy  = dxdy_data[:,2::3]
+mag = dxdy_data[:,5]
+dx  = dxdy_data[:,8::3]
+dy  = dxdy_data[:,9::3]
 
 dx_fin = np.isfinite(dx)
 dy_fin = np.isfinite(dy)
@@ -103,16 +103,19 @@ def PM_calc(i):
 PMS = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
 PMS = PMS * 1000 * 0.339
 PM_X, PM_Y = PMS
-PM_X, PM_Y = PM_X[np.isfinite(PM_X)], PM_Y[np.isfinite(PM_Y)]
-ids = ids[np.isfinite(PM_X)]
+#PM_X, PM_Y = PM_X[np.isfinite(PM_X)], PM_Y[np.isfinite(PM_Y)]
+#ids = ids[np.isfinite(PM_X)]
 
 #Plots
+pmxa = PM_X[np.isfinite(PM_X)]
+pmya = PM_Y[np.isfinite(PM_Y)]
+
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-30, 30), ylim=(-30, 30))
 plt.savefig('VPD.pdf', dpi=200)
 
-H, xedges, yedges = np.histogram2d(PM_X, PM_Y, bins=nbins)
+H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
 H  = np.rot90(H)
 H  = np.flipud(H)
 Hm = np.ma.masked_where(H==0, H)
@@ -124,8 +127,8 @@ axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
 ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
-axu.hist(PM_X, bins=nbins, histtype='step')
-axr.hist(PM_Y, bins=nbins, histtype='step', orientation='horizontal')
+axu.hist(pmxa, bins=nbins, histtype='step')
+axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 
 axu.set(xlim=(-30, 30))
 axr.set(ylim=(-30, 30))
@@ -134,6 +137,6 @@ ax2.set_ylim(-30, 30)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
-np.savetxt('PM_final.dat',np.transpose([ids,PM_X,PM_Y]))
+np.savetxt('PM_final.dat',np.transpose([ids, PM_X, PM_Y, mag]))
 
 plt.show()
