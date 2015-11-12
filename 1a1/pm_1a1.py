@@ -113,10 +113,11 @@ pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
 sqrtbin = np.sqrt(len(pmxa))
+#sqrtbin = 100
 
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
-ax.set(xlim=(-30, 30), ylim=(-30, 30))
+ax.set(xlim=(-20, 20), ylim=(-20, 20))
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=sqrtbin)
@@ -134,10 +135,12 @@ ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
 axu.hist(pmxa, bins=sqrtbin, histtype='step')
 axr.hist(pmya, bins=sqrtbin, histtype='step', orientation='horizontal')
 
-axu.set(xlim=(-30, 30))
-axr.set(ylim=(-30, 30))
-ax2.set_xlim(-30, 30)
-ax2.set_ylim(-30, 30)
+lim = 20
+
+axu.set(xlim=(-lim, lim))
+axr.set(ylim=(-lim, lim))
+ax2.set_xlim(-lim, lim)
+ax2.set_ylim(-lim, lim)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
