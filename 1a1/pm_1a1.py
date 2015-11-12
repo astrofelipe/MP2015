@@ -11,7 +11,7 @@ from scipy.optimize import curve_fit
 
 #PARAMETROS
 thr_per = 75    #Porcentaje minimo de epocas en que debe estar la estrella
-nbins   = 100   #Numero de bins para el plot
+nbins   = 150   #Numero de bins para el plot
 
 match = True
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
@@ -110,12 +110,14 @@ PM_X, PM_Y = PMS
 pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
+sqrtbin = np.sqrt(len(pmxa))
+
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-30, 30), ylim=(-30, 30))
 plt.savefig('VPD.pdf', dpi=200)
 
-H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
+H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=sqrtbin)
 H  = np.rot90(H)
 H  = np.flipud(H)
 Hm = np.ma.masked_where(H==0, H)
@@ -127,8 +129,8 @@ axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
 ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
-axu.hist(pmxa, bins=nbins, histtype='step')
-axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
+axu.hist(pmxa, bins=sqrtbin, histtype='step')
+axr.hist(pmya, bins=sqrtbin, histtype='step', orientation='horizontal')
 
 axu.set(xlim=(-30, 30))
 axr.set(ylim=(-30, 30))
