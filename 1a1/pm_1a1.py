@@ -57,6 +57,8 @@ dxdy_data = np.genfromtxt('PM.dat')
 
 ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
+ra  = dxdy_data[:,1]
+dec = dxdy_data[:,2]
 dx  = dxdy_data[:,8::3]
 dy  = dxdy_data[:,9::3]
 
@@ -111,11 +113,10 @@ pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
 sqrtbin = np.sqrt(len(pmxa))
-#sqrtbin = 100
 
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
-ax.set(xlim=(-20, 20), ylim=(-20, 20))
+ax.set(xlim=(-30, 30), ylim=(-30, 30))
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=sqrtbin)
@@ -133,15 +134,19 @@ ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
 axu.hist(pmxa, bins=sqrtbin, histtype='step')
 axr.hist(pmya, bins=sqrtbin, histtype='step', orientation='horizontal')
 
-lim = 20
-
-axu.set(xlim=(-lim, lim))
-axr.set(ylim=(-lim, lim))
-ax2.set_xlim(-lim, lim)
-ax2.set_ylim(-lim, lim)
+axu.set(xlim=(-30, 30))
+axr.set(ylim=(-30, 30))
+ax2.set_xlim(-30, 30)
+ax2.set_ylim(-30, 30)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
-np.savetxt('PM_final.dat',np.transpose([ids, PM_X, PM_Y, mag]))
+PM_X[np.isnan(PM_X)] = 999.9
+PM_Y[np.isnan(PM_Y)] = 999.9
+
+fmt = '%d %.6f %.6f %.6f %.6f %.3f'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K'
+
+np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag]), fmt=fmt, header=hdr)
 
 plt.show()

@@ -42,7 +42,7 @@ nrefstars = 51         #numero de refstars(+1) deseadas
 rad_int = 1         #Radio interior
 rad_ext = 300         #Radio exterior (0 -> selecciona nrefstars mas cercanas)
 output  = 'test1'     #PDF de Output (reemplazara sin avisar!)
-refer   = 'refstars1.gc' #Catalogo con las estrellas de referencia
+refer   = 'refstars_yk.gc' #Catalogo con las estrellas de referencia
 sort_mag = False      #Sort refstars segun mag y toma las nrefstars mas brillantes
 local   = True           #True para usar transf locales, False para usar global
 ma1,ma2 = 11.0,14.0      #Corte en magnitud para considerar estrellas a analizar
@@ -75,8 +75,8 @@ if not os.path.isfile(folder+refer):
 
 if plot_IDs:
     if not os.path.isfile(folder+IDs_file):
-        print '\nplot_IDs = True' 
-        print 'Y no encuentro archivo con Ids -->', IDs_file 
+        print '\nplot_IDs = True'
+        print 'Y no encuentro archivo con Ids -->', IDs_file
         print 'Bye Bye...'
         sys.exit(1)
 
@@ -150,7 +150,6 @@ fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_r
 ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
-
 fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
 
 #aca empieza el for para todos los catalogos de input
@@ -516,11 +515,15 @@ for i,a in enumerate(np.ravel(ax)):
 
     if i==2:
         print '\nGuardando plot de primeras 3 epocas...\n'
-        fig.savefig(output+'.pdf',dpi=200)
-        if plot_del_xy:
-            #?esto es nuevo...a que sirve?
-            fig_delta.tight_layout()
-            fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+        try:
+            fig.savefig(output+'.pdf',dpi=200)
+            if plot_del_xy:
+                #?esto es nuevo...a que sirve?
+                fig_delta.tight_layout()
+                fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+        except:
+            print '\nAdvertencia: El plot final es demasiado grande, por lo que no se guardara!'
+            muygrande = True
 
 #Aca termina el for para todos los catalogos de input
 
@@ -530,13 +533,16 @@ print '\nGuardando plot final...'
 fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f; Mag ref_plot:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2))
 fig.tight_layout()
 fig.subplots_adjust(top=0.95)
-fig.savefig(output+'.pdf',dpi=200)
-fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+if not muygrande:
+    fig.savefig(output+'.pdf',dpi=200)
+    fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+else:
+    plt.show()
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
 print 'yrs:', yrs
-print 'eff_yrs:', eff_yrs 
+print 'eff_yrs:', eff_yrs
 sys.exit()
 
 #PLOT DELTA VS TIEMPO PARA ESTRELLAS INDIVIDUALES
