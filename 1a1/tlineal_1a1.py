@@ -305,7 +305,6 @@ for i,a in enumerate(np.ravel(ax)):
                 if len(nei[k]) < 4:
                     ctx[k] = x1[k] + 888.8
                     cty[k] = y1[k] + 888.8
-                    print '\nWARNING: Una estrella tiene muy pocas refstars'
                     continue 
                     #print '\nERROR: Encontro muy pocas refstars!'
                     #sys.exit()
