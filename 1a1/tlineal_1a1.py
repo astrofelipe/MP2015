@@ -306,6 +306,7 @@ for i,a in enumerate(np.ravel(ax)):
                     ctx[k] = x1[k] + 888.8
                     cty[k] = y1[k] + 888.8
                     print '\nWARNING: Una estrella tiene muy pocas refstars'
+                    continue 
                     #print '\nERROR: Encontro muy pocas refstars!'
                     #sys.exit()
                 #recordar: los nei son arreglos con el indice de las refstars seleccionadas
