@@ -545,9 +545,9 @@ else:
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
-print 'yrs:', yrs
-print 'eff_yrs:', eff_yrs
-sys.exit()
+#print 'yrs:', yrs
+#print 'eff_yrs:', eff_yrs
+#sys.exit()
 
 #PLOT DELTA VS TIEMPO PARA ESTRELLAS INDIVIDUALES
 if plot_IDs:
