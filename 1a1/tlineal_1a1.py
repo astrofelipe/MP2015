@@ -305,7 +305,7 @@ for i,a in enumerate(np.ravel(ax)):
                 if len(nei[k]) < 4:
                     ctx[k] = x1[k] + 888.8
                     cty[k] = y1[k] + 888.8
-                    continue 
+                    continue
                     #print '\nERROR: Encontro muy pocas refstars!'
                     #sys.exit()
                 #recordar: los nei son arreglos con el indice de las refstars seleccionadas
@@ -519,6 +519,7 @@ for i,a in enumerate(np.ravel(ax)):
     if i==2:
         print '\nGuardando plot de primeras 3 epocas...\n'
         try:
+            muygrande = False
             fig.savefig(output+'.pdf',dpi=200)
             if plot_del_xy:
                 #?esto es nuevo...a que sirve?
