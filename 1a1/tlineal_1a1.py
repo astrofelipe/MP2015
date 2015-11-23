@@ -303,8 +303,8 @@ for i,a in enumerate(np.ravel(ax)):
             #para cada estrella del catalogo:
             for k in range(x1.size):
                 if len(nei[k]) < 4:
-                    ctx[k] = x1 + 888.8
-                    cty[k] = y1 + 888.8
+                    ctx[k] = x1[k] + 888.8
+                    cty[k] = y1[k] + 888.8
                     print '\nWARNING: Una estrella tiene muy pocas refstars'
                     #print '\nERROR: Encontro muy pocas refstars!'
                     #sys.exit()
