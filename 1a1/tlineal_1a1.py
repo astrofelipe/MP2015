@@ -42,12 +42,12 @@ nrefstars = 51         #numero de refstars(+1) deseadas
 rad_int = 1         #Radio interior
 rad_ext = 300         #Radio exterior (0 -> selecciona nrefstars mas cercanas)
 output  = 'test1'     #PDF de Output (reemplazara sin avisar!)
-refer   = 'refstars_yk.gc' #Catalogo con las estrellas de referencia
+refer   = 'refstars1.gc' #Catalogo con las estrellas de referencia
 sort_mag = False      #Sort refstars segun mag y toma las nrefstars mas brillantes
 local   = True           #True para usar transf locales, False para usar global
 ma1,ma2 = 11.0,14.0      #Corte en magnitud para considerar estrellas a analizar
-mr1,mr2 = 11.0,14.0      #Corte en magnitud para las refstars
-mp1,mp2 = 11.0,12.5      #Corte en magnitud para plotear las refstars
+mr1,mr2 = 11.0,12.0      #Corte en magnitud para las refstars
+mp1,mp2 = 11.0,12.0     #Corte en magnitud para plotear las refstars
 
 rad_ref = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
 x0,y0    = 1352,554       #Coordenadas centrales del circulo a considerar
