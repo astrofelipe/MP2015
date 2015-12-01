@@ -10,7 +10,7 @@ from matplotlib import gridspec
 from scipy.optimize import curve_fit
 
 #PARAMETROS
-thr_per = 75    #Porcentaje minimo de epocas en que debe estar la estrella
+nframes = 2    #Numero minimo de epocas en que debe estar la estrella
 nbins   = 150   #Numero de bins para el plot
 
 match = True
@@ -25,7 +25,7 @@ referencia = sys.argv[1]
 
 archivos   = np.sort(glob.glob('./PMs/PM_*'))
 nro_arch   = len(archivos)
-threshold  = int(nro_arch * thr_per / 100)
+#threshold  = int(nro_arch * thr_per / 100)
 
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 print 'Epocas: ', nro_epoca
@@ -63,13 +63,18 @@ dx  = dxdy_data[:,8::3]
 dy  = dxdy_data[:,9::3]
 
 dx_fin = np.isfinite(dx)*(dx!=888.8)
+print np.sum(dx==888.8, axis=0)
+print np.sum(dx==888.8, axis=1)
+
 dy_fin = np.isfinite(dy)*(dy!=888.8)
 
 PM_X = np.zeros(dx_fin.shape[0]) - 999
 PM_Y = np.zeros(dy_fin.shape[0]) - 999
 
+count = np.sum(dx_fin, axis=1)
+
 def PM_calc(i):
-    if not dx_fin[i].sum() > threshold:
+    if not dx_fin[i].sum() >= nframes:
         return np.nan, np.nan
     else:
         ma  = dx_fin[i]
@@ -79,7 +84,7 @@ def PM_calc(i):
         ss  = see[ma]
 
         #model = linear_model.RANSACRegressor(linear_model.LinearRegression())
-        model = linear_model.LinearRegression()
+        #model = linear_model.LinearRegression()
         #gp = GaussianProcess(theta0=1e-4, nugget=1e-10)
         #gp.fit(x[:, np.newaxis], yx)
         #x_pred = np.linspace(x.min(), x.max(),1000)[:, np.newaxis]
@@ -89,13 +94,13 @@ def PM_calc(i):
         #clip = np.abs(y_pred - yx) < conf
 
         #Ajusta pmx
-        model.fit(x[:, np.newaxis], yx)
+        #model.fit(x[:, np.newaxis], yx)
         popt, pcov = curve_fit(recta, x, yx, sigma=ss)
         #pmxx = model.estimator_.coef_[0,0]
         pmxx = popt[0]
 
         #Ajusta pmy
-        model.fit(x[:, np.newaxis], yy)
+        #model.fit(x[:, np.newaxis], yy)
         popt, pcov = curve_fit(recta, x, yy, sigma=ss)
         #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
@@ -119,7 +124,7 @@ ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-30, 30), ylim=(-30, 30))
 plt.savefig('VPD.pdf', dpi=200)
 
-H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=sqrtbin)
+H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
 H  = np.rot90(H)
 H  = np.flipud(H)
 Hm = np.ma.masked_where(H==0, H)
@@ -131,8 +136,9 @@ axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
 ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
-axu.hist(pmxa, bins=sqrtbin, histtype='step')
-axr.hist(pmya, bins=sqrtbin, histtype='step', orientation='horizontal')
+print pmxa
+axu.hist(pmxa, bins=nbins, histtype='step')
+axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 
 axu.set(xlim=(-30, 30))
 axr.set(ylim=(-30, 30))
@@ -144,9 +150,9 @@ plt.savefig('VPDH.pdf', dpi=200)
 PM_X[np.isnan(PM_X)] = 999.9
 PM_Y[np.isnan(PM_Y)] = 999.9
 
-fmt = '%d %.6f %.6f %.6f %.6f %.3f'
-hdr = 'ID RA DEC PM_X PM_Y MAG_K'
+fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
 
-np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag]), fmt=fmt, header=hdr)
+np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count]), fmt=fmt, header=hdr)
 
 plt.show()

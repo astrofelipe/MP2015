@@ -243,10 +243,8 @@ for i,a in enumerate(np.ravel(ax)):
 
             for j in range(len(dist)):
                 #Elimina la misma estrella y las interiores a rad_int
-                msk    = (dist[j]!=0)*(dist[j]>rad_int)
+                msk     = (dist[j]!=0)*(dist[j]>rad_int)
                 dist[j] = dist[j][msk]
-                if dist[j].size==0:
-                    print 'aaa',j
                 nei[j]  = nei[j][msk]
                 #print'j =',j
                 #print'nei[j] =', nei
@@ -292,7 +290,12 @@ for i,a in enumerate(np.ravel(ax)):
         #sys.exit()
 
         #?porque no np.mean(dist)?
-        means = np.array([np.nanmean(d) for d in dist])
+        means = []
+        for d in dist:
+            if len(d)!=0:
+                means.append(np.nanmean(d))
+        means = np.array(means)
+        #means = np.array([np.nanmean(d) for d in dist])
         nbors       = np.array([len(d) for d in dist])
         mednbors, minnbors = np.nanmedian(nbors), np.nanmin(nbors)
 
