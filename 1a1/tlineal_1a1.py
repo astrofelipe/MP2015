@@ -56,9 +56,6 @@ lim    = 2         #Limites del plot (cuadrado, por eso es uno)
 
 plot_del_ep = True     #Plot delta vs epocas
 plot_del_xy = True      #Plot delta vs coor_x o coor_y
-plot_IDs = False      #Plot delta vs epocas para ciertos IDs
-IDs_file = 'plot_ids'     #Archivo con los IDs a plotear (if plot_IDs = True)
-sigma   = 8        #Numero de sigmas para sigma clip (0 = no sigma clip)
 
 ############################################# CODIGO
 
@@ -72,13 +69,6 @@ if not os.path.isfile(folder+refer):
 #    print '\nNo encuentro archivo con la info -->', zinfo_img
 #    print 'Bye Bye...'
 #    sys.exit(1)
-
-if plot_IDs:
-    if not os.path.isfile(folder+IDs_file):
-        print '\nplot_IDs = True'
-        print 'Y no encuentro archivo con Ids -->', IDs_file
-        print 'Bye Bye...'
-        sys.exit(1)
 
 if sys.argv[2]=='-f':
     #numpy usa genfromtxt para abrir archivos
@@ -137,11 +127,6 @@ stdx_fie   = np.zeros(nro_arch)
 stdy_fie   = np.zeros(nro_arch)
 #print 'meansx_ref',meansx_ref
 #sys.exit()
-
-if plot_IDs:
-    pid     = np.genfromtxt(IDs_file,unpack=True,usecols=(0,))
-    pdx,pdy = np.zeros((pid.size,nro_arch)), np.zeros((pid.size,nro_arch))
-    pdx,pdy = pdx - 9999, pdy - 9999
 
 #fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 #con el que sigue plotea test_del_xy.pdf de 2 en 2
@@ -399,14 +384,13 @@ for i,a in enumerate(np.ravel(ax)):
     print 'std:     %8.8f, %8.8f' % (np.nanstd(dx),np.nanstd(dy))
 
     #Terminadas las transformaciones (Local o Global)
-    #se guarda id, delta_x y delta_y que se usan cuando plot_IDs es True
+    #se guarda id, delta_x y delta_y
     ctx[np.isnan(ctx)] = x1[np.isnan(ctx)] - 888.8
     cty[np.isnan(cty)] = y1[np.isnan(cty)] - 888.8
     data = np.transpose([id1,x1-ctx,y1-cty])
     #print'\ndata', data.shape
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
-    #?Se puede mandar al if plot_Ids de abajo?
     makedir('PMs')
     np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
 
@@ -513,18 +497,6 @@ for i,a in enumerate(np.ravel(ax)):
     ad[2*i].set_ylim(-1,1)
     ad[2*i+1].text(.9,.8,'%d' % nro_epoca[i], transform=ad[2*i+1].transAxes, fontsize=8)
 
-    #?Se puede mandar al if plot_Ids de abajo?
-    #no se puede pues guarda delta_x/y para cada catalogo i
-    if plot_IDs:
-        #pidinep = np.in1d(id1,pid)
-        #Este es nuevo
-        pidinep = [id1==ppid for ppid in pid]
-
-        for j,pi in enumerate(pidinep):
-            if np.any(pi):
-                pdx[j,i] = (x1 - ctx)[pi]
-                pdy[j,i] = (y1 - cty)[pi]
-
     if i==2:
         print '\nGuardando plot de primeras 3 epocas...\n'
         try:
@@ -557,56 +529,6 @@ eff_yrs = yrs[nro_epoca-1]
 #print 'yrs:', yrs
 #print 'eff_yrs:', eff_yrs
 #sys.exit()
-
-#PLOT DELTA VS TIEMPO PARA ESTRELLAS INDIVIDUALES
-if plot_IDs:
-    for i in range(len(pdx)):
-        #Mascara que descarta los valores -9999 (no estan en la epoca)
-        ma9 = pdx[i]!=-9999
-        #print ma9
-        #print pdx[i]
-        #print eff_yrs
-        #Caso en que el ID no esta en ninguna epoca
-        if np.sum(ma9) < 2:
-            print 'El ID %d esta en %d epoca(s)!' % (int(pid[i]), np.sum(ma9))
-            continue
-        fig, ax = plt.subplots(nrows=2, figsize=[4*2,3*2])
-        fig.suptitle('ID: %d, MAG: %.3f' % (int(pid[i]), m[id1==pid[i]]))
-        #Ajusta solo los valores que estan en las epocas
-        poptx, pcovx = curve_fit(recta, eff_yrs[ma9], pdx[i][ma9])
-        popty, pcovy = curve_fit(recta, eff_yrs[ma9], pdy[i][ma9])
-
-        if sigma>0:
-            resx = recta(eff_yrs[ma9], *poptx) - pdx[i][ma9]
-            sigx = mad_std(resx)
-            clx  = np.abs(resx) < sigma*sigx
-
-            resy = recta(eff_yrs[ma9], *popty) - pdy[i][ma9]
-            sigy = mad_std(resy)
-            cly  = np.abs(resy) < sigma*sigy
-
-            poptx, pcovx = curve_fit(recta, eff_yrs[ma9][clx], pdx[i][ma9][clx])
-            popty, pcovy = curve_fit(recta, eff_yrs[ma9][cly], pdy[i][ma9][cly])
-
-        #Plotea (en azul) lo que fiteo (en rojo lo que no esta en las epocas?)
-        ax[0].plot(eff_yrs[ma9][clx], pdx[i][ma9][clx], '.k', ms=13, rasterized=True)
-        ax[0].plot(eff_yrs[ma9][~clx], pdx[i][ma9][~clx], 'xr', ms=13, rasterized=True)
-
-        ax[0].plot(eff_yrs, recta(eff_yrs, *poptx), 'g')
-        ax[1].plot(eff_yrs[ma9][cly], pdy[i][ma9][cly], '.k', ms=13, rasterized=True)
-        ax[1].plot(eff_yrs[ma9][~cly], pdy[i][ma9][~cly], 'xr', ms=13, rasterized=True)
-
-        ax[1].plot(eff_yrs, recta(eff_yrs, *popty), 'g')
-
-        #Pendiente y error
-        ax[0].text(.1, .1, u'Pendiente: %e\nError: %e' % (poptx[0], np.sqrt(pcovx[0,0])), transform=ax[0].transAxes)
-        ax[1].text(.1, .1, u'Pendiente: %e\nError: %e' % (popty[0], np.sqrt(pcovy[0,0])), transform=ax[1].transAxes)
-
-        ax[0].set(ylabel='dx')
-        ax[1].set(ylabel='dy', xlabel='Year')
-
-        #fig.tight_layout()
-        fig.savefig('%d.png' % int(pid[i]))
 
 #PLOT DELTAS VS TIEMPO
 if plot_del_ep:

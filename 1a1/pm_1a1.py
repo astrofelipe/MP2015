@@ -11,7 +11,7 @@ from scipy.optimize import curve_fit
 
 #PARAMETROS
 nframes = 3    #Numero minimo de epocas en que debe estar la estrella
-nbins   = 150   #Numero de bins para el plot
+nbins   = 1   #Delta del bin
 
 match = True
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
@@ -31,14 +31,16 @@ nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 print 'Epocas: ', nro_epoca
 
 #Realiza el match entre los PM_.dat
+if not os.path.isfile('PM.dat'):
+    ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
+    ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always ' % referencia
+    for i in range(1,nro_arch+1):
+        ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" ' % (i+1, archivos[i-1], i+1, i+1)
+    ejecuta += 'out=PM.dat ofmt=ascii'
 
-ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
-ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always ' % referencia
-for i in range(1,nro_arch+1):
-    ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" ' % (i+1, archivos[i-1], i+1, i+1)
-ejecuta += 'out=PM.dat ofmt=ascii'
-
-os.system(ejecuta)
+    os.system(ejecuta)
+else:
+    print '\nPM.dat encontrado, no se creo archivo!'
 
 #Calcula los PM
 yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
@@ -114,7 +116,8 @@ PM_X, PM_Y = PMS
 pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
-nbins = int(np.sqrt(len(pmxa)))
+#nbins = int(np.sqrt(len(pmxa)))
+nbins = np.arange(-30, 30+nbins, nbins)
 #nbins    = np.arange(-30, 30, 0.1)
 
 fig, ax = plt.subplots()
@@ -150,6 +153,9 @@ PM_Y[np.isnan(PM_Y)] = 999.9
 fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
 hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
 
-np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count]), fmt=fmt, header=hdr)
+if not os.path.isfile('PM_final.dat'):
+    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count]), fmt=fmt, header=hdr)
+else:
+    print '\nPM_final.dat encontrado, no se creo archivo!'
 
 plt.show()
