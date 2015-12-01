@@ -63,9 +63,6 @@ dx  = dxdy_data[:,8::3]
 dy  = dxdy_data[:,9::3]
 
 dx_fin = np.isfinite(dx)*(dx!=888.8)
-print np.sum(dx==888.8, axis=0)
-print np.sum(dx==888.8, axis=1)
-
 dy_fin = np.isfinite(dy)*(dy!=888.8)
 
 PM_X = np.zeros(dx_fin.shape[0]) - 999
