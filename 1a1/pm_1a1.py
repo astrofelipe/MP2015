@@ -10,7 +10,7 @@ from matplotlib import gridspec
 from scipy.optimize import curve_fit
 
 #PARAMETROS
-nframes = 2    #Numero minimo de epocas en que debe estar la estrella
+nframes = 3    #Numero minimo de epocas en que debe estar la estrella
 nbins   = 150   #Numero de bins para el plot
 
 match = True
@@ -117,7 +117,8 @@ PM_X, PM_Y = PMS
 pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
-sqrtbin = np.sqrt(len(pmxa))
+nbins = int(np.sqrt(len(pmxa)))
+#nbins    = np.arange(-30, 30, 0.1)
 
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
@@ -136,7 +137,6 @@ axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
 ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
-print pmxa
 axu.hist(pmxa, bins=nbins, histtype='step')
 axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 

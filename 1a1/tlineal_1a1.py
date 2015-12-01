@@ -46,7 +46,7 @@ refer   = 'refstars1.gc' #Catalogo con las estrellas de referencia
 sort_mag = False      #Sort refstars segun mag y toma las nrefstars mas brillantes
 local   = True           #True para usar transf locales, False para usar global
 ma1,ma2 = 11.0,14.0      #Corte en magnitud para considerar estrellas a analizar
-mr1,mr2 = 11.0,12.0      #Corte en magnitud para las refstars
+mr1,mr2 = 11.0,14.0      #Corte en magnitud para las refstars
 mp1,mp2 = 11.0,12.0     #Corte en magnitud para plotear las refstars
 
 rad_ref = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
