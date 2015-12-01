@@ -205,6 +205,10 @@ for i,a in enumerate(np.ravel(ax)):
         #?esta funcion usa el parametro nrefstars?
         nbrs = NN(n_neighbors=nrefstars, algorithm='auto').fit(epxy)
 
+        #coords transformadas. Se crea arreglo de ceros
+        ctx = np.zeros(x1.size)
+        cty = np.zeros(y1.size)
+
         if rad_ext!=0:
 
             print '\nQuieres %d refstars para transformar cada estrella' %(nrefstars-1)
@@ -241,6 +245,8 @@ for i,a in enumerate(np.ravel(ax)):
                 #Elimina la misma estrella y las interiores a rad_int
                 msk    = (dist[j]!=0)*(dist[j]>rad_int)
                 dist[j] = dist[j][msk]
+                if dist[j].size==0:
+                    print 'aaa',j
                 nei[j]  = nei[j][msk]
                 #print'j =',j
                 #print'nei[j] =', nei
@@ -286,13 +292,10 @@ for i,a in enumerate(np.ravel(ax)):
         #sys.exit()
 
         #?porque no np.mean(dist)?
-        means = np.array([np.mean(d) for d in dist])
+        means = np.array([np.nanmean(d) for d in dist])
         nbors       = np.array([len(d) for d in dist])
-        mednbors, minnbors = np.median(nbors),nbors.min()
+        mednbors, minnbors = np.nanmedian(nbors), np.nanmin(nbors)
 
-        #coords transformadas. Se crea arreglo de ceros
-        ctx = np.zeros(x1.size)
-        cty = np.zeros(y1.size)
         #print '\nctx', ctx.shape
         #print 'ctx', ctx
 
@@ -303,8 +306,10 @@ for i,a in enumerate(np.ravel(ax)):
             #para cada estrella del catalogo:
             for k in range(x1.size):
                 if len(nei[k]) < 4:
-                    ctx[k] = x1[k] + 888.8
-                    cty[k] = y1[k] + 888.8
+                    ctx[k] = np.nan
+                    cty[k] = np.nan
+                    #ctx[k] = x1[k] - 888.8
+                    #cty[k] = y1[k] - 888.8
                     continue
                     #print '\nERROR: Encontro muy pocas refstars!'
                     #sys.exit()
@@ -378,28 +383,29 @@ for i,a in enumerate(np.ravel(ax)):
         mednbors, minnbors = -1,-1
         #aqui termina Global
 
-    #Terminadas las transformaciones (Local o Global)
-    #se guarda id, delta_x y delta_y que se usan cuando plot_IDs es True
-    data = np.transpose([id1,x1-ctx,y1-cty])
-    #print'\ndata', data.shape
-    #print'\nid delta_x delta_y \n', data
-    #sys.exit()
-
-    #?Se puede mandar al if plot_Ids de abajo?
-    makedir('PMs')
-    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
-
     #VALORES PARA TODAS LAS ESTRELLAS
     dx = x1-ctx
     dy = y1-cty
 
     print '\n        dx, dy'
     print 'num:     %d, %d' % (dx.size,dy.size)
-    print 'max:     %8.8f, %8.8f' % (dx.max(),dy.max())
-    print 'min:     %8.8f, %8.8f' % (dx.min(),dy.min())
-    print 'mean:    %8.8f, %8.8f' % (np.mean(dx),np.mean(dy))
-    print 'median:  %8.8f, %8.8f' % (np.median(dx),np.median(dy))
-    print 'std:     %8.8f, %8.8f' % (np.std(dx),np.std(dy))
+    print 'max:     %8.8f, %8.8f' % (np.nanmax(dx),np.nanmax(dx))
+    print 'min:     %8.8f, %8.8f' % (np.nanmin(dy),np.nanmin(dy))
+    print 'mean:    %8.8f, %8.8f' % (np.nanmean(dx),np.nanmean(dy))
+    print 'median:  %8.8f, %8.8f' % (np.nanmedian(dx),np.nanmedian(dy))
+    print 'std:     %8.8f, %8.8f' % (np.nanstd(dx),np.nanstd(dy))
+
+    #Terminadas las transformaciones (Local o Global)
+    #se guarda id, delta_x y delta_y que se usan cuando plot_IDs es True
+    ctx[np.isnan(ctx)] = x1[np.isnan(ctx)] - 888.8
+    cty[np.isnan(cty)] = y1[np.isnan(cty)] - 888.8
+    data = np.transpose([id1,x1-ctx,y1-cty])
+    #print'\ndata', data.shape
+    #print'\nid delta_x delta_y \n', data
+    #sys.exit()
+    #?Se puede mandar al if plot_Ids de abajo?
+    makedir('PMs')
+    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
 
     #PLOT OUTPUT.PSF
 
@@ -446,23 +452,23 @@ for i,a in enumerate(np.ravel(ax)):
     a.scatter((x1-ctx)[ref*m_ref*r_ref],(y1-cty)[ref*m_ref*r_ref],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
 
     #TEXTO INFERIOR EN PLOT output.pdf
-    a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i],el[i],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.median(means),np.max(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
+    a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i],el[i],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.nanmedian(means),np.nanmax(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
     a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
 
     #sys.exit()
 
     #Estadistica estrellas azules a incluir en plot output.psf
-    xmean_b = np.mean((x1-ctx)[~ref])
-    ymean_b = np.mean((y1-cty)[~ref])
-    xstd_b    = np.std((x1-ctx)[~ref])
-    ystd_b    = np.std((y1-cty)[~ref])
+    xmean_b = np.nanmean((x1-ctx)[~ref])
+    ymean_b = np.nanmean((y1-cty)[~ref])
+    xstd_b    = np.nanstd((x1-ctx)[~ref])
+    ystd_b    = np.nanstd((y1-cty)[~ref])
 
     #Estadistica estrellas rojas (refstars) a incluir en plot output.psf
     #se cae si uso los .gc y rad_ref o x0,y0 referido a los archivos.mat
-    xmean_r = np.mean((x1-ctx)[ref*m_ref*r_ref])
-    ymean_r = np.mean((y1-cty)[ref*m_ref*r_ref])
-    xstd_r    = np.std((x1-ctx)[ref*m_ref*r_ref])
-    ystd_r    = np.std((y1-cty)[ref*m_ref*r_ref])
+    xmean_r = np.nanmean((x1-ctx)[ref*m_ref*r_ref])
+    ymean_r = np.nanmean((y1-cty)[ref*m_ref*r_ref])
+    xstd_r    = np.nanstd((x1-ctx)[ref*m_ref*r_ref])
+    ystd_r    = np.nanstd((y1-cty)[ref*m_ref*r_ref])
     #print 'xmean_r', xmean_r
 
     #?Porque definir esto?
