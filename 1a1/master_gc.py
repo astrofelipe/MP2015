@@ -20,7 +20,7 @@ search_text = sys.argv[1]  # Texto para hacer busqueda de archivo/s ('*k*.dao', 
 skip_header = 3          # Numero de lineas del header
 x_col = 3                # Numero (desde 0) de columna de x
 y_col = 4                # Numero (desde 0) de columna de y
-nchip = int(sys.argv[2]) # Numero de chip a corregir
+#nchip = int(sys.argv[2]) # Numero de chip a corregir
 #path = '/Users/apple/Dropbox/Magister/Cursos/InvestigacionC/matias/python_Libralato/' #path to files
 
 #
@@ -656,14 +656,12 @@ def basic_gc_biquad(xr,yr,chip,xtab,ytab):
 
 
 #os.system('rm *_gc.*')
-files = glob.glob(search_text)
-
 def makedir(directory):
 	if not os.path.exists(directory):
 		os.makedirs(directory)
 
 def go_gc(f):
-    data = np.genfromtxt(f, skip_header=skip_header, unpack=True)
+    data = np.genfromtxt(f, unpack=True)
     x_in, y_in = data[x_col], data[y_col]
     ma = (x_in < 2048)*(y_in < 2048)
 
@@ -681,9 +679,13 @@ def go_gc(f):
     data[x_col] = x_dc
     data[y_col] = y_dc
 
-    out_file = f.replace('.dat','_gc.dat')
+    out_file = f.replace('.dat','.datgc')
     hdr      = 'ID RA DEC X Y MAG MAG_ERR'
     np.savetxt('MASTER_GC/' + out_file, data.T, fmt='%d %.7f %.7f %.3f %.3f %.3f %.3f', header=hdr)
 
 makedir('MASTER_GC')
+files = np.genfromtxt(search_text, dtype='string')
+nchip = int(files[0].split('_')[-1].split('-')[0])
+print 'Ejecutando correcciones para el chip %d' % nchip
+
 ProgressBar.map(go_gc, files, multiprocess=True)
