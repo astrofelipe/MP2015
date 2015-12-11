@@ -37,6 +37,7 @@ y_col_1 = 4              # Numero (desde 0) de columna de y_1
 x_col_2 = 10             # Numero (desde 0) de columna de x_2
 y_col_2 = 11             # Numero (desde 0) de columna de y_2
 nchip = int(sys.argv[3])      # Numero de chip a corregir
+modo  = sys.argv[4]
 
 #
 #  FIN MODIFICACIONES
@@ -688,8 +689,9 @@ def ejecuta(file):
 
     data = np.genfromtxt(path+file)
     data = data[idx,:]
-    data[:,x_col_1] = x_dc_1
-    data[:,y_col_1] = y_dc_1
+    if modo!='masterframe':
+        data[:,x_col_1] = x_dc_1
+        data[:,y_col_1] = y_dc_1
     data[:,x_col_2] = x_dc_2
     data[:,y_col_2] = y_dc_2
 
