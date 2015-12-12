@@ -2,6 +2,7 @@ import os
 import glob
 import sys
 import multiprocessing as mp
+import numpy as np
 
 #####Informacion extra
 if len(sys.argv) == 1:
@@ -18,12 +19,14 @@ if len(sys.argv) == 1:
 
 ######### INPUT USUARIO
 #python match1a1.py folder ref_cat
-folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
-ref_cat   = folder+sys.argv[2] #catalogo de referencia
+#folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
+inputs    = sys.argv[1]
+ref_cat   = sys.argv[2] #catalogo de referencia
 ######### FIN INPUT USUARIO
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
-catalog  = sorted(glob.glob(folder+'*k*.dat'))
+catalog  = np.genfromtxt(inputs, dtype='string')
+#catalog  = sorted(glob.glob(folder+'*k*.dat'))
 
 #for cat in catalog:
 def match(cat):

@@ -32,6 +32,8 @@ print 'Numero total de estrellas: %d' % len(ids)
 print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej))
 
 ids = data[:, 0::7][rej]
+ras = data[:, 1::7][rej]
+des = data[:, 2::7][rej]
 xs  = data[:, 3::7][rej]
 ys  = data[:, 4::7][rej]
 ms  = data[:, 5::7][rej]
@@ -100,3 +102,13 @@ if iteracion2=='global':
         xs[:,0] = np.nanmean(xx, axis=1)
         ys[:,0] = np.nanmean(yy, axis=1)
         ms[:,0] = np.nanmean(mm, axis=1)
+
+idx = np.isnan(ids[:, 0])
+nid = np.arange(np.sum(idx)) + 1e5
+ids[:, 0][idx] = nid
+
+final_data = np.array([ids, ras, des, xs, ys, ms, es])[:,:,0]
+header     = 'ID RA DEC X Y MAG MAG_ERR'
+fmt        = '%.0f %.7f %.7f %.3f %.3f %.3f %.3f'
+
+np.savetxt('MASTERFRAME.dat', final_data.T, header=header, fmt=fmt)
