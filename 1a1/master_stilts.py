@@ -12,6 +12,8 @@ archivos = np.genfromtxt(inputs, dtype='string')
 supermatch  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=sky params=%.3f ' % (stilts_folder, len(archivos), match_tol)
 for i in range(1, len(archivos)+1):
     supermatch += 'in%d=%s ifmt%d=ascii values%d="RA DEC" join%d=always ' % (i, archivos[i-1], i, i, i)
-supermatch += 'out=master_stilts.dat ofmt=ascii'
+supermatch += 'out=master_stilts.dat ofmt=csv'
+
+print supermatch
 
 os.system(supermatch)

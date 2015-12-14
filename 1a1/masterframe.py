@@ -18,7 +18,7 @@ def linear(coords, a, b, c):
     return a*x + b*y + c
 
 #PIPELINE
-data = np.genfromtxt(masterst, unpack=True)
+data = np.genfromtxt(masterst, unpack=True, delimiter=',')
 data = data.T
 
 ids = data[:, 0::7]
@@ -103,9 +103,19 @@ if iteracion2=='global':
         ys[:,0] = np.nanmean(yy, axis=1)
         ms[:,0] = np.nanmean(mm, axis=1)
 
+#Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])
 nid = np.arange(np.sum(idx)) + 1e5
 ids[:, 0][idx] = nid
+
+#Asigna RA DEC
+idx   = np.isnan(ras[:, 0])
+hayra = np.isfinite(ras)
+newra = np.array([ras[i][hayra[i]][0] for i in xrange(len(ras))])
+newde = np.array([des[i][hayra[i]][0] for i in xrange(len(des))])
+
+ras[:,0] = newra
+des[:,0] = newde
 
 final_data = np.array([ids, ras, des, xs, ys, ms, es])[:,:,0]
 header     = 'ID RA DEC X Y MAG MAG_ERR'
