@@ -37,7 +37,7 @@ search_text = sys.argv[1]  # Lista de archivos a transformar
 #x_col_2 = 10             # Numero (desde 0) de columna de x_2
 #y_col_2 = 11             # Numero (desde 0) de columna de y_2
 #nchip = int(sys.argv[3])      # Numero de chip a corregir
-modo  = int(sys.argv[2])     #Modo de operacion: 1 .dat, 2 .mat, 3 .mat solo 2da columna
+#modo  = int(sys.argv[2])     #Modo de operacion: 1 .dat, 2 .mat, 3 .mat solo 2da columna
 
 #
 #  FIN MODIFICACIONES
@@ -673,58 +673,21 @@ def ejecuta(f):
 
     x1, y1 = data[3], data[4]
 
-    if modo==2:
-        x2, y2 = data[10], data[11]
-        ma     = (x1 < 2048)*(y1 < 2048)*(x2 < 2048)*(y2 < 2048)
-        x1, y1 = x1[ma], x1[ma]
-        x2, y2 = x2[ma], y2[ma]
-        data   = data[:,ma]
+    ma     = (x1 < 2048)*(y1 < 2048)
+    x1, y1 = x1[ma], y1[ma]
+    data   = data[:,ma]
 
-        header = 'ID_1 RA_1 DEC_1 X_1 Y_1 MAG_1 ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 ERR_2 Separation'
-        fmt    = '%.0f %.7f %.7f %.3f %.3f %.3f %.3f %.0f %.7f %.7f %.3f %.3f %.3f %.3f %.16f'
+    header = 'ID RA DEC X Y MAG MAG_ERR'
+    fmt    = '%.0f %.7f %.7f %.3f %.3f %.3f %.3f'
 
-        x_dc_1 = np.empty_like(x1)
-        y_dc_1 = np.empty_like(y1)
-        x_dc_2 = np.empty_like(x2)
-        y_dc_2 = np.empty_like(y2)
-
-    if modo==3:
-        ma     = (x2 < 2048)*(y2 < 2048)
-        x2, y2 = x2[ma], y2[ma]
-        data   = data[:,ma]
-
-        header = 'ID_1 RA_1 DEC_1 X_1 Y_1 MAG_1 ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 ERR_2 Separation'
-        fmt    = '%.0f %.7f %.7f %.3f %.3f %.3f %.3f %.0f %.7f %.7f %.3f %.3f %.3f %.3f %.16f'
-
-        x_dc_2 = np.empty_like(x2)
-        y_dc_2 = np.empty_like(y2)
-
-    if modo==1:
-        ma     = (x1 < 2048)*(y1 < 2048)
-        x1, y1 = x1[ma], y1[ma]
-        data   = data[:,ma]
-
-        header = 'ID RA DEC X Y MAG MAG_ERR'
-        fmt    = '%.0f %.7f %.7f %.3f %.3f %.3f %.3f'
-
-        x_dc_1 = np.empty_like(x1)
-        y_dc_1 = np.empty_like(y1)
+    x_dc_1 = np.empty_like(x1)
+    y_dc_1 = np.empty_like(y1)
 
     for i in xrange(len(x1)):
-        if modo==1:
-            x_dc_1[i], y_dc_1[i] = VIRCAM_gc_J(x1[i], y1[i], nchip)
-        if modo==2:
-            x_dc_1[i], y_dc_1[i] = VIRCAM_gc_J(x1[i], y1[i], nchip)
-            x_dc_2[i], y_dc_2[i] = VIRCAM_gc_J(x2[i], y2[i], nchip)
-        if modo==3:
-            x_dc_2[i], y_dc_2[i] = VIRCAM_gc_J(x2[i], y2[i], nchip)
+        x_dc_1[i], y_dc_1[i] = VIRCAM_gc_J(x1[i], y1[i], nchip)
 
-    if modo==1 or modo==2:
-        data[3] = x_dc_1
-        data[4] = y_dc_1
-    if modo==2 or modo==3:
-        data[10] = x_dc_2
-        data[11] = y_dc_2
+    data[3] = x_dc_1
+    data[4] = y_dc_1
 
     out_file = f.replace(f.split('.')[-1], 'gc' + f.split('.')[-1])
     np.savetxt(out_file, data.T, fmt=fmt, header=header)
