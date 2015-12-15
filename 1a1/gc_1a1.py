@@ -689,7 +689,7 @@ def ejecuta(f):
     data[3] = x_dc_1
     data[4] = y_dc_1
 
-    out_file = f.replace(f.split('.')[-1], 'gc' + f.split('.')[-1])
+    out_file = f.replace('.dat','.datgc')
     np.savetxt(out_file, data.T, fmt=fmt, header=header)
 
 ProgressBar.map(ejecuta, files, multiprocess=True)
