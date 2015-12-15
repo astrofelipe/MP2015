@@ -105,7 +105,7 @@ if iteracion2=='global':
 
 #Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])
-nid = np.arange(np.sum(idx)) + 1e5
+nid = np.arange(np.sum(idx)) + 1e6
 ids[:, 0][idx] = nid
 
 #Asigna RA DEC
