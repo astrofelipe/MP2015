@@ -692,4 +692,9 @@ def ejecuta(f):
     out_file = f.replace('.dat','.datgc')
     np.savetxt(out_file, data.T, fmt=fmt, header=header)
 
-ProgressBar.map(ejecuta, files, multiprocess=True)
+if files.shape:
+    ProgressBar.map(ejecuta, files, multiprocess=True)
+else:
+    print 'Una imagen en el input'
+    ejecuta(files)
+    print 'Listo!'
