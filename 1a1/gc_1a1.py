@@ -10,10 +10,10 @@ if len(sys.argv) == 1:
 
     print
     print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>', 'Nro chip'
-    print '<texto para busqueda> puede ser una o mas imagenes: "*k*.mat", "b242_3_k_11-028.mat" '
+    print 'python', sys.argv[0], '<input list> <modo>'
     print
-    print 'Output: archivos *.gc'
+    print 'Modos de operacion: (1) archivos .dat, (2) archivos .mat, (3) archivos .mat solo segundo catalogo'
+    print 'Output: archivos .datgc o .matgc segun el modo'
     print 'Correccion de distorsion geometrica de Libralato para las imagenes seleccionadas'
     print
 
