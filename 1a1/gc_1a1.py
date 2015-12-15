@@ -696,5 +696,5 @@ if files.shape:
     ProgressBar.map(ejecuta, files, multiprocess=True)
 else:
     print 'Una imagen en el input'
-    ejecuta(files)
+    ejecuta(files.tolist())
     print 'Listo!'
