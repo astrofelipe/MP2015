@@ -9,7 +9,7 @@ if len(sys.argv) == 1:
 
     print
     print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], 'path/to/catalogs/', 'reference_catalog'
+    print 'python', sys.argv[0], 'input list', 'reference_catalog'
     print
     print 'Output: archivos *.mat'
     print 'Match con el catalogo de referencia de cara archivo *k* en el path'
