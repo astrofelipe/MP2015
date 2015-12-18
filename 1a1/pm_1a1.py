@@ -33,9 +33,9 @@ print 'Epocas: ', nro_epoca
 #Realiza el match entre los PM_.dat
 if not os.path.isfile('PM.dat'):
     ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
-    ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always ' % referencia
+    ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always suffix1="REF" ' % referencia
     for i in range(1,nro_arch+1):
-        ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" ' % (i+1, archivos[i-1], i+1, i+1)
+        ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" suffix%d=%d ' % (i+1, archivos[i-1], i+1, i+1, i+1, nro_epoca[i-1])
     ejecuta += 'out=PM.dat ofmt=ascii'
 
     os.system(ejecuta)
