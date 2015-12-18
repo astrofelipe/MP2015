@@ -25,8 +25,8 @@ j_epoch = int(sys.argv[2])
 output = 'CMD_%03d-%03d.dat' % (k_epoch, j_epoch)
 
 #Busca los catalogos
-k_catalog = glob.glob('*k*%03d.dat' % k_epoch)[0]
-j_catalog = glob.glob('*j*%03d.dat' % j_epoch)[0]
+k_catalog = glob.glob('*k*%03d.datgc' % k_epoch)[0]
+j_catalog = glob.glob('*j*%03d.datgc' % j_epoch)[0]
 
 #Realiza el match usando K como referencia (1 and 2)
 print 'Archivos para generar el CMD: %s %s\n' % (k_catalog, j_catalog)
