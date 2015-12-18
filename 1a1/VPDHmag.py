@@ -20,8 +20,6 @@ fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 bins = np.arange(-20,21,1)
 co   = []
 
-print sep, mag
-
 for i in range(len(ax)):
     if i == 0:
         ma = (mag > mags[0])*(mag < sep[1])
