@@ -71,6 +71,7 @@ def transformacion(ep):
 xx = np.empty_like(xs)
 yy = np.empty_like(ys)
 mm = np.empty_like(ms)
+ee = np.copy(es)
 
 xx[:, 0] = xs[:, 0]
 yy[:, 0] = ys[:, 0]
@@ -86,7 +87,9 @@ for j in range(1, nro_ep):
 
 xs[:,0] = np.nanmean(xx, axis=1)
 ys[:,0] = np.nanmean(yy, axis=1)
-ms[:,0] = np.nanmean(mm, axis=1)
+
+msmask  = np.ma.array(mm, mask=np.isnan(mm))
+ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 
 if iteracion2=='global':
@@ -101,7 +104,8 @@ if iteracion2=='global':
 
         xs[:,0] = np.nanmean(xx, axis=1)
         ys[:,0] = np.nanmean(yy, axis=1)
-        ms[:,0] = np.nanmean(mm, axis=1)
+        msmask  = np.ma.array(mm, mask=np.isnan(mm))
+        ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 #Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])
@@ -116,6 +120,10 @@ newde = np.array([des[i][hayra[i]][0] for i in xrange(len(des))])
 
 ras[:,0] = newra
 des[:,0] = newde
+
+#ERROR FINAL
+eemask  = np.ma.array(ee, mask=np.isnan(ee))
+es[:,0] = np.sqrt(np.sum(np.square(eemask), axis=1))
 
 final_data = np.array([ids, ras, des, xs, ys, ms, es])[:,:,0]
 header     = 'ID RA DEC X Y MAG MAG_ERR'
