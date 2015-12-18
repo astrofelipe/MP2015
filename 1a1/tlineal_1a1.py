@@ -36,6 +36,7 @@ if len(sys.argv) == 1:
 ## de coordenadas de cada estrella analizada
 
 nrefstars = 51         #numero de refstars(+1) deseadas
+min_nei = 4         #Minimo de vecinos para considerar (sino tira 888)
 rad_int = 1         #Radio interior
 rad_ext = 300         #Radio exterior (0 -> selecciona nrefstars mas cercanas)
 output  = 'test1'     #PDF de Output (reemplazara sin avisar!)
@@ -286,7 +287,7 @@ for i,a in enumerate(np.ravel(ax)):
         with ProgressBar(x1.size) as bar:
             #para cada estrella del catalogo:
             for k in range(x1.size):
-                if len(nei[k]) < 4:
+                if len(nei[k]) < min_nei:
                     ctx[k] = np.nan
                     cty[k] = np.nan
                     #ctx[k] = x1[k] - 888.8
