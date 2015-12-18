@@ -146,7 +146,7 @@ for i,a in enumerate(np.ravel(ax)):
 
     #abro archivo de refstars para contar
     rid0 = np.genfromtxt(refer,unpack=True,usecols=(0,))
-    print 'Estrellas de ref en archivo refstars: %d' %(rid0.size)
+    print 'Estrellas de ref en archivo %s: %d' %(refer,rid0.size)
     #np.in1d es un match en 1 dimension y genera un vector de tantos true or false
     #como entradas hay en catalogo i (manda el primero)
     epinbu = np.in1d(id1,rid0)
