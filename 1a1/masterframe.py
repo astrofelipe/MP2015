@@ -6,10 +6,12 @@ from sklearn.neighbors import NearestNeighbors as NN
 
 min_epochs = 5      #Numero minimo de epocas para considerar la estrella
 min_mag    = 11     #Magnitud minima para estrellas a transformar
-min_mag    = 14     #Magnitud maxima...
+max_mag    = 14     #Magnitud maxima...
 max_err    = .05    #Error maximo a considerar
 iteraciones = 5
 iteracion2 = 'global'
+
+nrefstars = 50 #Numero de vecinos locales (contando a la estrella propia) si iteracion2==global
 
 masterst   = sys.argv[1]
 
@@ -41,7 +43,7 @@ ms  = data[:, 5::7][rej]
 es  = data[:, 6::7][rej]
 
 def transformacion(ep):
-    magcon = (ms[:, 0] > 11) * (ms[:, 0] < 14) * (es[:, 0] < max_err)
+    magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
     common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, ep])
     print 'Numero de estrellas utilizadas en %d: %d' % (ep, np.sum(magcon*common))
 
@@ -70,6 +72,31 @@ def transformacion(ep):
     return tx, ty, mm2
 
 def transformacion_local(ep):
+    magcon = (ms[:, 0] > 11) * (ms[:, 0] < 14) * (es[:, 0] < max_err)
+    common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, ep])
+
+    x1 = xs[:, 0]
+    x2 = xs[:, ep]
+    y1 = ys[:, 0]
+    y2 = ys[:, ep]
+
+    xx1 = x1[common*magcon]
+    xx2 = x2[common*magcon]
+    yy1 = y1[common*magcon]
+    yy2 = y2[common*magcon]
+
+    #Busca vecinos mas cercanos (en 2)
+    epxy = np.transpose([xx2, yy2])
+    nbrs = NN(n_neighbors=nrefstars, algorithm='auto').fit(epxy)
+
+    dist, nei = nbrs.kneighbors(epxy)
+
+    def tl(i):
+
+    print dist, dist.shape
+    print
+    print nei, nei.shape
+
 
 xx = np.empty_like(xs)
 yy = np.empty_like(ys)
@@ -117,6 +144,8 @@ if iteracion2=='global':
 if iteracion2=='local':
     for i in range(iteraciones-1):
         print '\nIteracion: %d' % (i+2)
+        for j in range(1, nro_ep):
+            transformacion_local(j)
 
 #Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])
