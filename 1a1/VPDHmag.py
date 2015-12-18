@@ -5,28 +5,32 @@ import numpy as np
 lim    = 20
 mags   = 11, 14
 delta  = 1
+min_ep = 1
 
 #PIPELINE
 
-celdas = mags[1] - mags[0]
+celdas = int((mags[1] - mags[0]) / delta)
 sep    = np.arange(mags[0], mags[1]+delta, delta)
 
-ids, ra, dec, pmx, pmy, mag = np.genfromtxt('PM_final.dat', unpack=True)
+data = np.genfromtxt('PM_final.dat', unpack=True)
+ids, ra, dec, pmx, pmy, mag, nep = np.transpose(data.T[data[-1] >= min_ep])
 
 fig, ax = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 bins = np.arange(-20,21,1)
 co   = []
 
+print sep, mag
+
 for i in range(len(ax)):
     if i == 0:
-        ma = mag < sep[1]
-        ax[i].set_title('Ks < %.1f' % sep[1])
-        ap[i].set_title('Ks < %.1f' % sep[1])
+        ma = (mag > mags[0])*(mag < sep[1])
+        ax[i].set_title('%.1f > Ks > %.1f' % (sep[1], mags[0]))
+        ap[i].set_title('%.1f > Ks > %.1f' % (sep[1], mags[0]))
     elif i== len(ax)-1:
-        ax[i].set_title('Ks > %.1f' % sep[-2])
-        ap[i].set_title('Ks > %.1f' % sep[-2])
-        ma = mag > sep[-2]
+        ax[i].set_title('%.1f > Ks > %.1f' % (sep[-2], mags[1]))
+        ap[i].set_title('%.1f > Ks > %.1f' % (sep[-2], mags[1]))
+        ma = (mag > sep[-2])*(mag < mags[1])
     else:
         ax[i].set_title('%.1f > Ks > %.1f' % (sep[i+1], sep[i]))
         ap[i].set_title('%.1f > Ks > %.1f' % (sep[i+1], sep[i]))
