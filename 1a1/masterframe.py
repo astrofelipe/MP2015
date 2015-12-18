@@ -2,6 +2,7 @@ import numpy as np
 from scipy.optimize import curve_fit
 import sys
 from joblib import Parallel, delayed
+from sklearn.neighbors import NearestNeighbors as NN
 
 min_epochs = 5      #Numero minimo de epocas para considerar la estrella
 min_mag    = 11     #Magnitud minima para estrellas a transformar
@@ -68,6 +69,8 @@ def transformacion(ep):
 
     return tx, ty, mm2
 
+def transformacion_local(ep):
+
 xx = np.empty_like(xs)
 yy = np.empty_like(ys)
 mm = np.empty_like(ms)
@@ -91,6 +94,8 @@ ys[:,0] = np.nanmean(yy, axis=1)
 msmask  = np.ma.array(mm, mask=np.isnan(mm))
 ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
+print xs[:,0]
+
 
 if iteracion2=='global':
     for i in range(iteraciones-1):
@@ -106,6 +111,12 @@ if iteracion2=='global':
         ys[:,0] = np.nanmean(yy, axis=1)
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+
+        print xs[:,0]
+
+if iteracion2=='local':
+    for i in range(iteraciones-1):
+        print '\nIteracion: %d' % (i+2)
 
 #Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])

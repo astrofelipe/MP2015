@@ -18,16 +18,13 @@ if len(sys.argv) == 1:
 
     print
     print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], 'path/to/catalogs/', '<texto para busqueda>'
+    print 'python', sys.argv[0], '<lista con inputs>'
     print
     print 'Archivo "zinfo_img" debe estar en la carpeta de los datos'
-    print 'Funciona con una lista de catalogos (archivo files_match)'
-    print 'si se cambia "<texto para busquedas>" por "-f"'
     print 'Outputs:'
-    print 'output.psf: delta_x vs delta_y para cada catalogo'
+    print 'output.pdf: delta_x vs delta_y para cada catalogo'
     print 'output_del_xy.pdf: delta_x vs x + delta_y vs y'
     print 'output_del_ep.pdf: med_delta vs time'
-    print 'El programa se interrumpira si encuentra menos de 4 estrellas locales.'
 
     sys.exit(1)
 
