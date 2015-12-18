@@ -5,7 +5,7 @@ import numpy as np
 lim    = 20
 mags   = 11, 14
 delta  = 1
-min_ep = 1
+min_ep = 10
 
 #PIPELINE
 
