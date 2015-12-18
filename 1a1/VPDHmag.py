@@ -48,6 +48,10 @@ for i in range(len(ax)):
 
     ap[i].plot(x, y, '.k', ms=2)
 
+    nstars = len(x)
+    ax[i].text(.066,.933, 'Nro stars: %d' % nstars, transform = ax[i].transAxes)
+    ap[i].text(.066,.933, 'Nro stars: %d' % nstars, transform = ap[i].transAxes)
+
     ax[i].set(xlim=(-lim, lim), ylim=(-lim, lim))
     ap[i].set(xlim=(-lim, lim), ylim=(-lim, lim))
 
