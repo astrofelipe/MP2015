@@ -59,8 +59,8 @@ plot_del_xy = True      #Plot delta vs coor_x o coor_y
 
 ############################################# CODIGO
 
-folder   = sys.argv[1]
-if not os.path.isfile(folder+refer):
+input_files   = sys.argv[1]
+if not os.path.isfile(refer):
     print '\nNo encuentro archivo con estrellas de referencia -->', refer
     print 'Bye Bye...'
     sys.exit(1)
@@ -70,15 +70,11 @@ if not os.path.isfile(folder+refer):
 #    print 'Bye Bye...'
 #    sys.exit(1)
 
-if sys.argv[2]=='-f':
-    #numpy usa genfromtxt para abrir archivos
-    #numpy lee numeros, por eso en este caso se especifica string.
-    archivos = np.genfromtxt('files_match',unpack=True,dtype='string')
-
-else:
-    keywords = sys.argv[2]
-    #glog es un paquete, el segundo glob es como un ls
-    archivos = sorted(glob.glob(folder+keywords))
+archivos = np.genfromtxt(input_files,unpack=True,dtype='string')
+print archivos.shape
+if not archivos.shape:
+    archivos = np.atleast_1d(archivos)
+    muygrande = False
 
 nro_arch = np.size(archivos)
 print 'archivos =',nro_arch
@@ -90,8 +86,8 @@ print 'rows =',nro_rows
 nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
 print 'epocas =',nro_epoca
 
-se,el,yr = np.genfromtxt(folder+'zinfo_img',unpack=True,usecols=(4,5,6))
-zn = np.genfromtxt(folder+'zinfo_img', unpack=True, usecols=(0,), dtype='string')
+se,el,yr = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,5,6))
+zn = np.genfromtxt('zinfo_img', unpack=True, usecols=(0,), dtype='string')
 ky = np.array(['k' in z for z in zn])
 yr = yr[ky]
 
@@ -151,7 +147,7 @@ for i,a in enumerate(np.ravel(ax)):
     print 'Estrellas en Epoca: %d' %id1.size
 
     #abro archivo de refstars para contar
-    rid0 = np.genfromtxt(folder+refer,unpack=True,usecols=(0,))
+    rid0 = np.genfromtxt(refer,unpack=True,usecols=(0,))
     print 'Estrellas de ref en archivo refstars: %d' %(rid0.size)
     #np.in1d es un match en 1 dimension y genera un vector de tantos true or false
     #como entradas hay en catalogo i (manda el primero)
