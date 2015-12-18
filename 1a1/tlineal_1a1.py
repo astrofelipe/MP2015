@@ -570,3 +570,6 @@ if plot_del_ep:
     fig.tight_layout()
     fig.subplots_adjust(top=0.85)
     fig.savefig(output+'_del_ep.pdf',dpi=200)
+
+
+print 'Done!'
