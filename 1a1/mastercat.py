@@ -104,7 +104,9 @@ if iteracion2=='global':
             yy[:,j] = ty
             mm[:,j] = mm2
 
+        print xs[:,0]
         xs[:,0] = np.nanmean(xx, axis=1)
+        print xs[:,0]
         ys[:,0] = np.nanmean(yy, axis=1)
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
@@ -113,7 +115,7 @@ if iteracion2=='local':
     for i in range(iteraciones-1):
         print '\nIteracion: %d' % (i+2)
         for j in range(1, nro_ep):
-            magcon = (ms[:, 0] > 11) * (ms[:, 0] < 14) * (es[:, 0] < max_err)
+            magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
             common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, j])
             in2    = np.isfinite(ids[:, j])
 
@@ -127,9 +129,14 @@ if iteracion2=='local':
             yy1 = y1[common*magcon]
             yy2 = y2[common*magcon]
 
+            m1 = ms[:, 0][common*magcon]
+            m2 = ms[:, j][common*magcon]
+
+            mdm = np.mean(m1-m2)
+            mm2 = ms[:, j] + mdm
+
             #Busca vecinos mas cercanos (en 2)
             epxy = np.transpose([xx2, yy2])
-            print epxy
             nbrs = NN(n_neighbors=nrefstars, algorithm='auto').fit(epxy)
 
             dist, nei = nbrs.kneighbors(np.transpose([x2[in2],y2[in2]]))
@@ -143,24 +150,22 @@ if iteracion2=='local':
                 poptx, pcovx = curve_fit(linear, [xl2, yl2], xl1)
                 popty, pcovy = curve_fit(linear, [xl2, yl2], yl1)
 
-                tx = linear([x2[ii], y2[ii]], *poptx)
-                ty = linear([x2[ii], y2[ii]], *popty)
+                tx = linear([x2[in2][ii], y2[in2][ii]], *poptx)
+                ty = linear([x2[in2][ii], y2[in2][ii]], *popty)
 
                 return tx, ty
 
-            rr = Parallel(n_jobs=4, verbose=2)(delayed(tl)(ii) for ii in range(len(x2[in2])))
+            print 'Procesando epoca %d/%d' % (j, nro_ep-1)
+            rr = Parallel(n_jobs=4, verbose=0)(delayed(tl)(ii) for ii in range(len(x2[in2])))
             tx, ty = np.array(zip(*rr))
 
-            xs[:,j][in2] = tx
-            ys[:,j][in2] = ty
-
-
-
-print tx
-print xs[:,0]
-
-print tx.shape
-print xs[:,0].shape
+            xx[:,j][in2] = tx
+            yy[:,j][in2] = ty
+            mm[:,j]      = mm2
+        xs[:,0] = np.nanmean(xx, axis=1)
+        ys[:,0] = np.nanmean(yy, axis=1)
+        msmask  = np.ma.array(mm, mask=np.isnan(mm))
+        ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 #Asigna IDs nuevos
 idx = np.isnan(ids[:, 0])
