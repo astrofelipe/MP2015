@@ -69,7 +69,6 @@ if not os.path.isfile(refer):
 #    sys.exit(1)
 
 archivos = np.genfromtxt(input_files,unpack=True,dtype='string')
-print archivos.shape
 if not archivos.shape:
     archivos = np.atleast_1d(archivos)
     muygrande = False
@@ -129,15 +128,32 @@ fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_r
 ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
-fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
+print nro_arch
+if nro_arch < 100:
+    fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
+    altura = 3.5*nro_rows
+    tophdr = 1.0 / altura
+    seor = np.argsort(se)
+else:
+    print '\nAdvertencia: Se tienen demasiadas epocas, por lo que se grafican las 99 con peor seeing!'
+    fig, ax = plt.subplots(nrows=33, ncols=3, figsize=[3.5*3, 3.5*33])
+    altura = 3.5*33
+    tophdr = 1.0 / altura
+
+    #Obtiene los peores seeing
+    seor = np.argsort(se)[::-1]
+    seor = seor[:99]
+    print 'Epocas a plotear: ', nro_epoca[seor]
+
 
 #aca empieza el for para todos los catalogos de input
-for i,a in enumerate(np.ravel(ax)):
-    if i == nro_arch:
-            break
+axes = np.ravel(ax)
+ii   = 0
+for i in range(nro_arch):
+
 
     #?que es ax?
-    print '\nIteracion %d/%d'%(i+1,ax.size)
+    print '\nIteracion %d/%d'%(i+1,nro_arch)
 
     #abro el catalogo i
     id1,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
@@ -422,21 +438,6 @@ for i,a in enumerate(np.ravel(ax)):
     #print 'rpoints_2:', rplot
     #bplot   = np.size((x1)[~ref])
     #print 'bpoints:', bplot
-    #sys.exit()
-
-    #####PTOS AZULES (CATALOGO-REFSTARS)
-    a.scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
-    #este lo puse yo para plotear circulos
-    #a.scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1, facecolors='none', edgecolors='b',lw=.5)
-
-    #####PTOS ROJOS (REFSTARS)
-    a.scatter((x1-ctx)[ref*m_ref*r_ref],(y1-cty)[ref*m_ref*r_ref],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
-
-    #TEXTO INFERIOR EN PLOT output.pdf
-    a.text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i],el[i],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.nanmedian(means),np.nanmax(means),mednbors, minnbors),transform = a.transAxes,alpha=.66,fontsize=10)
-    a.text(.85,.9,u'$%d$' % nro_epoca[i],transform = a.transAxes,alpha=.66,fontsize=14)
-
-    #sys.exit()
 
     #Estadistica estrellas azules a incluir en plot output.psf
     xmean_b = np.nanmean((x1-ctx)[~ref])
@@ -463,17 +464,32 @@ for i,a in enumerate(np.ravel(ax)):
     stdx_ref[i]   += xstd_r
     stdy_ref[i]   += ystd_r
 
-    #?como se imprime la epoca?
-    #TEXTO SUPERIOR EN PLOT output.pdf
-    a.text(.05,.85,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=a.transAxes,fontsize=10)
-    a.text(.05,.73,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=a.transAxes,fontsize=10)
-    a.set_xlim(-lim,lim)
-    a.set_ylim(-lim,lim)
-    a.set_aspect('equal')
+    if np.any(i==seor):
+        #####PTOS AZULES (CATALOGO-REFSTARS)
+        axes[ii].scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
+        #este lo puse yo para plotear circulos
+        #a.scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1, facecolors='none', edgecolors='b',lw=.5)
 
-    #Cambia tamano de la fuente de los ticks
-    #?en cual plot se usa esta instruccion?
-    a.tick_params(axis='both', which='major', labelsize=8)
+        #####PTOS ROJOS (REFSTARS)
+        axes[ii].scatter((x1-ctx)[ref*m_ref*r_ref],(y1-cty)[ref*m_ref*r_ref],s=1.25,rasterized=True,edgecolor='',color='#FF5500',lw=.5)
+
+        #TEXTO INFERIOR EN PLOT output.pdf
+        axes[ii].text(.05,.05,u'$S = %f$\n$E = %s$\n$Nr/Nb = %d/%d$\n$Med_d, Max_d = %.3f, %.3f$\n$Med_n,Min_n = %d,%d$'%(se[i],el[i],(ref*m_ref*r_ref).sum(),(~ref).sum(),np.nanmedian(means),np.nanmax(means),mednbors, minnbors),transform = axes[ii].transAxes,alpha=.66,fontsize=10)
+        axes[ii].text(.85,.9,u'$%d$' % nro_epoca[i],transform = axes[ii].transAxes,alpha=.66,fontsize=14)
+
+        #?como se imprime la epoca?
+        #TEXTO SUPERIOR EN PLOT output.pdf
+        axes[ii].text(.05,.85,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_r,ymean_r,xstd_r,ystd_r),color='#FF5500',transform=axes[ii].transAxes,fontsize=10)
+        axes[ii].text(.05,.73,u'M = $%.4f / %.4f$\nS = $%.3f / %.3f$' % (xmean_b,ymean_b,xstd_b,ystd_b),color='#0055FF',transform=axes[ii].transAxes,fontsize=10)
+        axes[ii].set_xlim(-lim,lim)
+        axes[ii].set_ylim(-lim,lim)
+        axes[ii].set_aspect('equal')
+
+        #Cambia tamano de la fuente de los ticks
+        #?en cual plot se usa esta instruccion?
+        axes[ii].tick_params(axis='both', which='major', labelsize=8)
+
+        ii += 1
 
     #PLOT OUTPUT_DEL_XY.PSF
     ad[2*i].scatter(x1[~ref],dx[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
@@ -495,13 +511,13 @@ for i,a in enumerate(np.ravel(ax)):
         print '\nGuardando plot de primeras 3 epocas...\n'
         try:
             muygrande = False
+            fig.tight_layout()
             fig.savefig(output+'.pdf',dpi=200)
             if plot_del_xy:
                 #?esto es nuevo...a que sirve?
                 fig_delta.tight_layout()
                 fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
         except:
-            print '\nAdvertencia: El plot final es demasiado grande, por lo que no se guardara!'
             muygrande = True
 
 #Aca termina el for para todos los catalogos de input
@@ -511,7 +527,7 @@ print '\nGuardando plot final...'
 #HEADER PLOT OUTPUT.PSF
 fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f; Mag ref_plot:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2))
 fig.tight_layout()
-fig.subplots_adjust(top=0.95)
+fig.subplots_adjust(top=1.00 - tophdr/2.0)
 if not muygrande:
     fig.savefig(output+'.pdf',dpi=200)
     fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
