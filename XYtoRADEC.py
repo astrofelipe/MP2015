@@ -14,7 +14,8 @@ if len(sys.argv) == 1:
 
 	print
 	print 'Como ejecutar:', sys.argv[0]
-	print 'python', sys.argv[0], 'path/to/catalogs/'
+	print 'python', sys.argv[0], 'path/to/catalogs/ <extension>'
+	print '(extension sin punto)'
 	print
 	print 'Output: archivos *.dat con XY convertidos a RADEC sobreescribiendolos'
 	print
@@ -22,6 +23,7 @@ if len(sys.argv) == 1:
 	sys.exit(1)
 
 path = sys.argv[1]
+ext  = sys.argv[2]
 
 #Transforma de XY a RADEC
 def XYtoRADEC(ep):
@@ -40,7 +42,7 @@ def XYtoRADEC(ep):
 
 archivos  = np.sort([f for f in os.listdir(path)])
 fits	  = np.sort([f for f in archivos if f.endswith('.fits')])
-catalog	  = np.sort([f for f in archivos if f.endswith('.dao')])
+catalog	  = np.sort([f for f in archivos if f.endswith('.' + ext)])
 
 color_print('-Obteniendo RADEC...','cyan')
 ProgressBar.map(XYtoRADEC,np.transpose([fits,catalog]),multiprocess=True)
