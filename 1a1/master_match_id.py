@@ -1,9 +1,10 @@
 import numpy as np
 import sys
+from astropy.io import ascii
 
 if len(sys.argv)==1:
     print 'Para ejecutar'
-    print 'python master_stilts_id.py <archivo con inputs>'
+    print 'python master_match_id.py <archivo con inputs>'
     print 'El match se hara usando la columna ID'
     sys.exit()
 
@@ -36,10 +37,16 @@ for i in range(len(todos)):
     allcat[:,i*7:i*7+7][com] = todos[i].T
 
 #Genera el header
-hdrb = 'ID_1,RA_1,DEC_1,X_1,Y_1,MAG_1,MAG_ERR_1,'
-hdr  = hdrb
-for i in range(1,len(todos)):
-    hdr += hdrb.replace('1', '%d' % (i+1))
-hdr = hdr[:-1]
+hdr = []
+for i in range(len(todos)):
+    hdrb = 'ID_1,RA_1,DEC_1,X_1,Y_1,MAG_1,MAG_ERR_1'
+    hdrb = hdrb.replace('1','%d' % (i+1))
+    hdrb = hdrb.split(',')
+    hdr.append(hdrb)
 
-np.savetxt('master_stilts.dat', allcat, fmt='%f', header=hdr, delimiter=',')
+hdr = np.concatenate(hdr)
+print hdr.shape
+
+nans = np.isnan(allcat)
+allcat[nans] = -9898
+ascii.write(allcat, 'master_match.dat', delimiter=',', names=hdr, fill_values=[('-9898','')])
