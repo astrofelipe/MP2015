@@ -42,7 +42,7 @@ def XYtoRADEC(ep):
 
 archivos  = np.sort([f for f in os.listdir(path)])
 fits	  = np.sort([f for f in archivos if f.endswith('.fits')])
-catalog	  = np.sort([f for f in archivos if f.endswith('.' + ext)])
+catalog	  = np.sort([f for f in archivos if f.endswith('.'+ext)])
 
 color_print('-Obteniendo RADEC...','cyan')
 ProgressBar.map(XYtoRADEC,np.transpose([fits,catalog]),multiprocess=True)
