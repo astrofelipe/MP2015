@@ -10,10 +10,8 @@ if len(sys.argv) == 1:
 
     print
     print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], '<input list> <modo>'
+    print 'python', sys.argv[0], '<input list>'
     print
-    print 'Modos de operacion: (1) archivos .dat, (2) archivos .mat, (3) archivos .mat solo segundo catalogo'
-    print 'Output: archivos .datgc o .matgc segun el modo'
     print 'Correccion de distorsion geometrica de Libralato para las imagenes seleccionadas'
     print
 
@@ -37,7 +35,6 @@ search_text = sys.argv[1]  # Lista de archivos a transformar
 #x_col_2 = 10             # Numero (desde 0) de columna de x_2
 #y_col_2 = 11             # Numero (desde 0) de columna de y_2
 #nchip = int(sys.argv[3])      # Numero de chip a corregir
-#modo  = int(sys.argv[2])     #Modo de operacion: 1 .dat, 2 .mat, 3 .mat solo 2da columna
 
 #
 #  FIN MODIFICACIONES
