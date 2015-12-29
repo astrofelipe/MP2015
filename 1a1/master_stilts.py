@@ -21,7 +21,7 @@ if modo == 'ID':
 
 supermatch  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=%s ' % (stilts_folder, len(archivos), matcher)
 for i in range(1, len(archivos)+1):
-    supermatch += 'in%d=%s ifmt%d=ascii values%d=%s join%d=always ' % (i, archivos[i-1], i, modo, i, i)
+    supermatch += 'in%d=%s ifmt%d=ascii values%d=%s join%d=always ' % (i, archivos[i-1], i, i, modo, i)
 supermatch += 'out=master_stilts.dat ofmt=csv'
 
 print supermatch
