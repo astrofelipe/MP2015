@@ -2,6 +2,8 @@ import numpy as np
 import sys
 from astropy.io import ascii
 from astropy.table import Table
+from astropy.utils.console import ProgressBar
+from joblib import Parallel, delayed
 
 if len(sys.argv)==1:
     print 'Para ejecutar'
@@ -10,19 +12,32 @@ if len(sys.argv)==1:
     sys.exit()
 
 #Argumentos
+min_epochs = 5
 input_list = sys.argv[1]
+
+
+
 archivos   = np.genfromtxt(input_list, dtype='string')
 
-todos = []
-for f in archivos:
-    data = np.genfromtxt(f, unpack=True)
-    todos.append(data)
+def load_file(archivo):
+    data = np.genfromtxt(archivo, unpack=True)
+    return data
+
+#todos = []
+#for f in archivos:
+#    data = np.genfromtxt(f, unpack=True)
+#    todos.append(data)
+
+print 'Leyendo archivos...'
+todos = Parallel(n_jobs=4, verbose=8)(delayed(load_file)(f) for f in archivos)
 
 #Encuentra el ID maximo
+print 'Encontrando maximo de estrellas'
 maximos = np.zeros(len(todos))
 for i in range(len(todos)):
     maximos[i] = np.max(todos[i][0])
 maximo = np.max(maximos)
+print'\tMaximo: %d' %maximo
 
 #Genera matriz donde van todos los catalogos
 allcat    = np.zeros((maximo, len(todos)*7))
@@ -31,12 +46,11 @@ allcat[:] = np.nan
 total_id  = np.arange(1,maximo+1)
 
 #Rellena la matriz
-for i in range(len(todos)):
+print 'Ingresando datos a la matriz...'
+for i in ProgressBar(range(len(todos))):
     ids = todos[i][0]
     com = np.in1d(total_id, ids)
     orden = np.argsort(ids)
-
-    print todos[i].T.shape
 
     allcat[:,i*7:i*7+7][com] = todos[i].T[orden]
 
@@ -50,10 +64,15 @@ for i in range(len(todos)):
 
 hdr = np.hstack(hdr).tolist()
 
+#Achica el catalogo
+ids = allcat[:, 0::7]
+
+found  = np.sum(np.isfinite(ids), axis=1)
+rej    = found >= min_epochs
+allcat = allcat[rej]
+
 nans = np.isnan(allcat)
 allcat[nans] = -9898
-
+print 'Guardando...'
 output = Table(allcat, names=hdr)
-print output
-#ascii.write(allcat, 'master_match.dat', delimiter=',', names=hdr, fill_values=[('-9898','')])
 ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])

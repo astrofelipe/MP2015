@@ -9,7 +9,7 @@ min_mag    = 11     #Magnitud minima para estrellas a transformar
 max_mag    = 14     #Magnitud maxima...
 max_err    = .05    #Error maximo a considerar
 iteraciones = 3
-iteracion2 = 'local'
+iteracion2 = 'global'
 
 nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2==global
 
@@ -168,6 +168,8 @@ if iteracion2=='local':
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 #Asigna IDs nuevos
+
+
 idx = np.isnan(ids[:, 0])
 nid = np.arange(np.sum(idx)) + 1e6
 ids[:, 0][idx] = nid
