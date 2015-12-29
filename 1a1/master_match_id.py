@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 from astropy.io import ascii
+from astropy.table import Table
 
 if len(sys.argv)==1:
     print 'Para ejecutar'
@@ -33,8 +34,11 @@ total_id  = np.arange(1,maximo+1)
 for i in range(len(todos)):
     ids = todos[i][0]
     com = np.in1d(total_id, ids)
+    orden = np.argsort(ids)
 
-    allcat[:,i*7:i*7+7][com] = todos[i].T
+    print todos[i].T.shape
+
+    allcat[:,i*7:i*7+7][com] = todos[i].T[orden]
 
 #Genera el header
 hdr = []
@@ -44,9 +48,12 @@ for i in range(len(todos)):
     hdrb = hdrb.split(',')
     hdr.append(hdrb)
 
-hdr = np.concatenate(hdr)
-print hdr.shape
+hdr = np.hstack(hdr).tolist()
 
 nans = np.isnan(allcat)
 allcat[nans] = -9898
-ascii.write(allcat, 'master_match.dat', delimiter=',', names=hdr, fill_values=[('-9898','')])
+
+output = Table(allcat, names=hdr)
+print output
+#ascii.write(allcat, 'master_match.dat', delimiter=',', names=hdr, fill_values=[('-9898','')])
+ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
