@@ -156,7 +156,7 @@ for i in range(nro_arch):
     print '\nIteracion %d/%d'%(i+1,nro_arch)
 
     #abro el catalogo i
-    id1,x1,y1,m,id2,x2,y2,sep = np.genfromtxt(archivos[i],unpack=True,usecols=(0,3,4,5,7,10,11,14))
+    id1,x1,y1,m,id2,x2,y2 = np.genfromtxt(archivos[i], unpack=True, usecols=(0,3,4,5,7,10,11))
     print '\nAnalizando el catalogo %s' %(archivos[i])
     print 'Estrellas en Epoca: %d' %id1.size
 
@@ -531,8 +531,6 @@ fig.subplots_adjust(top=1.00 - tophdr/2.0)
 if not muygrande:
     fig.savefig(output+'.pdf',dpi=200)
     fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
-else:
-    plt.show()
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
