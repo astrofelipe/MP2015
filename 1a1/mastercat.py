@@ -8,7 +8,7 @@ min_epochs = 5      #Numero minimo de epocas para considerar la estrella
 min_mag    = 11     #Magnitud minima para estrellas a transformar
 max_mag    = 14     #Magnitud maxima...
 max_err    = .05    #Error maximo a considerar
-iteraciones = 3
+iteraciones = 5
 iteracion2 = 'global'
 
 nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2==global
@@ -167,12 +167,17 @@ if iteracion2=='local':
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
-#Asigna IDs nuevos
+unique = np.unique(ids[np.isfinite(ids)])
 
+if len(unique)==len(ids):
+    for i in range(1,ids.shape[1]):
+        idx = np.isnan(ids[:,0])
+        ids[:,0][idx] = ids[:,i][idx]
 
-idx = np.isnan(ids[:, 0])
-nid = np.arange(np.sum(idx)) + 1e6
-ids[:, 0][idx] = nid
+else:
+    idx = np.isnan(ids[:, 0])
+    nid = np.arange(np.sum(idx)) + 1e6
+    ids[:, 0][idx] = nid
 
 #Asigna RA DEC
 idx   = np.isnan(ras[:, 0])
