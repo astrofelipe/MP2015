@@ -89,8 +89,14 @@ for j in range(1, nro_ep):
     yy[:,j] = ty
     mm[:,j] = mm2
 
+print 'Valores de XY antes:'
+print np.transpose([xs[:,0], ys[:,0]])
+
 xs[:,0] = np.nanmean(xx, axis=1)
 ys[:,0] = np.nanmean(yy, axis=1)
+
+print 'Valores de XY despues:'
+print np.transpose([xs[:,0], ys[:,0]])
 
 msmask  = np.ma.array(mm, mask=np.isnan(mm))
 ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
@@ -105,10 +111,15 @@ if iteracion2=='global':
             yy[:,j] = ty
             mm[:,j] = mm2
 
-        print xs[:,0]
+        print 'Valores de XY antes:'
+        print np.transpose([xs[:,0], ys[:,0]])
+
         xs[:,0] = np.nanmean(xx, axis=1)
-        print xs[:,0]
         ys[:,0] = np.nanmean(yy, axis=1)
+
+        print 'Valores de XY despues:'
+        print np.transpose([xs[:,0], ys[:,0]])
+
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
