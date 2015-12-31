@@ -167,9 +167,9 @@ if iteracion2=='local':
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
-unique = np.unique(ids[np.isfinite(ids)])
+unique, counts = np.unique(ids[np.isfinite(ids)], return_counts=True)
 
-if len(unique)==len(ids):
+if np.all(counts==1):
     for i in range(1,ids.shape[1]):
         idx = np.isnan(ids[:,0])
         ids[:,0][idx] = ids[:,i][idx]
