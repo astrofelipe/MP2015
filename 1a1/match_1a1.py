@@ -20,7 +20,7 @@ if len(sys.argv) == 1:
 ######### INPUT USUARIO
 #python match1a1.py folder ref_cat
 #folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
-modo      = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
+modo      = '"RA DEC"'            #'ID' o '"RA DEC"' (comillas para varias columnas)
 tol       = 0.3             #Tolerancia match (caso RA DEC)
 inputs    = sys.argv[1]
 ref_cat   = sys.argv[2] #catalogo de referencia
@@ -30,7 +30,7 @@ stilts_folder = os.path.dirname(os.path.realpath(__file__))
 catalog  = np.genfromtxt(inputs, dtype='string')
 #catalog  = sorted(glob.glob(folder+'*k*.dat'))
 
-matcher = 'sky params=%.f' % tol
+matcher = 'sky params=%.3f' % tol
 if modo=='ID':
     matcher = 'exact'
 
@@ -41,7 +41,9 @@ def match(cat):
         return
     zeros = ref_cat.split('.')[0][-3:]
     #os.system('java -jar -Xmx4096M stilts.jar tmatch2 in1='+ref_cat+' values1="RA DEC" ifmt1=ascii in2='+cat+' values2="RA DEC" ifmt2=ascii matcher=sky params="0.3" find=best join=1and2 out='+cat.replace('.dat','_'+cat[-7:-4]+'.match')+' ofmt=ascii')
-    os.system('java -jar '+ stilts_folder+'/stilts.jar tmatch2 in1='+ref_cat+' values1='+modo+' ifmt1=ascii in2='+cat+' values2='+modo+' ifmt2=ascii matcher='+matcher+' find=best join=1and2 out='+cat.replace('.dat','_'+zeros+'.mat')+' ofmt=ascii')
+    execute = 'java -jar '+ stilts_folder+'/stilts.jar tmatch2 in1='+ref_cat+' values1='+modo+' ifmt1=ascii in2='+cat+' values2='+modo+' ifmt2=ascii matcher='+matcher+' find=best join=1and2 out='+cat.replace('.dat','_'+zeros+'.mat')+' ofmt=ascii'
+    #print execute,'\n'
+    os.system(execute)
 
 cpus = (1 + mp.cpu_count()/2)
 

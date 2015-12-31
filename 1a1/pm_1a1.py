@@ -150,8 +150,8 @@ plt.savefig('VPDH.pdf', dpi=200)
 PM_X[np.isnan(PM_X)] = 999.9
 PM_Y[np.isnan(PM_Y)] = 999.9
 
-
-
+fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
 
 if not os.path.isfile('PM_final.dat'):
     np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count]), fmt=fmt, header=hdr)

@@ -128,7 +128,6 @@ fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_r
 ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
-print nro_arch
 if nro_arch < 100:
     fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
     altura = 3.5*nro_rows
