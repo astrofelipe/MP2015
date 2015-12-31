@@ -21,6 +21,7 @@ def linear(coords, a, b, c):
     return a*x + b*y + c
 
 #PIPELINE
+print '\nLeyendo datos...'
 data = np.genfromtxt(masterst, unpack=True, delimiter=',')
 data = data.T
 
