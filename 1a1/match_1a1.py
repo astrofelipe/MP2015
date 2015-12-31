@@ -31,7 +31,7 @@ catalog  = np.genfromtxt(inputs, dtype='string')
 #catalog  = sorted(glob.glob(folder+'*k*.dat'))
 
 matcher = 'sky params=%.f' % tol
-if modo=='ID'
+if modo=='ID':
     matcher = 'exact'
 
 #for cat in catalog:
