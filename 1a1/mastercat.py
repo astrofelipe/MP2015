@@ -9,7 +9,7 @@ min_mag    = 11     #Magnitud minima para estrellas a transformar
 max_mag    = 14     #Magnitud maxima...
 max_err    = .05    #Error maximo a considerar
 iteraciones = 5
-iteracion2 = 'global'
+iteracion2 = 'global'   #Global o Local
 
 nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2==global
 
@@ -167,16 +167,24 @@ if iteracion2=='local':
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
-unique, counts = np.unique(ids[np.isfinite(ids)], return_counts=True)
+ids_iguales = True
+for i in range(len(ids)):
+    ma    = np.isfinite(ids[i])
+    check = ids[i][ma][0]
+    condi = ids[i][ma] == check
 
-if np.all(counts==1):
+    ids_iguales *= np.all(condi)
+
+if ids_iguales:
+    print '\nSe encontro que los IDs son iguales'
     for i in range(1,ids.shape[1]):
         idx = np.isnan(ids[:,0])
         ids[:,0][idx] = ids[:,i][idx]
 
 else:
+    print '\nAsignando IDs a estrellas no encontradas en la primera epoca'
     idx = np.isnan(ids[:, 0])
-    nid = np.arange(np.sum(idx)) + 1e6
+    nid = np.arange(np.sum(idx)) + 5e6 + 1
     ids[:, 0][idx] = nid
 
 #Asigna RA DEC
