@@ -45,11 +45,16 @@ for i in range(itera):
     print '\tEjecutando pm_1a1.py'
     subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
 
+    print '\tEjecutando VPDHmag.py'
+    subprocess.call('python %s/VPDHmag.py' % stilts_folder, shell=True)
+
     print '\tMoviendo archivos'
     subprocess.call('mv %s*.pdf iter_%d' % (output, (i+1)), shell=True)
     subprocess.call('mv %s iter_%d' % (refstars, (i+1)), shell=True)
+    makedir('iter_%d/PMs' % (i+1))
     subprocess.call('mv PM*.dat iter_%d' % (i+1), shell=True)
-    subprocess.call('mv PMs iter_%d' % (i+1), shell=True)
+    subprocess.call('mv PMs/* iter_%d/PMs' % (i+1), shell=True)
+    subprocess.call('mv VPD*.pdf iter_%d' % (i+1), shell=True)
 
     print '\tGenerando nuevo archivo de refstars'
     ids, pmx, pmy, nf = np.genfromtxt('iter_%d/PM_final.dat' % (i+1), unpack=True, usecols=(0,3,4,6))
@@ -63,4 +68,4 @@ for i in range(itera):
     fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
     hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
 
-    np.savetxt(refstars, data, fmt=fmt, hdr=hdr)
+    np.savetxt(refstars, data, fmt=fmt, header=hdr)
