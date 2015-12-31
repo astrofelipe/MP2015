@@ -21,7 +21,7 @@ if len(sys.argv) == 1:
 #python match1a1.py folder ref_cat
 #folder    = sys.argv[1] #path al directorio de las imagenes/catalogos
 modo      = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
-tol       = 0.3             #Tolerancia match
+tol       = 0.3             #Tolerancia match (caso RA DEC)
 inputs    = sys.argv[1]
 ref_cat   = sys.argv[2] #catalogo de referencia
 ######### FIN INPUT USUARIO
