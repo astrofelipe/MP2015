@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 import numpy as np
+from astropy.utils.console import color_print
 
 #PARAMETROS
 radio = 3       #Radio en arcsec para iterar
@@ -18,7 +19,7 @@ def makedir(directory):
 
 
 #PIPELINE
-print '\nIniciando script, recuerda eliminar la carpeta PMs, el archivo PM.dat, etc. antes de ejecutar'
+color_print('\nIniciando script, recuerda eliminar la carpeta PMs, el archivo PM.dat, etc. antes de ejecutar','yellow')
 
 output = subprocess.check_output('grep "PDF de Output" %s/tlineal_1a1.py' % stilts_folder, shell=True)
 output = output.split("'")[1]
@@ -34,21 +35,21 @@ print 'Archivo de refstars: %s' % refstars
 print 'nframes en pm_1a1.py: %d' % nframes
 
 for i in range(itera):
-    print '\nComenzando iteracion: %d' % (i+1)
+    color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
 
     #Crea carpeta para guardar los outputs
     makedir('iter_%d' % (i+1))
 
-    print '\tEjecutando tlineal_1a1.py'
+    color_print('\tEjecutando tlineal_1a1.py', 'cyan')
     subprocess.call('python %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
 
-    print '\tEjecutando pm_1a1.py'
+    color_print('\tEjecutando pm_1a1.py', 'cyan')
     subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
 
-    print '\tEjecutando VPDHmag.py'
+    color_print('\tEjecutando VPDHmag.py', 'cyan')
     subprocess.call('python %s/VPDHmag.py' % stilts_folder, shell=True)
 
-    print '\tMoviendo archivos'
+    color_print('\tMoviendo archivos', 'cyan')
     subprocess.call('mv %s*.pdf iter_%d' % (output, (i+1)), shell=True)
     subprocess.call('mv %s iter_%d' % (refstars, (i+1)), shell=True)
     makedir('iter_%d/PMs' % (i+1))
@@ -56,7 +57,7 @@ for i in range(itera):
     subprocess.call('mv PMs/* iter_%d/PMs' % (i+1), shell=True)
     subprocess.call('mv VPD*.pdf iter_%d' % (i+1), shell=True)
 
-    print '\tGenerando nuevo archivo de refstars'
+    color_print('\tGenerando nuevo archivo de refstars', 'cyan')
     ids, pmx, pmy, nf = np.genfromtxt('iter_%d/PM_final.dat' % (i+1), unpack=True, usecols=(0,3,4,6))
     pmr = np.sqrt(pmx**2 + pmy**2)
 
