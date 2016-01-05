@@ -9,9 +9,9 @@ min_mag    = 11     #Magnitud minima para estrellas a transformar
 max_mag    = 14     #Magnitud maxima...
 max_err    = .05    #Error maximo a considerar
 iteraciones = 5
-iteracion2 = 'global'   #Global o Local
+iteracion2 = 'global'   #global o local
 
-nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2==global
+nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
 
 masterst   = sys.argv[1]
 
@@ -21,6 +21,17 @@ def linear(coords, a, b, c):
     return a*x + b*y + c
 
 #PIPELINE
+print '\nUsando...'
+print 'min_epochs:  %d' % min_epochs
+print 'min_mag:     %d' % min_mag
+print 'max_mag:     %d' % max_mag
+print 'max_err      %.f' % max_err
+print 'iteraciones: %d' % iteraciones
+print 'iteracion2:  %s' % iteracion2
+if iteracion2=='local':
+    print 'nrefstars:   %d' % nrefstars
+
+
 print '\nLeyendo datos...'
 data = np.genfromtxt(masterst, unpack=True, delimiter=',')
 data = data.T

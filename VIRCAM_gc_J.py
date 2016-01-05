@@ -16,10 +16,10 @@ import os
 
 search_text = '*k*.dao'  # Texto para hacer busqueda de archivo/s ('*k*.dao', 'b242_3_k_11-028.dao')
 skip_header = 3          # Numero de lineas del header
-x_col = 1                # Numero (desde 0) de columna de x
-y_col = 2                # Numero (desde 0) de columna de y
-nchip = 11               # Numero de chip a corregir
-path = '/Users/apple/Dropbox/Magister/Cursos/InvestigacionC/matias/python_Libralato/' #path to files
+x_col = 3                # Numero (desde 0) de columna de x
+y_col = 4                # Numero (desde 0) de columna de y
+#nchip = 11               # Numero de chip a corregir
+#path = '/Users/apple/Dropbox/Magister/Cursos/InvestigacionC/matias/python_Libralato/' #path to files
 
 #
 #  FIN MODIFICACIONES

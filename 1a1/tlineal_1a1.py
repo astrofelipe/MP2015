@@ -56,6 +56,12 @@ plot_del_ep = True     #Plot delta vs epocas
 plot_del_xy = True      #Plot delta vs coor_x o coor_y
 
 ############################################# CODIGO
+print 'Iniciando con...'
+print 'nrefstars: %d' % nrefstars
+print 'min_nei:   %d' % min_nei
+print 'rad_int:   %d' % rad_int
+print 'rad_ext:   %d' % rad_ext
+
 
 input_files   = sys.argv[1]
 if not os.path.isfile(refer):
@@ -439,17 +445,22 @@ for i in range(nro_arch):
     #print 'bpoints:', bplot
 
     #Estadistica estrellas azules a incluir en plot output.psf
-    xmean_b = np.nanmean((x1-ctx)[~ref])
-    ymean_b = np.nanmean((y1-cty)[~ref])
-    xstd_b    = np.nanstd((x1-ctx)[~ref])
-    ystd_b    = np.nanstd((y1-cty)[~ref])
+    no_ocho = (x1-ctx) != 888.8
+    xmean_b = np.nanmean((x1-ctx)[~ref*no_ocho])
+    ymean_b = np.nanmean((y1-cty)[~ref*no_ocho])
+    xstd_b    = np.nanstd((x1-ctx)[~ref*no_ocho])
+    ystd_b    = np.nanstd((y1-cty)[~ref*no_ocho])
+
+    print x1[~ref*no_ocho]
+    print ctx[~ref*no_ocho]
+    print (x1-ctx)[~ref*no_ocho]
 
     #Estadistica estrellas rojas (refstars) a incluir en plot output.psf
     #se cae si uso los .gc y rad_ref o x0,y0 referido a los archivos.mat
-    xmean_r = np.nanmean((x1-ctx)[ref*m_ref*r_ref])
-    ymean_r = np.nanmean((y1-cty)[ref*m_ref*r_ref])
-    xstd_r    = np.nanstd((x1-ctx)[ref*m_ref*r_ref])
-    ystd_r    = np.nanstd((y1-cty)[ref*m_ref*r_ref])
+    xmean_r = np.nanmean((x1-ctx)[ref*m_ref*r_ref*no_ocho])
+    ymean_r = np.nanmean((y1-cty)[ref*m_ref*r_ref*no_ocho])
+    xstd_r    = np.nanstd((x1-ctx)[ref*m_ref*r_ref*no_ocho])
+    ystd_r    = np.nanstd((y1-cty)[ref*m_ref*r_ref*no_ocho])
     #print 'xmean_r', xmean_r
 
     #?Porque definir esto?

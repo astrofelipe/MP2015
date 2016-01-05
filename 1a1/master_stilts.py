@@ -4,8 +4,12 @@ import os
 
 #PARAMETROS A EDITAR
 match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
-#modo          = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
-modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+modo          = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+#modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+
+print 'Usando...'
+print 'match_tol: %f' % match_tol
+print 'modo:      %s' % modo
 
 #FIN PARAMETROS
 stilts_folder = os.path.dirname(os.path.realpath(__file__)) #STILTS debe estar con el archivo .py

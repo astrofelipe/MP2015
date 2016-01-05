@@ -13,7 +13,10 @@ from scipy.optimize import curve_fit
 nframes = 3    #Numero minimo de epocas en que debe estar la estrella
 nbins   = 1   #Delta del bin
 
-match = True
+print 'Usando...'
+print 'nframes: %d' % nframes
+print 'nbins:   %d' % nbins
+
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 cpun = multiprocessing.cpu_count()
 
@@ -30,7 +33,7 @@ nro_arch   = len(archivos)
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 print 'Epocas: ', nro_epoca
 
-#Realiza el match entre los PM_.dat
+#Realiza el match entre los PM_*.dat
 if not os.path.isfile('PM.dat'):
     ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
     ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always suffix1="REF" ' % referencia
@@ -123,6 +126,7 @@ nbins = np.arange(-30, 30+nbins, nbins)
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-30, 30), ylim=(-30, 30))
+ax.text(-25, 25, 'Nro estrellas: %d' % PM_X.size)
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)

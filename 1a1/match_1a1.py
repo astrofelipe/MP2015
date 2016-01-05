@@ -26,6 +26,10 @@ inputs    = sys.argv[1]
 ref_cat   = sys.argv[2] #catalogo de referencia
 ######### FIN INPUT USUARIO
 
+print 'Iniciando con...'
+print 'modo: %s' % modo
+print 'tol:  %.f' % tol
+
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 catalog  = np.genfromtxt(inputs, dtype='string')
 #catalog  = sorted(glob.glob(folder+'*k*.dat'))

@@ -15,7 +15,8 @@ if len(sys.argv)==1:
 min_epochs = 5
 input_list = sys.argv[1]
 
-
+print 'Iniciando con...'
+print 'min_epochs: %d' % min_epochs
 
 archivos   = np.genfromtxt(input_list, dtype='string')
 

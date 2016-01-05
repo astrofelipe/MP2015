@@ -8,6 +8,10 @@ from astropy.utils.console import color_print
 radio = 3       #Radio en arcsec para iterar
 itera = 3       #Numero de iteraciones
 
+print 'Iniciando script con...'
+print 'radio: %d' % radio
+print 'itera: %d' % itera
+
 #FUNCIONES Y OTROS PARAMETROS
 inputs        = sys.argv[1]
 ref_cat       = sys.argv[2]

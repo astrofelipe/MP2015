@@ -4,8 +4,14 @@ import numpy as np
 #PARAMETROS
 lim    = 20
 mags   = 11, 14
-delta  = 1
-min_ep = 10
+delta  = .5
+min_ep = 2
+
+print 'Usando...'
+print 'lim:    %d' % lim
+print 'mags:   %d,%d' % (mags[0], mags[1])
+print 'delta:  %.f' % delta
+print 'min_ep: %d' % min_ep
 
 #PIPELINE
 
