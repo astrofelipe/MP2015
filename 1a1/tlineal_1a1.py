@@ -451,10 +451,6 @@ for i in range(nro_arch):
     xstd_b    = np.nanstd((x1-ctx)[~ref*no_ocho])
     ystd_b    = np.nanstd((y1-cty)[~ref*no_ocho])
 
-    print x1[~ref*no_ocho]
-    print ctx[~ref*no_ocho]
-    print (x1-ctx)[~ref*no_ocho]
-
     #Estadistica estrellas rojas (refstars) a incluir en plot output.psf
     #se cae si uso los .gc y rad_ref o x0,y0 referido a los archivos.mat
     xmean_r = np.nanmean((x1-ctx)[ref*m_ref*r_ref*no_ocho])

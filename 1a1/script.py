@@ -70,7 +70,7 @@ for i in range(itera):
     data = np.genfromtxt('iter_%d/PM_final.dat' % (i+1))
     data = data[mask]
 
-    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
-    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
+    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f'
+    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE'
 
     np.savetxt(refstars, data, fmt=fmt, header=hdr)

@@ -77,7 +77,7 @@ count = np.sum(dx_fin, axis=1)
 
 def PM_calc(i):
     if not dx_fin[i].sum() >= nframes:
-        return np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan
     else:
         ma  = dx_fin[i]
         x   = yrs[ma]
@@ -100,18 +100,36 @@ def PM_calc(i):
         popt, pcov = curve_fit(recta, x, yx, sigma=ss)
         #pmxx = model.estimator_.coef_[0,0]
         pmxx = popt[0]
+        pmex = pcov[0,0]
 
         #Ajusta pmy
         #model.fit(x[:, np.newaxis], yy)
         popt, pcov = curve_fit(recta, x, yy, sigma=ss)
         #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
+        pmey = pcov[0,0]
 
-        return pmxx, pmyy
+        '''
+        res = yx - recta(x,*popt)
+        print np.std(res)
+        print np.sqrt(pmex)
+        print np.sqrt(pcov[1,1])
+        print
+        print pmxx
+        print
+        '''
 
-PMS = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+        return pmxx, pmyy, pmex, pmey
+
+PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+
+PMS = np.array(PMS_all[0:2])
+PME = np.array(PMS_all[2:])
 PMS = PMS * 1000 * 0.339
+PME = PME * 1000 * 0.339
+
 PM_X, PM_Y = PMS
+PMXE, PMYE = PME
 #PM_X, PM_Y = PM_X[np.isfinite(PM_X)], PM_Y[np.isfinite(PM_Y)]
 #ids = ids[np.isfinite(PM_X)]
 
@@ -153,12 +171,14 @@ plt.savefig('VPDH.pdf', dpi=200)
 
 PM_X[np.isnan(PM_X)] = 999.9
 PM_Y[np.isnan(PM_Y)] = 999.9
+PMXE[np.isnan(PMXE)] = 999.9
+PMYE[np.isnan(PMYE)] = 999.9
 
-fmt = '%d %.6f %.6f %.6f %.6f %.3f %d'
-hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES'
+fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE'
 
 if not os.path.isfile('PM_final.dat'):
-    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count]), fmt=fmt, header=hdr)
+    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE]), fmt=fmt, header=hdr)
 else:
     print '\nPM_final.dat encontrado, no se creo archivo!'
 
