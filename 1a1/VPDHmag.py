@@ -2,14 +2,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #PARAMETROS
-lim    = 20
+limplot = 20
 mags   = 11, 14
 delta  = .5
 min_ep = 2
 
 print 'Usando...'
-print 'lim:    %d' % lim
-print 'mags:   %d,%d' % (mags[0], mags[1])
+print 'limplot:    %d' % limplot
+print 'mags:   %f,%f' % (mags[0], mags[1])
 print 'delta:  %.f' % delta
 print 'min_ep: %d' % min_ep
 
@@ -23,7 +23,7 @@ ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye = np.transpose(data.T[data[-3] >= m
 
 fig, ax = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
-bins = np.arange(-20,21,1)
+bins = np.arange(-limplot,limplot+1,1)
 co   = []
 
 for i in range(len(ax)):
@@ -58,8 +58,8 @@ for i in range(len(ax)):
     ax[i].text(.066,.933, 'Nro stars: %d' % nstars, transform = ax[i].transAxes)
     ap[i].text(.066,.933, 'Nro stars: %d' % nstars, transform = ap[i].transAxes)
 
-    ax[i].set(xlim=(-lim, lim), ylim=(-lim, lim))
-    ap[i].set(xlim=(-lim, lim), ylim=(-lim, lim))
+    ax[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
+    ap[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 
 fig.savefig('VPDHmag.pdf', dpi=200, bbox_inches='tight')
 fip.savefig('VPDmag.pdf', dpi=200, bbox_inches='tight')
