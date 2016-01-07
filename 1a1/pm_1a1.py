@@ -12,6 +12,7 @@ from scipy.optimize import curve_fit
 #PARAMETROS
 nframes = 2    #Numero minimo de epocas en que debe estar la estrella
 nbins   = 1   #Delta del bin
+limplot = 30
 
 print 'Usando...'
 print 'nframes: %d' % nframes
@@ -138,12 +139,12 @@ pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
 #nbins = int(np.sqrt(len(pmxa)))
-nbins = np.arange(-30, 30+nbins, nbins)
+nbins = np.arange(-limplot, limplot+nbins, nbins)
 #nbins    = np.arange(-30, 30, 0.1)
 
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
-ax.set(xlim=(-30, 30), ylim=(-30, 30))
+ax.set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 ax.text(-25, 25, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
 plt.savefig('VPD.pdf', dpi=200)
 
@@ -162,10 +163,10 @@ ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
 axu.hist(pmxa, bins=nbins, histtype='step')
 axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 
-axu.set(xlim=(-30, 30))
-axr.set(ylim=(-30, 30))
-ax2.set_xlim(-30, 30)
-ax2.set_ylim(-30, 30)
+axu.set(xlim=(-limplot, limplot))
+axr.set(ylim=(-limplot, limplot))
+ax2.set_xlim(-limplot, limplot)
+ax2.set_ylim(-limplot, limplot)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
