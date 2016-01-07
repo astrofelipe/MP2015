@@ -19,7 +19,7 @@ celdas = int((mags[1] - mags[0]) / delta)
 sep    = np.arange(mags[0], mags[1]+delta, delta)
 
 data = np.genfromtxt('PM_final.dat', unpack=True)
-ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye = np.transpose(data.T[data[-1] >= min_ep])
+ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye = np.transpose(data.T[data[-3] >= min_ep])
 
 fig, ax = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
