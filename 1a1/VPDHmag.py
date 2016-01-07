@@ -10,7 +10,7 @@ min_ep = 2
 print 'Usando...'
 print 'limplot:    %d' % limplot
 print 'mags:   %f,%f' % (mags[0], mags[1])
-print 'delta:  %.f' % delta
+print 'delta:  %.1f' % delta
 print 'min_ep: %d' % min_ep
 
 #PIPELINE

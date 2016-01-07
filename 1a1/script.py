@@ -35,7 +35,7 @@ nframes = subprocess.check_output('grep "Numero minimo de epocas en que debe est
 nframes = int(nframes.split(' ')[2])
 
 min_ep = subprocess.check_output('grep "min_ep =" %s/VPDHmag.py' % stilts_folder, shell=True)
-min_ep = int(nframes[-1])
+min_ep = int(min_ep.split(' ')[-1])
 
 print '\nOutput en tlineal_1a1.py: %s' % output
 print 'Archivo de refstars: %s' % refstars
@@ -64,7 +64,7 @@ subprocess.call('cp refstars0.gc refstars.gc', shell=True)
 for i in range(itera):
     color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
     if os.path.exists('iter_%d' % (i+1)):
-        subprocess.call('rm -r iter_%d' % (i+1))
+        subprocess.call('rm -r iter_%d' % (i+1), shell=True)
 
     #Crea carpeta para guardar los outputs
     makedir('iter_%d' % (i+1))
