@@ -38,6 +38,12 @@ print '\nOutput en tlineal_1a1.py: %s' % output
 print 'Archivo de refstars: %s' % refstars
 print 'nframes en pm_1a1.py: %d' % nframes
 
+if not os.path.isfile('refstars0.gc'):
+    print '\nArchivo refstars0.gc no encontrado!'
+    sys.exit()
+
+subprocess.call('cp refstars0.gc refstars.gc', shell=True)
+
 for i in range(itera):
     color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
 
@@ -74,3 +80,5 @@ for i in range(itera):
     hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE'
 
     np.savetxt(refstars, data, fmt=fmt, header=hdr)
+
+subprocess.call('rm -r PMs', shell=True)
