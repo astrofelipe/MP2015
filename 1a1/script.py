@@ -82,3 +82,4 @@ for i in range(itera):
     np.savetxt(refstars, data, fmt=fmt, header=hdr)
 
 subprocess.call('rm -r PMs', shell=True)
+subprocess.call('rm %s' % refstars, shell=True)
