@@ -46,6 +46,8 @@ subprocess.call('cp refstars0.gc refstars.gc', shell=True)
 
 for i in range(itera):
     color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
+    if os.path.exists('iter_%d' % (i+1)):
+        subprocess.call('rm -r iter_%d' % (i+1))
 
     #Crea carpeta para guardar los outputs
     makedir('iter_%d' % (i+1))
