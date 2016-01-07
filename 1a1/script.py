@@ -53,13 +53,13 @@ for i in range(itera):
     makedir('iter_%d' % (i+1))
 
     color_print('\tEjecutando tlineal_1a1.py', 'cyan')
-    subprocess.call('python %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
+    subprocess.call('python -u %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
 
     color_print('\tEjecutando pm_1a1.py', 'cyan')
-    subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
+    subprocess.call('python -u %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
 
     color_print('\tEjecutando VPDHmag.py', 'cyan')
-    subprocess.call('python %s/VPDHmag.py' % stilts_folder, shell=True)
+    subprocess.call('python -u %s/VPDHmag.py' % stilts_folder, shell=True)
 
     color_print('\tMoviendo archivos', 'cyan')
     subprocess.call('mv %s*.pdf iter_%d' % (output, (i+1)), shell=True)
