@@ -61,10 +61,13 @@ if not os.path.isfile('refstars0.gc'):
 
 subprocess.call('cp refstars0.gc refstars.gc', shell=True)
 
+try:
+    subprocess.call('rm -r iter_*', shell=True)
+except:
+    pass
+
 for i in range(itera):
     color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
-    if os.path.exists('iter_%d' % (i+1)):
-        subprocess.call('rm -r iter_%d' % (i+1), shell=True)
 
     #Crea carpeta para guardar los outputs
     makedir('iter_%d' % (i+1))
@@ -73,10 +76,10 @@ for i in range(itera):
     subprocess.call('python -u %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
 
     color_print('\tEjecutando pm_1a1.py', 'cyan')
-    subprocess.call('python -u %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
+    subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
 
     color_print('\tEjecutando VPDHmag.py', 'cyan')
-    subprocess.call('python -u %s/VPDHmag.py' % stilts_folder, shell=True)
+    subprocess.call('python %s/VPDHmag.py' % stilts_folder, shell=True)
 
     color_print('\tMoviendo archivos', 'cyan')
     subprocess.call('mv %s*.pdf iter_%d' % (output, (i+1)), shell=True)
