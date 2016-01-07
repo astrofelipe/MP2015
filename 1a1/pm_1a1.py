@@ -10,7 +10,7 @@ from matplotlib import gridspec
 from scipy.optimize import curve_fit
 
 #PARAMETROS
-nframes = 3    #Numero minimo de epocas en que debe estar la estrella
+nframes = 2    #Numero minimo de epocas en que debe estar la estrella
 nbins   = 1   #Delta del bin
 
 print 'Usando...'
@@ -144,7 +144,7 @@ nbins = np.arange(-30, 30+nbins, nbins)
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-30, 30), ylim=(-30, 30))
-ax.text(-25, 25, 'Nro estrellas: %d' % PM_X.size)
+ax.text(-25, 25, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
