@@ -34,9 +34,26 @@ refstars = refstars.split("'")[1]
 nframes = subprocess.check_output('grep "Numero minimo de epocas en que debe estar la estrella" %s/pm_1a1.py' % stilts_folder, shell=True)
 nframes = int(nframes.split(' ')[2])
 
+min_ep = subprocess.check_output('grep "min_ep =" %s/VPDHmag.py' % stilts_folder, shell=True)
+min_ep = int(nframes[-1])
+
 print '\nOutput en tlineal_1a1.py: %s' % output
 print 'Archivo de refstars: %s' % refstars
 print 'nframes en pm_1a1.py: %d' % nframes
+print 'min_ep en VPDHmag.py: %d' % min_ep
+
+nro_files = np.genfromtxt(inputs, unpack=True, dtype='string')
+if not nro_files.shape:
+    nro_files = np.atleast_1d(nro_files)
+nro_files = nro_files.size
+
+if nro_files < nframes:
+    print '\nNumero de archivos en el input es menor que nframes!'
+    sys.exit()
+
+if nro_files < min_ep:
+    print '\nNumero de archivos en el input es menor que min_ep!'
+    sys.exit()
 
 if not os.path.isfile('refstars0.gc'):
     print '\nArchivo refstars0.gc no encontrado!'
