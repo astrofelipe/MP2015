@@ -9,8 +9,8 @@ min_ep = 2
 
 print 'Usando...'
 print 'limplot:    %d' % limplot
-print 'mags:   %f,%f' % (mags[0], mags[1])
-print 'delta:  %.1f' % delta
+print 'mags:   %.3f,%.3f' % (mags[0], mags[1])
+print 'delta:  %.3f' % delta
 print 'min_ep: %d' % min_ep
 
 #PIPELINE
@@ -28,17 +28,17 @@ co   = []
 
 for i in range(len(ax)):
     if i == 0:
-        ma = (mag > mags[0])*(mag < sep[1])
+        ma = (mag > mags[0])*(mag < sep[1])*(pmx != 999.9)
         ax[i].set_title('%.1f > Ks > %.1f' % (sep[1], mags[0]))
         ap[i].set_title('%.1f > Ks > %.1f' % (sep[1], mags[0]))
     elif i== len(ax)-1:
         ax[i].set_title('%.1f > Ks > %.1f' % (sep[-2], mags[1]))
         ap[i].set_title('%.1f > Ks > %.1f' % (sep[-2], mags[1]))
-        ma = (mag > sep[-2])*(mag < mags[1])
+        ma = (mag > sep[-2])*(mag < mags[1])*(pmx != 999.9)
     else:
         ax[i].set_title('%.1f > Ks > %.1f' % (sep[i+1], sep[i]))
         ap[i].set_title('%.1f > Ks > %.1f' % (sep[i+1], sep[i]))
-        ma = (mag > sep[i])*(mag < sep[i+1])
+        ma = (mag > sep[i])*(mag < sep[i+1])*(pmx != 999.9)
 
     x = pmx[ma]
     y = pmy[ma]
