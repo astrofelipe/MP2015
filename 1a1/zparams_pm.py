@@ -7,8 +7,7 @@ mag1, mag2 = 20, 10     #Limite en magnitud
 
 #MASTER_STILTS.PY
 match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
-modo_ms       = 'ID'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
-#modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+modo_ms       = 'ID'    #Columnas para hacer el match (ej '"RA DEC"' o 'ID')
 
 #MASTER_MATCH_ID.PY
 min_epochs_mm = 2
