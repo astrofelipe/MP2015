@@ -4,15 +4,9 @@ import sys
 from joblib import Parallel, delayed
 from sklearn.neighbors import NearestNeighbors as NN
 
-min_epochs = 5      #Numero minimo de epocas para considerar la estrella
-min_mag    = 11     #Magnitud minima para estrellas a transformar
-max_mag    = 14     #Magnitud maxima...
-max_err    = .05    #Error maximo a considerar
-iteraciones = 5
-iteracion2 = 'global'   #global o local
+from zparams_pm import min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars
 
-nrefstars = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
-
+#ARGS
 masterst   = sys.argv[1]
 
 #FUNCIONES

@@ -5,8 +5,7 @@ import numpy as np
 from astropy.utils.console import color_print
 
 #PARAMETROS
-radio = 3       #Radio en arcsec para iterar
-itera = 3       #Numero de iteraciones
+from zparams_pm import radio, itera
 
 print 'Iniciando script con...'
 print 'radio: %d' % radio

@@ -35,25 +35,8 @@ if len(sys.argv) == 1:
 ## Las estrellas de referencia (refstars) son las que se usan para llevar a cabo las transformaciones
 ## de coordenadas de cada estrella analizada
 
-nrefstars = 51         #numero de refstars(+1) deseadas
-min_nei = 4         #Minimo de vecinos para considerar (sino tira 888)
-rad_int = 1         #Radio interior
-rad_ext = 300         #Radio exterior (0 -> selecciona nrefstars mas cercanas)
-output  = 'test'     #PDF de Output (reemplazara sin avisar!)
-refer   = 'refstars.gc' #Catalogo con las estrellas de referencia
-sort_mag = False      #Sort refstars segun mag y toma las nrefstars mas brillantes
-local   = True           #True para usar transf locales, False para usar global
-ma1,ma2 = 11.0,14.0      #Corte en magnitud para considerar estrellas a analizar
-mr1,mr2 = 11.0,14.0      #Corte en magnitud para las refstars
-mp1,mp2 = 11.0,12.0     #Corte en magnitud para plotear las refstars
-
-rad_ref = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
-x0,y0    = 1352,554       #Coordenadas centrales del circulo a considerar
-
-lim    = 2         #Limites del plot (cuadrado, por eso es uno)
-
-plot_del_ep = True     #Plot delta vs epocas
-plot_del_xy = True      #Plot delta vs coor_x o coor_y
+from zparams_pm import nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
+local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy
 
 ############################################# CODIGO
 print 'Iniciando con...'

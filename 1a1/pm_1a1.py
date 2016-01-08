@@ -10,9 +10,7 @@ from matplotlib import gridspec
 from scipy.optimize import curve_fit
 
 #PARAMETROS
-nframes = 2    #Numero minimo de epocas en que debe estar la estrella
-nbins   = 1   #Delta del bin
-limplot = 30
+from zparams_pm import nframes, nbins, limplot
 
 print 'Usando...'
 print 'nframes: %d' % nframes

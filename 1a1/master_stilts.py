@@ -2,10 +2,8 @@ import numpy as np
 import sys
 import os
 
-#PARAMETROS A EDITAR
-match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
-modo          = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
-#modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+#PARAMETROS
+from zparams_pm import match_tol, modo
 
 print 'Usando...'
 print 'match_tol: %f' % match_tol

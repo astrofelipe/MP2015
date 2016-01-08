@@ -11,8 +11,10 @@ if len(sys.argv)==1:
     print 'El match se hara usando la columna ID'
     sys.exit()
 
+#Parametros
+from zparams_pm import min_epochs
+
 #Argumentos
-min_epochs = 5
 input_list = sys.argv[1]
 
 print 'Iniciando con...'

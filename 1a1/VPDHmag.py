@@ -2,10 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #PARAMETROS
-limplot = 20
-mags   = 11, 14
-delta  = .5
-min_ep = 2
+from zparams_pm import limplot, mags, delta, min_ep
 
 print 'Usando...'
 print 'limplot:    %d' % limplot
