@@ -10,7 +10,7 @@ match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este par
 modo_ms       = 'ID'    #Columnas para hacer el match (ej '"RA DEC"' o 'ID')
 
 #MASTER_MATCH_ID.PY
-min_epochs_mm = 2       #Minimo de epocas para considerar una estrella 
+min_epochs_mm = 2       #Minimo de epocas para considerar una estrella
 
 #MASTERCAT.PY
 min_epochs  = 2  #Numero minimo de epocas para considerar la estrella (mastercat, PM_1a1, VPDHmag y master_match_id)
@@ -19,7 +19,6 @@ max_mag     = 14     #Magnitud maxima...
 max_err     = .05    #Error maximo a considerar
 iteraciones = 3
 iteracion2  = 'local'   #global o local
-
 nrefstars_mc   = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
 
 #MATCH_1a1.PY
