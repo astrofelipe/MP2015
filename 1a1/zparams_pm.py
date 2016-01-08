@@ -1,8 +1,12 @@
 #Archivo de parametros para las otras rutinas
 
-#SCRIPT.PY
-radio = 3   #Radio en arcsec para seleccionar las nuevas refstars
-itera = 3   #Numero de iteraciones
+#MASTER_STILTS.PY
+match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
+modo_ms       = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+#modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+
+#MASTER_MATCH_ID.PY
+min_epochs_mm = 5
 
 #MASTERCAT.PY
 min_epochs  = 2  #Numero minimo de epocas para considerar la estrella (mastercat, PM_1a1, VPDHmag y master_match_id)
@@ -14,16 +18,9 @@ iteracion2  = 'global'   #global o local
 
 nrefstars_mc   = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
 
-#PM_1a1.PY
-nframes   = 2    #Numero minimo de epocas en que debe estar la estrella
-nbins     = 1   #Delta del bin
-limplotpm = 30
-
-#VPDHmag.PY
-limplotvp = 30
-mags      = 11, 14
-delta     = .5
-min_ep    = 2
+#MATCH_1a1.PY
+modo_ma   = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
+tol       = 0.3             #Tolerancia match (caso RA DEC)
 
 #TLINEAL_1a1.PY
 nrefstars_tl = 51         #numero de refstars(+1) deseadas
@@ -41,19 +38,22 @@ mp1,mp2   = 11.0,12.0     #Corte en magnitud para plotear las refstars
 rad_ref  = 99999999       #Radio (pix) dentro del cual una refstar se considera para plot
 x0,y0    = 1352,554       #Coordenadas centrales del circulo a considerar
 
-lim    = 2         #Limites del plot (cuadrado, por eso es uno)
+lim    = 2         #Limites del plot en pixeles (cuadrado, por eso es uno)
 
 plot_del_ep = True     #Plot delta vs epocas
 plot_del_xy = True      #Plot delta vs coor_x o coor_y
 
-#MASTER_STILTS.PY
-match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
-modo_ms       = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
-#modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+#PM_1a1.PY
+nframes   = 2    #Numero minimo de epocas en que debe estar la estrella
+nbins     = 1    #Delta del bin
+limplotpm = 30   #Limites del plot VPD en mas/yr
 
-#MASTER_MATCH_ID.PY
-min_epochs_mm = 5
+#VPDHmag.PY
+limplotvp = 30          #Limites del plot (bineado) en mas/yr
+mags      = 11, 14      #Limite de magnitudes para plotear
+delta     = .5          #Intervalo de magnitudes
+min_ep    = 2           #Minimo de epocas en que debe estar una estrella para considerar
 
-#MATCH_1a1.PY
-modo_ma   = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
-tol       = 0.3             #Tolerancia match (caso RA DEC)
+#SCRIPT.PY
+radio = 3   #Radio en arcsec para seleccionar las nuevas refstars de PM_final.dat
+itera = 3   #Numero de iteraciones

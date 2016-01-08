@@ -18,7 +18,8 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 #PARAMETROS
-from zparams_pm import modo, tol
+from zparams_pm import modo_ma, tol
+modo = modo_ma
 
 ######### INPUT USUARIO
 #python match1a1.py folder ref_cat

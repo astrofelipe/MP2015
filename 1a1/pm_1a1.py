@@ -10,7 +10,8 @@ from matplotlib import gridspec
 from scipy.optimize import curve_fit
 
 #PARAMETROS
-from zparams_pm import nframes, nbins, limplot
+from zparams_pm import nframes, nbins, limplotpm
+limplot = limplotpm
 
 print 'Usando...'
 print 'nframes: %d' % nframes

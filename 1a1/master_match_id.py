@@ -12,7 +12,7 @@ if len(sys.argv)==1:
     sys.exit()
 
 #Parametros
-from zparams_pm import min_epochs
+from zparams_pm import min_epochs_mm as min_epochs
 
 #Argumentos
 input_list = sys.argv[1]

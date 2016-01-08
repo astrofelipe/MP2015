@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #PARAMETROS
-from zparams_pm import limplot, mags, delta, min_ep
+from zparams_pm import limplotvp, mags, delta, min_ep
+limplot = limplotvp
 
 print 'Usando...'
 print 'limplot:    %d' % limplot

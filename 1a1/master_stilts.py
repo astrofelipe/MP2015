@@ -3,11 +3,11 @@ import sys
 import os
 
 #PARAMETROS
-from zparams_pm import match_tol, modo
+from zparams_pm import match_tol, modo_ms
 
 print 'Usando...'
 print 'match_tol: %f' % match_tol
-print 'modo:      %s' % modo
+print 'modo:      %s' % modo_ms
 
 #FIN PARAMETROS
 stilts_folder = os.path.dirname(os.path.realpath(__file__)) #STILTS debe estar con el archivo .py
@@ -18,12 +18,12 @@ archivos = np.genfromtxt(inputs, dtype='string')
 
 #Selecciona modo
 matcher = 'sky params=%.3f' % match_tol
-if modo == 'ID':
+if modo_ms == 'ID':
     matcher = 'exact'
 
 supermatch  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=%s ' % (stilts_folder, len(archivos), matcher)
 for i in range(1, len(archivos)+1):
-    supermatch += 'in%d=%s ifmt%d=ascii values%d=%s join%d=always ' % (i, archivos[i-1], i, i, modo, i)
+    supermatch += 'in%d=%s ifmt%d=ascii values%d=%s join%d=always ' % (i, archivos[i-1], i, i, modo_ms, i)
 supermatch += 'out=master_stilts.dat ofmt=csv'
 
 print supermatch

@@ -38,6 +38,8 @@ if len(sys.argv) == 1:
 from zparams_pm import nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
 local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy
 
+nrefstars = nrefstars_tl
+
 ############################################# CODIGO
 print 'Iniciando con...'
 print 'nrefstars: %d' % nrefstars

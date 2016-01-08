@@ -4,7 +4,8 @@ import sys
 from joblib import Parallel, delayed
 from sklearn.neighbors import NearestNeighbors as NN
 
-from zparams_pm import min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars
+from zparams_pm import min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc
+nrefstars = nrefstars_mc
 
 #ARGS
 masterst   = sys.argv[1]
