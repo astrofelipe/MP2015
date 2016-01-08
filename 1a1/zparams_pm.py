@@ -2,24 +2,24 @@
 
 #MASTER_STILTS.PY
 match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
-modo_ms       = '"RA DEC"'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
+modo_ms       = 'ID'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
 #modo          = 'ID'         #Columnas para hacer el match (ej 'RA DEC' o 'ID')
 
 #MASTER_MATCH_ID.PY
-min_epochs_mm = 5
+min_epochs_mm = 2
 
 #MASTERCAT.PY
 min_epochs  = 2  #Numero minimo de epocas para considerar la estrella (mastercat, PM_1a1, VPDHmag y master_match_id)
 min_mag     = 11     #Magnitud minima para estrellas a transformar
 max_mag     = 14     #Magnitud maxima...
 max_err     = .05    #Error maximo a considerar
-iteraciones = 5
-iteracion2  = 'global'   #global o local
+iteraciones = 3
+iteracion2  = 'local'   #global o local
 
 nrefstars_mc   = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
 
 #MATCH_1a1.PY
-modo_ma   = '"RA DEC"'            #'ID' o '"RA DEC"' (comillas para varias columnas)
+modo_ma   = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
 tol       = 0.3             #Tolerancia match (caso RA DEC)
 
 #TLINEAL_1a1.PY

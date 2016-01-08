@@ -5,7 +5,7 @@ import numpy as np
 from astropy.utils.console import color_print
 
 #PARAMETROS
-from zparams_pm import radio, itera
+from zparams_pm import radio, itera, output, refer, nframes, min_ep
 
 print 'Iniciando script con...'
 print 'radio: %d' % radio
@@ -24,20 +24,20 @@ def makedir(directory):
 #PIPELINE
 color_print('\nIniciando script, recuerda eliminar la carpeta PMs, el archivo PM.dat, etc. antes de ejecutar','yellow')
 
-output = subprocess.check_output('grep "PDF de Output" %s/tlineal_1a1.py' % stilts_folder, shell=True)
-output = output.split("'")[1]
+#output = subprocess.check_output('grep "PDF de Output" %s/tlineal_1a1.py' % stilts_folder, shell=True)
+#output = output.split("'")[1]
 
-refstars = subprocess.check_output('grep "Catalogo con las estrellas de referencia" %s/tlineal_1a1.py' % stilts_folder, shell=True)
-refstars = refstars.split("'")[1]
+#refstars = subprocess.check_output('grep "Catalogo con las estrellas de referencia" %s/tlineal_1a1.py' % stilts_folder, shell=True)
+#refstars = refstars.split("'")[1]
 
-nframes = subprocess.check_output('grep "Numero minimo de epocas en que debe estar la estrella" %s/pm_1a1.py' % stilts_folder, shell=True)
-nframes = int(nframes.split(' ')[2])
+#nframes = subprocess.check_output('grep "Numero minimo de epocas en que debe estar la estrella" %s/pm_1a1.py' % stilts_folder, shell=True)
+#nframes = int(nframes.split(' ')[2])
 
-min_ep = subprocess.check_output('grep "min_ep =" %s/VPDHmag.py' % stilts_folder, shell=True)
-min_ep = int(min_ep.split(' ')[-1])
-
+#min_ep = subprocess.check_output('grep "min_ep =" %s/VPDHmag.py' % stilts_folder, shell=True)
+#min_ep = int(min_ep.split(' ')[-1])
+refstars = refer
 print '\nOutput en tlineal_1a1.py: %s' % output
-print 'Archivo de refstars: %s' % refstars
+print 'Archivo de refstars: %s' % refer
 print 'nframes en pm_1a1.py: %d' % nframes
 print 'min_ep en VPDHmag.py: %d' % min_ep
 

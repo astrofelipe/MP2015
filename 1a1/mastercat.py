@@ -174,7 +174,7 @@ if iteracion2=='local':
                 return tx, ty
 
             print 'Procesando epoca %d/%d' % (j, nro_ep-1)
-            rr = Parallel(n_jobs=4, verbose=0)(delayed(tl)(ii) for ii in range(len(x2[in2])))
+            rr = Parallel(n_jobs=4, verbose=0)(delayed(tl)(ii) for ii in xrange(len(x2[in2])))
             tx, ty = np.array(zip(*rr))
 
             xx[:,j][in2] = tx
