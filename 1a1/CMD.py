@@ -18,6 +18,8 @@ if len(sys.argv) == 1:
 
     sys.exit(1)
 
+from zparams_pm import cmd_modo, col1, col2, mag1, mag2
+
 #Numero de epocas a usar
 k_epoch = int(sys.argv[1])
 j_epoch = int(sys.argv[2])
@@ -45,5 +47,9 @@ if len(sys.argv) >3:
         ax.plot(J-K,K,'.k',ms=2,alpha=.5)
         ax.set_xlabel('$J-K$')
         ax.set_ylabel('$K$')
-        ax.invert_yaxis()
+        if cmd_modo=='manual':
+            ax.set_xlim(col1,col2)
+            ax.set_ylim(mag1,mag2)
+        else:
+            ax.invert_yaxis()
         plt.show()

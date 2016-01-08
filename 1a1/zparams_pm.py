@@ -1,5 +1,10 @@
 #Archivo de parametros para las otras rutinas
 
+#CMD.py
+cmd_modo = 'manual'
+col1, col2 = -2, 2      #Limite en color
+mag1, mag2 = 20, 10     #Limite en magnitud
+
 #MASTER_STILTS.PY
 match_tol     = .3           #Tolerancia para el modo a usar (ID no usa este parametro)
 modo_ms       = 'ID'    #Columnas para hacer el match (ej 'RA DEC' o 'ID')
