@@ -6,7 +6,7 @@ import os
 from zparams_pm import match_tol, modo_ms
 
 print 'Usando...'
-print 'match_tol: %f' % match_tol
+print 'match_tol: %.3f' % match_tol
 print 'modo:      %s' % modo_ms
 
 #FIN PARAMETROS

@@ -20,7 +20,7 @@ print '\nUsando...'
 print 'min_epochs:  %d' % min_epochs
 print 'min_mag:     %d' % min_mag
 print 'max_mag:     %d' % max_mag
-print 'max_err      %.f' % max_err
+print 'max_err      %.3f' % max_err
 print 'iteraciones: %d' % iteraciones
 print 'iteracion2:  %s' % iteracion2
 if iteracion2=='local':

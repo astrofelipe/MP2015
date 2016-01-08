@@ -30,7 +30,7 @@ ref_cat   = sys.argv[2] #catalogo de referencia
 
 print 'Iniciando con...'
 print 'modo: %s' % modo
-print 'tol:  %.f' % tol
+print 'tol:  %.3f' % tol
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 catalog  = np.genfromtxt(inputs, dtype='string')

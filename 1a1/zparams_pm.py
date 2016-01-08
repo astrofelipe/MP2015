@@ -19,7 +19,7 @@ iteracion2  = 'global'   #global o local
 nrefstars_mc   = 51 #Numero de vecinos locales (contando a la estrella propia) si iteracion2=='local'
 
 #MATCH_1a1.PY
-modo_ma   = 'ID'            #'ID' o '"RA DEC"' (comillas para varias columnas)
+modo_ma   = '"RA DEC"'            #'ID' o '"RA DEC"' (comillas para varias columnas)
 tol       = 0.3             #Tolerancia match (caso RA DEC)
 
 #TLINEAL_1a1.PY
