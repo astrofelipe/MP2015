@@ -2,7 +2,7 @@ from configparser import ConfigParser
 import numpy as np
 
 params = ConfigParser()
-params.read('zparams.ini')
+params.read('zparams_pm.py')
 
 def get_script():
     radio, itera = np.array(params['SCRIPT.PY'].values()).astype(int)
