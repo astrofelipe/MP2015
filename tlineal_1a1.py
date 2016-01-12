@@ -194,6 +194,7 @@ for i in range(nro_arch):
         #coords transformadas. Se crea arreglo de ceros
         ctx = np.zeros(x1.size)
         cty = np.zeros(y1.size)
+        nne = np.zeros(x1.size) - 1
 
         if rad_ext!=0:
 
@@ -297,6 +298,8 @@ for i in range(nro_arch):
                 if len(nei[k]) < min_nei:
                     ctx[k] = np.nan
                     cty[k] = np.nan
+
+                    nne[k] = len(nei[k])
                     #ctx[k] = x1[k] - 888.8
                     #cty[k] = y1[k] - 888.8
                     continue
@@ -332,6 +335,8 @@ for i in range(nro_arch):
                         #calcula las coords transformadas (ct):se le dan x2,y2 y usa poptx,popty
                 ctx[k] += linear([x2[k],y2[k]],*poptx)
                 cty[k] += linear([x2[k],y2[k]],*popty)
+
+                nne[k] = len(nei[k])
                                 #print'\nx_refcat:', x1[k]
                                 #print'y_refcat:', y1[k]
                 #print'\nx_transformed:', ctx[k]
@@ -388,12 +393,12 @@ for i in range(nro_arch):
     #se guarda id, delta_x y delta_y
     ctx[np.isnan(ctx)] = x1[np.isnan(ctx)] - 888.8
     cty[np.isnan(cty)] = y1[np.isnan(cty)] - 888.8
-    data = np.transpose([id1,x1-ctx,y1-cty])
+    data = np.transpose([id1,x1-ctx,y1-cty, nne])
     #print'\ndata', data.shape
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
     makedir('PMs')
-    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY', fmt='%d %f %f')
+    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI', fmt='%d %f %f %d')
 
     #PLOT OUTPUT.PSF
 

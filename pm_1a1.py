@@ -65,8 +65,15 @@ ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
 dec = dxdy_data[:,2]
-dx  = dxdy_data[:,8::3]
-dy  = dxdy_data[:,9::3]
+nei = dxdy_data[:,10::4]
+dx  = dxdy_data[:,8::4]
+dy  = dxdy_data[:,9::4]
+
+mean_nei = np.nanmean(nei, axis=1)
+std_nei  = np.nanstd(nei, axis=1)
+
+mean_nei[np.isnan(mean_nei)] = 999
+std_nei[np.isnan(std_nei)]   = 999
 
 dx_fin = np.isfinite(dx)*(dx!=888.8)
 dy_fin = np.isfinite(dy)*(dy!=888.8)
@@ -74,7 +81,7 @@ dy_fin = np.isfinite(dy)*(dy!=888.8)
 PM_X = np.zeros(dx_fin.shape[0]) - 999
 PM_Y = np.zeros(dy_fin.shape[0]) - 999
 
-count = np.sum(dx_fin, axis=1)
+count = np.sum(np.isfinite(dx), axis=1)
 
 def PM_calc(i):
     if not dx_fin[i].sum() >= nframes:
@@ -170,16 +177,16 @@ ax2.set_ylim(-limplot, limplot)
 
 plt.savefig('VPDH.pdf', dpi=200)
 
-PM_X[np.isnan(PM_X)] = 999.9
-PM_Y[np.isnan(PM_Y)] = 999.9
-PMXE[np.isnan(PMXE)] = 999.9
-PMYE[np.isnan(PMYE)] = 999.9
+PM_X[np.isnan(PM_X)] = 999
+PM_Y[np.isnan(PM_Y)] = 999
+PMXE[np.isnan(PMXE)] = 999
+PMYE[np.isnan(PMYE)] = 999
 
-fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f'
-hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE'
+fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
 
 if not os.path.isfile('PM_final.dat'):
-    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE]), fmt=fmt, header=hdr)
+    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)
 else:
     print '\nPM_final.dat encontrado, no se creo archivo!'
 
