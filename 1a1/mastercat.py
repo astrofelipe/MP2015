@@ -3,9 +3,9 @@ from scipy.optimize import curve_fit
 import sys
 from joblib import Parallel, delayed
 from sklearn.neighbors import NearestNeighbors as NN
-import pm_params
+import pm_funcs
 
-min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc = pm_params.get_mastercat()
+min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc = pm_funcs.get_mastercat()
 iteraciones = int(iteraciones)
 nrefstars = nrefstars_mc
 

@@ -4,7 +4,7 @@ from astropy.io import ascii
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
 from joblib import Parallel, delayed
-import pm_params
+import pm_funcs
 
 if len(sys.argv)==1:
     print 'Para ejecutar'
@@ -13,7 +13,7 @@ if len(sys.argv)==1:
     sys.exit()
 
 #Parametros
-min_epochs = pm_params.get_master_match()
+min_epochs = pm_funcs.get_master_match()
 
 #Argumentos
 input_list = sys.argv[1]

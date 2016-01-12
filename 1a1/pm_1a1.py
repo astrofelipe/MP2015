@@ -8,10 +8,10 @@ import multiprocessing
 from joblib import Parallel, delayed
 from matplotlib import gridspec
 from scipy.optimize import curve_fit
-import pm_params
+import pm_funcs
 
 #PARAMETROS
-nframes, nbins, limplotpm = pm_params.get_pm1a1()
+nframes, nbins, limplotpm = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
 print 'Usando...'
