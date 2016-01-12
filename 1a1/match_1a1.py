@@ -3,6 +3,7 @@ import glob
 import sys
 import multiprocessing as mp
 import numpy as np
+import pm_params
 
 #####Informacion extra
 if len(sys.argv) == 1:
@@ -18,7 +19,7 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 #PARAMETROS
-from zparams_pm import modo_ma, tol
+modo_ma, tol = pm_params.get_match1a1()
 modo = modo_ma
 
 ######### INPUT USUARIO

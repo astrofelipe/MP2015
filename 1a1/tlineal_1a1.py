@@ -5,6 +5,7 @@ import glob
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import pm_params
 from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
 from sklearn.neighbors import NearestNeighbors as NN
@@ -35,8 +36,8 @@ if len(sys.argv) == 1:
 ## Las estrellas de referencia (refstars) son las que se usan para llevar a cabo las transformaciones
 ## de coordenadas de cada estrella analizada
 
-from zparams_pm import nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
-local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy
+nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
+local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy = pm_params.get_tlineal()
 
 nrefstars = nrefstars_tl
 

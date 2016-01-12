@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import numpy as np
+import pm_params
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
@@ -18,7 +19,7 @@ if len(sys.argv) == 1:
 
     sys.exit(1)
 
-from zparams_pm import cmd_modo, col1, col2, mag1, mag2
+cmd_modo, col1, col2, mag1, mag2 = pm_params.get_CMD()
 
 #Numero de epocas a usar
 k_epoch = int(sys.argv[1])

@@ -1,8 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import pm_params
 
 #PARAMETROS
-from zparams_pm import limplotvp, mags, delta, min_ep
+
+limplotvp, mags, delta, min_ep = pm_params.get_VPDHmag()
 limplot = limplotvp
 
 print 'Usando...'

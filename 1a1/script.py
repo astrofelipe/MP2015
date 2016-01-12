@@ -2,10 +2,11 @@ import sys
 import os
 import subprocess
 import numpy as np
+import pm_params
 from astropy.utils.console import color_print
 
 #PARAMETROS
-from zparams_pm import radio, itera, output, refer, nframes, min_ep
+radio, itera, output, refer, nframes, min_ep = pm_params.get_script()
 
 print 'Iniciando script con...'
 print 'radio: %d' % radio

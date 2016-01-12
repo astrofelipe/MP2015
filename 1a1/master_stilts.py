@@ -1,9 +1,10 @@
 import numpy as np
 import sys
 import os
+import pm_params
 
 #PARAMETROS
-from zparams_pm import match_tol, modo_ms
+match_tol, modo_ms = pm_params.get_master_stilts()
 
 print 'Usando...'
 print 'match_tol: %.3f' % match_tol
