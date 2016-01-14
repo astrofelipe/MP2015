@@ -30,16 +30,9 @@ ma_nei = data[9] >= min_nei
 #Rejection por errores
 pme = np.sqrt(data[7]**2 + data[8]**2)
 ma_pme = np.abs(pme - np.nanmedian(pme)) < sigma_err*mad_std(pme - np.nanmedian(pme))
-print mad_std(pme - np.nanmedian(pme))
-print mad_std(pme)
-print pme
 
 #Rejection por numero de epocas
 ma_nep = data[6] >= min_ep
-
-print ma_nei.sum()
-print ma_pme.sum()
-print ma_nep.sum()
 
 ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye, nei, neistd = np.transpose(data.T[ma_nei*ma_pme*ma_nep])
 
