@@ -120,7 +120,7 @@ fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_r
 ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
-if nro_arch < 100:
+if nro_arch < 20:
     fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
     altura = 3.5*nro_rows
     tophdr = 1.0 / altura
@@ -132,8 +132,8 @@ else:
     tophdr = 1.0 / altura
 
     #Obtiene los peores seeing
-    seor = np.argsort(se)[::-1]
-    seor = seor[:99]
+    seor = np.argsort(se[3:])[::-1]
+    seor = seor[:17]
     print 'Epocas a plotear: ', nro_epoca[seor]
 
 
@@ -367,6 +367,7 @@ for i in range(nro_arch):
         #calcula las coords transformadas (ct):se le dan x2,y2 y usa poptx,popty
         ctx = linear([x2,y2],*poptx)
         cty = linear([x2,y2],*popty)
+        nne = np.zeros(len(ctx)) - 1
         #print'\nx_transformed:\n', ctx
         #print'y_transformed\n', cty
 
@@ -461,7 +462,7 @@ for i in range(nro_arch):
     stdx_ref[i]   += xstd_r
     stdy_ref[i]   += ystd_r
 
-    if np.any(i==seor):
+    if np.any(i==seor) or i<3:
         #####PTOS AZULES (CATALOGO-REFSTARS)
         axes[ii].scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
         #este lo puse yo para plotear circulos
