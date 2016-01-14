@@ -19,7 +19,7 @@ if len(sys.argv) == 1:
 
     sys.exit(1)
 
-cmd_modo, col1, col2, mag1, mag2 = pm_funcs.get_CMD()
+cmd_modo, match, col1, col2, mag1, mag2 = pm_funcs.get_CMD()
 
 #Numero de epocas a usar
 k_epoch = int(sys.argv[1])
@@ -33,11 +33,21 @@ j_catalog = glob.glob('*j*%03d.datgc' % j_epoch)[0]
 
 #Realiza el match usando K como referencia (1 and 2)
 print 'Archivos para generar el CMD: %s %s\n' % (k_catalog, j_catalog)
+if match=='RA DEC':
+    match   = "RA DEC"
+
+matcher = 'sky params=0.3'
+if match == 'ID':
+    matcher = 'exact'
+
 os.system('java -jar %s/stilts.jar tmatch2 \
-           in1=%s values1="RA DEC" ifmt1=ascii \
-           in2=%s values2="RA DEC" ifmt2=ascii \
-           matcher=sky params=0.3 find=best join=all1 \
-           out=%s ofmt=ascii' % (stilts_folder,k_catalog,j_catalog,output) )
+               in1=%s values1="%s" ifmt1=ascii \
+               in2=%s values2="%s" ifmt2=ascii \
+               matcher=%s find=best join=all1 \
+               out=%s ofmt=ascii' % (stilts_folder,k_catalog,match,j_catalog,match,matcher,output) )
+
+    #idk, rak, dek, xk, yk, magk, magek = np.genfromtxt(k_catalog, unpack=True)
+    #idj, raj, dej, xj, yj, magj, magej = np.genfromtxt(j_catalog, unpack=True)
 
 if len(sys.argv) >3:
     if sys.argv[3] == '-p':

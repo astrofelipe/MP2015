@@ -8,6 +8,9 @@ import multiprocessing
 from joblib import Parallel, delayed
 from matplotlib import gridspec
 from scipy.optimize import curve_fit
+from astropy.io import ascii
+from astropy.utils.console import ProgressBar
+from astropy.table import Table, join, hstack
 import pm_funcs
 
 #PARAMETROS
@@ -24,6 +27,14 @@ cpun = multiprocessing.cpu_count()
 def recta(x,a,b):
     return a*x + b
 
+def load_file(archivo):
+    data = np.genfromtxt(archivo, unpack=True)
+    return data
+
+def load_table(archivo):
+    tabla = Table.read(archivo, format='ascii')
+    return tabla
+
 #Lee los archivos con DX DY
 referencia = sys.argv[1]
 
@@ -36,6 +47,7 @@ print 'Epocas: ', nro_epoca
 
 #Realiza el match entre los PM_*.dat
 if not os.path.isfile('PM.dat'):
+    '''
     ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
     ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always suffix1="REF" ' % referencia
     for i in range(1,nro_arch+1):
@@ -43,6 +55,46 @@ if not os.path.isfile('PM.dat'):
     ejecuta += 'out=PM.dat ofmt=ascii'
 
     os.system(ejecuta)
+    '''
+
+    todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    refdata = load_file(referencia)
+
+    #Genera matriz donde van todos los catalogos
+    allcat    = np.zeros((len(refdata.T), len(todos)*4))
+    allcat[:] = np.nan
+
+    total_id  = np.copy(refdata[0])
+
+    #Rellena la matriz
+    print 'Ingresando datos a la matriz...'
+    for i in ProgressBar(range(len(todos))):
+        ids = todos[i][0]
+        com = np.in1d(total_id, ids)
+        orden = np.argsort(ids)
+
+        allcat[:,i*4:i*4+4][com] = todos[i].T[orden]
+
+    #Genera el header
+    hdr = []
+    hdra = 'ID_REF,RA,DEC,X,Y,MAG,MAG_ERR'
+    hdr.append(hdra.split(','))
+    for i in range(len(todos)):
+        hdrb = 'ID_1,DX_1,DY_1,NEI_1'
+        hdrb = hdrb.replace('1','%d' % (i+1))
+        hdrb = hdrb.split(',')
+        hdr.append(hdrb)
+
+    hdr = np.hstack(hdr).tolist()
+
+    allcat = np.hstack([refdata.T, allcat])
+    nans = np.isnan(allcat)
+    allcat[nans] = -9898
+
+    output = Table(allcat, names=hdr)
+    print 'Guardando datos...'
+    ascii.write(output, 'PM.dat', delimiter=',', fill_values=[('-9898','')])
+
 else:
     print '\nPM.dat encontrado, no se creo archivo!'
 
@@ -59,7 +111,9 @@ yrs = (yr-yr[0])/365.25
 yrs = yrs[nro_epoca-1]
 see = see[nro_epoca-1]
 
-dxdy_data = np.genfromtxt('PM.dat')
+#dxdy_data = np.genfromtxt('PM.dat', delimiter=',')
+dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
+dxdy_data = np.array(dxdy_data.tolist())
 
 ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
@@ -68,6 +122,8 @@ dec = dxdy_data[:,2]
 nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
+
+print dx
 
 mean_nei = np.nanmean(nei, axis=1)
 std_nei  = np.nanstd(nei, axis=1)
@@ -184,6 +240,7 @@ PMYE[np.isnan(PMYE)] = 999
 
 fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
 hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
+print PM_X
 
 if not os.path.isfile('PM_final.dat'):
     np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)

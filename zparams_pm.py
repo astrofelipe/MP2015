@@ -5,6 +5,9 @@
 #Modo para seleccionar los limites (manual o auto)
 cmd_modo = manual
 
+#Columnas para usar en match (ID o RA DEC)
+match = ID
+
 #Limites en color
 col1     = -2
 col2     = 2
