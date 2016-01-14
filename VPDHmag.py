@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pm_funcs
+from astropy.stats import mad_std
 
 #PARAMETROS
 
-limplotvp, mags, delta, min_ep = pm_funcs.get_VPDHmag()
+limplotvp, mags, delta, min_ep, min_nei, sigma_err = pm_funcs.get_VPDHmag()
 limplot = limplotvp
 
 print 'Usando...'
@@ -19,7 +20,31 @@ celdas = int((mags[1] - mags[0]) / delta)
 sep    = np.arange(mags[0], mags[1]+delta, delta)
 
 data = np.genfromtxt('PM_final.dat', unpack=True)
-ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye, nei, neistd = np.transpose(data.T[data[6] >= min_ep])
+#Rejection por 999
+ma_999 = data[3] != 999
+data = data.T[ma_999].T
+
+#Rejection por vecinos
+ma_nei = data[9] >= min_nei
+
+#Rejection por errores
+pme = np.sqrt(data[7]**2 + data[8]**2)
+ma_pme = np.abs(pme - np.nanmedian(pme)) < sigma_err*mad_std(pme - np.nanmedian(pme))
+print mad_std(pme - np.nanmedian(pme))
+print mad_std(pme)
+print pme
+
+#Rejection por numero de epocas
+ma_nep = data[6] >= min_ep
+
+print ma_nei.sum()
+print ma_pme.sum()
+print ma_nep.sum()
+
+ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye, nei, neistd = np.transpose(data.T[ma_nei*ma_pme*ma_nep])
+
+#Rejection por vecinos
+ma_nei = nei >= min_nei
 
 fig, ax = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])

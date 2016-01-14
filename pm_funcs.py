@@ -14,10 +14,10 @@ def get_script():
     return radio, itera, output, refer, nframes, min_ep
 
 def get_VPDHmag():
-    limplotvp, magl, magh, delta, min_ep = np.array(params['VPDHmag.PY'].values()).astype('float')
+    limplotvp, magl, magh, delta, min_ep, min_nei, sigma_err = np.array(params['VPDHmag.PY'].values()).astype('float')
     mags = magl, magh
 
-    return limplotvp, mags, delta, min_ep
+    return limplotvp, mags, delta, min_ep, min_nei, sigma_err
 
 def get_tlineal():
     nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \

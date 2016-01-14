@@ -127,6 +127,12 @@ delta   = .5
 #Minimo de epocas en que debe estar una estrella para considerar
 min_ep  = 2
 
+#Minimo de vecinos con los que hizo la transformacion
+min_nei = 0
+
+#Numero de sigmas para hacer rejection por errores (modulo pmxe y pmye)
+sigma_err = 3
+
 [SCRIPT.PY]
 #Radio en arcsec para seleccionar las nuevas refstars de PM_final.dat
 radio = 3
