@@ -3,6 +3,7 @@ import os
 import sys
 import glob
 import matplotlib
+import subprocess
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pm_funcs
@@ -398,6 +399,8 @@ for i in range(nro_arch):
     #print'\ndata', data.shape
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
+    if os.path.exists('PMs'):
+        subprocess.call('rm -r PMs', shell=True)
     makedir('PMs')
     np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI', fmt='%d %f %f %d')
 
