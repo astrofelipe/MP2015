@@ -60,10 +60,10 @@ if not os.path.isfile(refer):
 #    print 'Bye Bye...'
 #    sys.exit(1)
 
-archivos = np.genfromtxt(input_files,unpack=True,dtype='string')
+archivos  = np.genfromtxt(input_files,unpack=True,dtype='string')
+muygrande = False
 if not archivos.shape:
     archivos = np.atleast_1d(archivos)
-    muygrande = False
 
 nro_arch = np.size(archivos)
 print 'archivos =',nro_arch
