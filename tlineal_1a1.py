@@ -133,7 +133,7 @@ else:
 
     #Obtiene los peores seeing
     seor = np.argsort(se[3:])[::-1]
-    seor = seor[:97]
+    seor = seor[:96]
     print 'Epocas a plotear: ', nro_epoca[seor]
 
 
