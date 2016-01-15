@@ -56,10 +56,6 @@ if not os.path.isfile(refer):
     print 'Bye Bye...'
     sys.exit(1)
 
-if os.path.exists('PMs'):
-    subprocess.call('rm -r PMs', shell=True)
-makedir('PMs')
-
 #if not os.path.isfile(folder+zinfo_img):
 #    print '\nNo encuentro archivo con la info -->', zinfo_img
 #    print 'Bye Bye...'
@@ -102,6 +98,10 @@ def recta(x,a,b):
 def makedir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+if os.path.exists('PMs'):
+    subprocess.call('rm -r PMs', shell=True)
+makedir('PMs')
 
 #Promedios de los 2 grupos (campo y refstars)
 #Creo vectores con tantos ceros como numero de archivos. Los vectores son horiz.
