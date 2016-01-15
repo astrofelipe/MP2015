@@ -56,6 +56,10 @@ if not os.path.isfile(refer):
     print 'Bye Bye...'
     sys.exit(1)
 
+if os.path.exists('PMs'):
+    subprocess.call('rm -r PMs', shell=True)
+makedir('PMs')
+
 #if not os.path.isfile(folder+zinfo_img):
 #    print '\nNo encuentro archivo con la info -->', zinfo_img
 #    print 'Bye Bye...'
@@ -399,9 +403,6 @@ for i in range(nro_arch):
     #print'\ndata', data.shape
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
-    if os.path.exists('PMs'):
-        subprocess.call('rm -r PMs', shell=True)
-    makedir('PMs')
     np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI', fmt='%d %f %f %d')
 
     #PLOT OUTPUT.PSF
