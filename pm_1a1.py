@@ -66,7 +66,7 @@ if not os.path.isfile('PM.dat'):
         maximos[i] = np.max(todos[i][0])
     maximo = np.max(maximos)
     maximo = np.max([maximo, np.nanmax(refdatax[0])])
-    print'\tMaximo: %d' %maximo
+    #print'\tMaximo: %d' %maximo
 
     total_id  = np.arange(1, maximo+1)
 
