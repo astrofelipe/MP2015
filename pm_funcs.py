@@ -38,12 +38,13 @@ def get_tlineal():
     local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy
 
 def get_CMD():
-    cmd_modo, match, col1, col2, mag1, mag2 = params['CMD.PY'].values()
+    cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf = params['CMD.PY'].values()
     col1, col2, mag1, mag2 = np.array([col1, col2, mag1, mag2]).astype(float)
     cmd_modo = str(cmd_modo)
     match    = str(match)
+    cmd_pdf  = str(cmd_pdf) == 'True'
 
-    return cmd_modo, match, col1, col2, mag1, mag2
+    return cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf
 
 def get_master_stilts():
     match_tol = float(params['MASTER_STILTS.PY']['match_tol'])

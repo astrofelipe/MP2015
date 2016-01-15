@@ -16,6 +16,9 @@ col2     = 2
 mag1     = 20
 mag2     = 10
 
+#Genera PDF
+cmd_pdf  = True 
+
 [MASTER_STILTS.PY]
 #Tolerancia para el modo a usar (ID no usa este parametro)
 match_tol     = .3
