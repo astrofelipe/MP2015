@@ -57,27 +57,40 @@ if not os.path.isfile('PM.dat'):
     os.system(ejecuta)
     '''
 
-    #todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
-    todos = []
-    for a in ProgressBar(archivos):
-        tod = load_file(a)
-        todos.append(tod)
-    refdata = load_file(referencia)
+    todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    maximos = np.zeros(len(todos))
+    refdatax = load_file(referencia)
+    refdatax = refdatax.T[np.argsort(refdatax[0])].T
+
+    for i in range(len(todos)):
+        maximos[i] = np.max(todos[i][0])
+    maximo = np.max(maximos)
+    maximo = np.max([maximo, np.nanmax(refdatax[0])])
+    print'\tMaximo: %d' %maximo
+
+    total_id  = np.arange(1, maximo+1)
+
+    refdata  = np.zeros((maximo, len(refdatax)))
+    refdata[:] = np.nan
+
+
+    refidsm = np.in1d(total_id, refdatax[0])
+    refdata[refidsm] = refdatax.T
 
     #Genera matriz donde van todos los catalogos
-    allcat    = np.zeros((len(refdata.T), len(todos)*4))
+    allcat    = np.zeros((maximo, len(todos)*4))
     allcat[:] = np.nan
 
-    total_id  = np.copy(refdata[0])
 
     #Rellena la matriz
     print 'Ingresando datos a la matriz...'
     for i in ProgressBar(range(len(todos))):
-        ids = todos[i][0]
-        com = np.in1d(total_id, ids)
-        orden = np.argsort(ids)
+        ids      = todos[i][0]
+        orden    = np.argsort(ids)
+        todos[i] = todos[i].T[orden].T
+        com      = np.in1d(total_id, todos[i][0])
 
-        allcat[:,i*4:i*4+4][com] = todos[i].T[orden]
+        allcat[:,i*4:i*4+4][com] = todos[i].T
 
     #Genera el header
     hdr = []
@@ -85,13 +98,15 @@ if not os.path.isfile('PM.dat'):
     hdr.append(hdra.split(','))
     for i in range(len(todos)):
         hdrb = 'ID_1,DX_1,DY_1,NEI_1'
-        hdrb = hdrb.replace('1','%d' % (i+1))
+        hdrb = hdrb.replace('1','%d' % nro_epoca[i])
         hdrb = hdrb.split(',')
         hdr.append(hdrb)
 
     hdr = np.hstack(hdr).tolist()
 
-    allcat = np.hstack([refdata.T, allcat])
+    allcat = np.hstack([refdata, allcat])
+    no_ids = np.isfinite(allcat[:,0])
+    allcat = allcat[no_ids]
     nans = np.isnan(allcat)
     allcat[nans] = -9898
 
@@ -127,11 +142,15 @@ nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
 
+nei_sum  = np.sum(np.isnan(nei), axis=1)
+nei_mas  = nei_sum == nei.shape[1]
+nei[:,0][nei_mas] = 999
+
 mean_nei = np.nanmean(nei, axis=1)
 std_nei  = np.nanstd(nei, axis=1)
 
-mean_nei[np.isnan(mean_nei)] = 999
-std_nei[np.isnan(std_nei)]   = 999
+#mean_nei[np.isnan(mean_nei)] = 999
+#std_nei[np.isnan(std_nei)]   = 999
 
 dx_fin = np.isfinite(dx)*(dx!=888.8)
 dy_fin = np.isfinite(dy)*(dy!=888.8)
@@ -187,14 +206,14 @@ def PM_calc(i):
 
         return pmxx, pmyy, pmex, pmey
 
-#PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
 
-PMS_all = []
-for i in ProgressBar(xrange(len(dx))):
-    apm = PM_calc(i)
-    PMS_all.append(apm)
+#PMS_all = []
+#for i in ProgressBar(xrange(len(dx))):
+#    apm = PM_calc(i)
+#    PMS_all.append(apm)
 
-PMS_all = np.transpose(PMS_all)
+#PMS_all = np.transpose(PMS_all)
 
 
 PMS = np.array(PMS_all[0:2])
@@ -257,3 +276,5 @@ else:
     print '\nPM_final.dat encontrado, no se creo archivo!'
 
 #plt.show()
+
+print 'Done!'
