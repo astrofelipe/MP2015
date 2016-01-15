@@ -23,8 +23,6 @@ def makedir(directory):
 
 
 #PIPELINE
-color_print('\nIniciando script, recuerda eliminar la carpeta PMs, el archivo PM.dat, etc. antes de ejecutar','yellow')
-
 #output = subprocess.check_output('grep "PDF de Output" %s/tlineal_1a1.py' % stilts_folder, shell=True)
 #output = output.split("'")[1]
 
@@ -61,10 +59,9 @@ if not os.path.isfile('refstars0.gc'):
 
 subprocess.call('cp refstars0.gc refstars.gc', shell=True)
 
-try:
-    subprocess.call('rm -r iter_*', shell=True)
-except:
-    pass
+for i in range(1,itera+1):
+    if os.path.exists('iter_%d' % i):
+        subprocess.call('rm -r iter_%d' % i, shell=True)
 
 for i in range(itera):
     color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
