@@ -57,7 +57,11 @@ if not os.path.isfile('PM.dat'):
     os.system(ejecuta)
     '''
 
-    todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    #todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    todos = []
+    for a in ProgressBar(archivos):
+        tod = load_file(a)
+        todos.append(tod)
     refdata = load_file(referencia)
 
     #Genera matriz donde van todos los catalogos
@@ -123,8 +127,6 @@ nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
 
-print dx
-
 mean_nei = np.nanmean(nei, axis=1)
 std_nei  = np.nanstd(nei, axis=1)
 
@@ -185,7 +187,15 @@ def PM_calc(i):
 
         return pmxx, pmyy, pmex, pmey
 
-PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+#PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+
+PMS_all = []
+for i in ProgressBar(xrange(len(dx))):
+    apm = PM_calc(i)
+    PMS_all.append(apm)
+
+PMS_all = np.transpose(PMS_all)
+
 
 PMS = np.array(PMS_all[0:2])
 PME = np.array(PMS_all[2:])
