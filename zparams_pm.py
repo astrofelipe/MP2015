@@ -17,7 +17,7 @@ mag1     = 20
 mag2     = 10
 
 #Genera PDF
-cmd_pdf  = True 
+cmd_pdf  = True
 
 [MASTER_STILTS.PY]
 #Tolerancia para el modo a usar (ID no usa este parametro)
@@ -101,6 +101,9 @@ y0 = 554
 
 #Limites del plot en pixeles (cuadrado, por eso es uno)
 lim = 2
+
+#Plot de epocas
+plot_ep = True
 
 #Plot delta vs epocas y delta vs coor_x o coor_y
 plot_del_ep = True

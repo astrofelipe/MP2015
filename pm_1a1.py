@@ -2,6 +2,7 @@ import os
 import sys
 import glob
 import numpy as np
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 import multiprocessing

@@ -38,7 +38,7 @@ if len(sys.argv) == 1:
 ## de coordenadas de cada estrella analizada
 
 nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
-local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy = pm_funcs.get_tlineal()
+local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy = pm_funcs.get_tlineal()
 
 nrefstars = nrefstars_tl
 
@@ -514,7 +514,7 @@ for i in range(nro_arch):
         try:
             muygrande = False
             fig.tight_layout()
-            fig.savefig(output+'.pdf',dpi=200)
+            if plot_ep: fig.savefig(output+'.pdf',dpi=200)
             if plot_del_xy:
                 #?esto es nuevo...a que sirve?
                 fig_delta.tight_layout()
@@ -531,8 +531,9 @@ fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:
 fig.tight_layout()
 fig.subplots_adjust(top=1.00 - tophdr/2.0)
 if not muygrande:
-    fig.savefig(output+'.pdf',dpi=200)
-    fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+    if plot_ep:
+        fig.savefig(output+'.pdf',dpi=200)
+        fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[nro_epoca-1]
