@@ -23,7 +23,7 @@ cmd_pdf  = True
 #Tolerancia para el modo a usar (ID no usa este parametro)
 match_tol     = .3
 
-#Columnas para hacer el match (ej "RA DEC" o ID)
+#Columnas para hacer el match (ej RA DEC o ID)
 modo_ms       = ID
 
 [MASTER_MATCH_ID.PY]

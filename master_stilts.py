@@ -22,6 +22,9 @@ matcher = 'sky params=%.3f' % match_tol
 if modo_ms == 'ID':
     matcher = 'exact'
 
+if modo_ms == 'RA DEC':
+    modo_ms == '"RA DEC"'
+
 supermatch  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=%s ' % (stilts_folder, len(archivos), matcher)
 for i in range(1, len(archivos)+1):
     supermatch += 'in%d=%s ifmt%d=ascii values%d=%s join%d=always ' % (i, archivos[i-1], i, i, modo_ms, i)
