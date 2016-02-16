@@ -21,7 +21,7 @@ def get_VPDHmag():
 
 def get_tlineal():
     nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
-    local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy = params['TLINEAL_1a1.PY'].values()
+    local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy = params['TLINEAL_1a1.PY'].values()
 
     nrefstars_tl, min_nei, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim = \
     np.array([nrefstars_tl, min_nei, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim]).astype(float)
@@ -31,11 +31,12 @@ def get_tlineal():
 
     sort_mag    = str(sort_mag) == 'True'
     local       = str(local) == 'True'
+    plot_ep     = str(plot_ep) == 'True'
     plot_del_ep = str(plot_del_ep) == 'True'
     plot_del_xy = str(plot_del_xy) == 'True'
 
     return nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
-    local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_del_ep, plot_del_xy
+    local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy
 
 def get_CMD():
     cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf = params['CMD.PY'].values()
