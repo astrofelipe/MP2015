@@ -64,7 +64,7 @@ if not os.path.isfile('PM.dat'):
     refdatax = load_file(referencia)
     refdatax = refdatax.T[np.argsort(refdatax[0])].T
 
-    for i in range(len(todos)):
+    for i in xrange(len(todos)):
         maximos[i] = np.max(todos[i][0])
     maximo = np.max(maximos)
     maximo = np.max([maximo, np.nanmax(refdatax[0])])
@@ -86,7 +86,7 @@ if not os.path.isfile('PM.dat'):
 
     #Rellena la matriz
     print 'Ingresando datos a la matriz...'
-    for i in ProgressBar(range(len(todos))):
+    for i in ProgressBar(xrange(len(todos))):
         ids      = todos[i][0]
         orden    = np.argsort(ids)
         todos[i] = todos[i].T[orden].T
@@ -98,7 +98,7 @@ if not os.path.isfile('PM.dat'):
     hdr = []
     hdra = 'ID_REF,RA,DEC,X,Y,MAG,MAG_ERR'
     hdr.append(hdra.split(','))
-    for i in range(len(todos)):
+    for i in xrange(len(todos)):
         hdrb = 'ID_1,DX_1,DY_1,NEI_1'
         hdrb = hdrb.replace('1','%d' % nro_epoca[i])
         hdrb = hdrb.split(',')
@@ -208,7 +208,7 @@ def PM_calc(i):
 
         return pmxx, pmyy, pmex, pmey
 
-PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in range(len(dx))))
+PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
 
 #PMS_all = []
 #for i in ProgressBar(xrange(len(dx))):
