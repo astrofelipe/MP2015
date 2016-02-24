@@ -323,7 +323,7 @@ for i in range(nro_arch):
             ncpu = multiprocessing.cpu_count() / 2
             ptl  = multiprocessing.Pool(processes=ncpu)
 
-            for jj, result in enumerate(ptl.imap_unordered(local_tlineal, xrange(x1.size)):
+            for jj, result in enumerate(ptl.imap_unordered(local_tlineal, xrange(x1.size))):
                 bar.update(jj)
                 results.append(result)
             ptl.close()
