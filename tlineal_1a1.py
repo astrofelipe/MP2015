@@ -4,6 +4,7 @@ import sys
 import glob
 import matplotlib
 import subprocess
+import multiprocessing
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pm_funcs
@@ -297,6 +298,43 @@ for i in range(nro_arch):
         #este progressBar muestra las flecha moviendose a medida que hace la regresion para
         #cada estrella del catalogo que se esta analizando
         #x1.size son la cantidad de estrellas del catalogo que se esta analizando (dp de filtar)
+
+        #Version paralelo en prueba
+        def local_tlineal(k):
+            nnek = len(nei[k])
+
+            if len(nei[k]) < min_nei:
+                return np.nan, np.nan, nnek
+
+            coords = np.transpose([rx2, ry2])[nei[k]].T
+            ep1_x  = rx1[nei[k]]
+            ep1_y  = ry1[nei[k]]
+
+            poptx, pcovx = curve_fit(linear,coords,ep1_x)
+            popty, pcovy = curve_fit(linear,coords,ep1_y)
+
+            ctxk = linear([x2[k],y2[k]],*poptx)
+            ctyk = linear([x2[k],y2[k]],*popty)
+
+            return ctxk, ctyk, nnek
+
+        results = []
+        with ProgressBar(x1.size) as bar:
+            ncpu = multiprocessing.cpu_count() / 2
+            ptl  = multiprocessing.Pool(processes=ncpu)
+
+            for jj, result in enumerate(ptl.imap_unordered(local_tlineal, xrange(x1.size)):
+                bar.update(jj)
+                results.append(result)
+            ptl.close()
+            ptl.join()
+
+        results = np.transpose(results)
+        ctx, cty, nne = results
+
+
+        #Version original sin paralelo
+        '''
         with ProgressBar(x1.size) as bar:
             #para cada estrella del catalogo:
             for k in range(x1.size):
@@ -349,6 +387,7 @@ for i in range(nro_arch):
 
                 #sys.exit()
                 bar.update()
+                '''
 
     #Global:No usa las refstars mas cercanas
     #usa todas las x2,y2 para el fit, o sea todas las estrellas del catalogo dp de filtrar
