@@ -320,7 +320,7 @@ for i in range(nro_arch):
 
         results = []
         with ProgressBar(x1.size) as bar:
-            ncpu = multiprocessing.cpu_count() / 2
+            ncpu = multiprocessing.cpu_count() * 2 / 3
             ptl  = multiprocessing.Pool(processes=ncpu)
 
             for jj, result in enumerate(ptl.imap_unordered(local_tlineal, xrange(x1.size))):
