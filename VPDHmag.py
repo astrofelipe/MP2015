@@ -46,7 +46,7 @@ fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
 bins = np.arange(-limplot,limplot+1,1)
 co   = []
 
-for i in range(len(ax)):
+for i in xrange(len(ax)):
     if i == 0:
         ma = (mag > mags[0])*(mag < sep[1])*(pmx != 999.9)
         ax[i].set_title('%.1f > Ks > %.1f' % (sep[1], mags[0]))

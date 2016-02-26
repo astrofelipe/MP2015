@@ -38,7 +38,7 @@ todos = Parallel(n_jobs=4, verbose=8)(delayed(load_file)(f) for f in archivos)
 #Encuentra el ID maximo
 print 'Encontrando maximo de estrellas'
 maximos = np.zeros(len(todos))
-for i in range(len(todos)):
+for i in xrange(len(todos)):
     maximos[i] = np.max(todos[i][0])
 maximo = np.max(maximos)
 print'\tMaximo: %d' %maximo
@@ -51,7 +51,7 @@ total_id  = np.arange(1,maximo+1)
 
 #Rellena la matriz
 print 'Ingresando datos a la matriz...'
-for i in ProgressBar(range(len(todos))):
+for i in ProgressBar(xrange(len(todos))):
     ids = todos[i][0]
     com = np.in1d(total_id, ids)
     orden = np.argsort(ids)
@@ -60,7 +60,7 @@ for i in ProgressBar(range(len(todos))):
 
 #Genera el header
 hdr = []
-for i in range(len(todos)):
+for i in xrange(len(todos)):
     hdrb = 'ID_1,RA_1,DEC_1,X_1,Y_1,MAG_1,MAG_ERR_1'
     hdrb = hdrb.replace('1','%d' % (i+1))
     hdrb = hdrb.split(',')

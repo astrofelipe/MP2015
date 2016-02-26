@@ -149,7 +149,7 @@ else:
 #aca empieza el for para todos los catalogos de input
 axes = np.ravel(ax)
 ii   = 0
-for i in range(nro_arch):
+for i in xrange(nro_arch):
 
 
     #?que es ax?
@@ -237,7 +237,7 @@ for i in range(nro_arch):
             else:
                 print 'mas cercanas'
 
-            for j in range(len(dist)):
+            for j in xrange(len(dist)):
                 #Elimina la misma estrella y las interiores a rad_int
                 msk     = (dist[j]!=0)*(dist[j]>rad_int)
                 dist[j] = dist[j][msk]

@@ -90,7 +90,7 @@ yy[:, 0] = ys[:, 0]
 mm[:, 0] = ms[:, 0]
 
 print '\nIteracion 1'
-for j in range(1, nro_ep):
+for j in xrange(1, nro_ep):
     tx, ty, mm2 = transformacion(j)
 
     xx[:,j] = tx
@@ -110,9 +110,9 @@ msmask  = np.ma.array(mm, mask=np.isnan(mm))
 ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 if iteracion2=='global':
-    for i in range(iteraciones-1):
+    for i in xrange(iteraciones-1):
         print '\nIteracion: %d' % (i+2)
-        for j in range(1, nro_ep):
+        for j in xrange(1, nro_ep):
             tx, ty, mm2 = transformacion(j)
 
             xx[:,j] = tx
@@ -132,9 +132,9 @@ if iteracion2=='global':
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 if iteracion2=='local':
-    for i in range(iteraciones-1):
+    for i in xrange(iteraciones-1):
         print '\nIteracion: %d' % (i+2)
-        for j in range(1, nro_ep):
+        for j in xrange(1, nro_ep):
             magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
             common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, j])
             in2    = np.isfinite(ids[:, j])
@@ -188,7 +188,7 @@ if iteracion2=='local':
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 
 ids_iguales = True
-for i in range(len(ids)):
+for i in xrange(len(ids)):
     ma    = np.isfinite(ids[i])
     check = ids[i][ma][0]
     condi = ids[i][ma] == check
@@ -197,7 +197,7 @@ for i in range(len(ids)):
 
 if ids_iguales:
     print '\nSe encontro que los IDs son iguales'
-    for i in range(1,ids.shape[1]):
+    for i in xrange(1,ids.shape[1]):
         idx = np.isnan(ids[:,0])
         ids[:,0][idx] = ids[:,i][idx]
 
