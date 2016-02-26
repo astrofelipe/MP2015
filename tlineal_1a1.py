@@ -38,6 +38,9 @@ if len(sys.argv) == 1:
 ## Las estrellas de referencia (refstars) son las que se usan para llevar a cabo las transformaciones
 ## de coordenadas de cada estrella analizada
 
+#Numero de procesadores (fraccion)
+procs = 3/2
+
 nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
 local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy = pm_funcs.get_tlineal()
 
@@ -320,7 +323,7 @@ for i in range(nro_arch):
 
         results = []
         with ProgressBar(x1.size) as bar:
-            ncpu = multiprocessing.cpu_count() * 2 / 3
+            ncpu = multiprocessing.cpu_count() * procs
             ptl  = multiprocessing.Pool(processes=ncpu)
 
             for jj, result in enumerate(ptl.map(local_tlineal, xrange(x1.size))):
