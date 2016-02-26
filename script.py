@@ -75,9 +75,12 @@ if continua:
     import glob
     iter_dirs = np.sort(glob.glob('iter_*'))
     if len(iter_dirs) == 0:
-        'No hay carpetas iter!'
+        print 'No hay carpetas iter!'
         sys.exit(1)
     last_idx  = int(iter_dirs[-1].split('_')[-1])
+    if not os.path.isfile('iter_%d/PM_final.dat' % last_idx):
+        print 'No se encontro PM_final.dat en iter_%d!' % last_idx
+        sys.exit(1)
 
     print '\nGenerando nuevo archivo de refstars a partir de la ultima iteracion'
     ids, pmx, pmy, nf = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6))
