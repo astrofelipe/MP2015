@@ -74,6 +74,9 @@ if not continua:
 if continua:
     import glob
     iter_dirs = np.sort(glob.glob('iter_*'))
+    if len(iter_dirs) == 0:
+        'No hay carpetas iter!'
+        sys.exit(1)
     last_idx  = int(iter_dirs[-1].split('_')[-1])
 
     print '\nGenerando nuevo archivo de refstars a partir de la ultima iteracion'
