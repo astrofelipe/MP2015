@@ -116,6 +116,9 @@ plot_ep = False
 plot_del_ep = False
 plot_del_xy = False
 
+#Numero de procesadores
+nprocs_tl = 1
+
 [PM_1a1.PY]
 #Numero minimo de epocas en que debe estar la estrella
 nframes   = 8

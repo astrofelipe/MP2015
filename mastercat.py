@@ -59,9 +59,14 @@ def transformacion(ep):
     print 'Numero de estrellas utilizadas en %d: %d' % (ep, np.sum(magcon*common))
 
     x1 = xs[:, 0]
-    x2 = xs[:, ep]
     y1 = ys[:, 0]
-    y2 = ys[:, ep]
+
+    if ep==0:
+        x2 = xb
+        y2 = yb
+    else:
+        x2 = xs[:, ep]
+        y2 = ys[:, ep]
 
     xx1 = x1[common*magcon]
     xx2 = x2[common*magcon]
@@ -91,6 +96,10 @@ xx[:, 0] = xs[:, 0]
 yy[:, 0] = ys[:, 0]
 mm[:, 0] = ms[:, 0]
 
+#Backup de la primera epoca
+xb = np.copy(xs[:,0])
+yb = np.copy(ys[:,0])
+
 print '\nIteracion 1'
 for j in xrange(1, nro_ep):
     tx, ty, mm2 = transformacion(j)
@@ -114,7 +123,7 @@ ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
 if iteracion2=='global':
     for i in xrange(iteraciones-1):
         print '\nIteracion: %d' % (i+2)
-        for j in xrange(1, nro_ep):
+        for j in xrange(nro_ep):
             tx, ty, mm2 = transformacion(j)
 
             xx[:,j] = tx

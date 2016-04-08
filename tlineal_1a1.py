@@ -8,6 +8,7 @@ import multiprocessing
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pm_funcs
+from pm_funcs import barra
 from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
 from sklearn.neighbors import NearestNeighbors as NN
@@ -42,7 +43,7 @@ if len(sys.argv) == 1:
 procs = 2.0/3.0
 
 nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
-local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy = pm_funcs.get_tlineal()
+local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy, nprocs = pm_funcs.get_tlineal()
 
 nrefstars = nrefstars_tl
 
@@ -321,6 +322,7 @@ for i in xrange(nro_arch):
 
             return ctxk, ctyk, nnek
 
+        '''
         results = []
         with ProgressBar(x1.size) as bar:
             ncpu = int(multiprocessing.cpu_count() * procs)
@@ -332,7 +334,9 @@ for i in xrange(nro_arch):
                 results.append(result)
             ptl.close()
             ptl.join()
+        '''
 
+        results = barra(local_tlineal, xrange(x1.size), nprocs)
         results = np.transpose(results)
         ctx, cty, nne = results
 
