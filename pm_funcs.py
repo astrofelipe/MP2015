@@ -69,14 +69,15 @@ def get_mastercat():
 def get_match1a1():
     modo_ma = str(params['MATCH_1a1.PY']['modo_ma'])
     tol     = float(params['MATCH_1a1.PY']['tol'])
-    nprocs_1a1 = int(params['MATCH_1a1.PY']['nprocs_1a1'])
+    nprocs_m1a1 = int(params['MATCH_1a1.PY']['nprocs_m1a1'])
 
-    return modo_ma, tol, nprocs_1a1
+    return modo_ma, tol, nprocs_m1a1
 
 def get_pm1a1():
-    nframes, nbins, limplotpm = np.array(params['PM_1a1.PY'].values()).astype(float)
+    nframes, nbins, limplotpm, nprocs_pm = np.array(params['PM_1a1.PY'].values()).astype(float)
+    nprocs_pm = int(nprocs_pm)
 
-    return nframes, nbins, limplotpm
+    return nframes, nbins, limplotpm, nprocs_pm
 
 def get_XYtoRADEC():
     nprocs = np.array(params['XYtoRADEC.PY'].values()).astype(float)
