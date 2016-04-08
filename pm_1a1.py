@@ -189,14 +189,14 @@ def PM_calc(i):
         popt, pcov = curve_fit(recta, x, yx, sigma=ss)
         #pmxx = model.estimator_.coef_[0,0]
         pmxx = popt[0]
-        pmex = pcov[0,0]
+        pmex = np.sqrt(pcov[0,0])
 
         #Ajusta pmy
         #model.fit(x[:, np.newaxis], yy)
         popt, pcov = curve_fit(recta, x, yy, sigma=ss)
         #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
-        pmey = pcov[0,0]
+        pmey = np.sqrt(pcov[0,0])
 
         '''
         res = yx - recta(x,*popt)
