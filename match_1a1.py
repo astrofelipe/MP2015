@@ -20,7 +20,7 @@ if len(sys.argv) == 1:
     sys.exit(1)
 
 #PARAMETROS
-modo_ma, tol = pm_funcs.get_match1a1()
+modo_ma, tol, nprocs = pm_funcs.get_match1a1()
 modo = modo_ma
 
 ######### INPUT USUARIO
