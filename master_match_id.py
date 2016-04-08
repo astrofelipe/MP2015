@@ -3,7 +3,7 @@ import sys
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 import pm_funcs
 from pm_funcs import barra
 
