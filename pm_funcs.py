@@ -69,7 +69,7 @@ def get_mastercat():
 def get_match1a1():
     modo_ma = str(params['MATCH_1a1.PY']['modo_ma'])
     tol     = float(params['MATCH_1a1.PY']['tol'])
-    nprocs_1a1 = int(params['MATCH_1a1']['nprocs_1a1'])
+    nprocs_1a1 = int(params['MATCH_1a1.PY']['nprocs_1a1'])
 
     return modo_ma, tol, nprocs_1a1
 
