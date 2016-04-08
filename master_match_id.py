@@ -5,6 +5,7 @@ from astropy.table import Table
 from astropy.utils.console import ProgressBar
 from joblib import Parallel, delayed
 import pm_funcs
+from pm_funcs import barra
 
 if len(sys.argv)==1:
     print 'Para ejecutar'
@@ -13,7 +14,7 @@ if len(sys.argv)==1:
     sys.exit()
 
 #Parametros
-min_epochs = pm_funcs.get_master_match()
+min_epochs, nprocs = pm_funcs.get_master_match()
 
 #Argumentos
 input_list = sys.argv[1]
@@ -33,15 +34,16 @@ def load_file(archivo):
 #    todos.append(data)
 
 print 'Leyendo archivos...'
-todos = Parallel(n_jobs=4, verbose=8)(delayed(load_file)(f) for f in archivos)
+#todos = Parallel(n_jobs=4, verbose=8)(delayed(load_file)(f) for f in archivos)
+todos = barra(load_file, archivos, nprocs)
 
 #Encuentra el ID maximo
 print 'Encontrando maximo de estrellas'
 maximos = np.zeros(len(todos))
 for i in xrange(len(todos)):
     maximos[i] = np.max(todos[i][0])
-maximo = np.max(maximos)
-print'\tMaximo: %d' %maximo
+maximo = int(np.max(maximos))
+print'\tID Maximo: %d' %maximo
 
 #Genera matriz donde van todos los catalogos
 allcat    = np.zeros((maximo, len(todos)*7))

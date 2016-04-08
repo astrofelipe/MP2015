@@ -55,7 +55,8 @@ def get_master_stilts():
 
 def get_master_match():
     min_epochs_mm = int(params['MASTER_MATCH_ID.PY']['min_epochs_mm'])
-    return min_epochs_mm
+    nprocs_mmi    = int(params['MASTER_MATCH_ID.PY']['nprocs_mmi'])
+    return min_epochs_mm, nprocs_mmi
 
 def get_mastercat():
     min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc = params['MASTERCAT.PY'].values()
@@ -74,3 +75,23 @@ def get_pm1a1():
     nframes, nbins, limplotpm = np.array(params['PM_1a1.PY'].values()).astype(float)
 
     return nframes, nbins, limplotpm
+
+def get_XYtoRADEC():
+    nprocs = np.array(params['XYtoRADEC.PY'].values()).astype(float)
+
+    return nprocs
+
+#ProgressBar con multiprocess (elegir numero de procesadores)
+from astropy.utils.console import ProgressBar
+import multiprocessing
+def barra(funcion, items, cpus):
+    results = []
+    with ProgressBar(len(items)) as bar:
+        p  = multiprocessing.Pool(processes=cpus)
+
+        for jj, result in enumerate(p.imap(funcion, items)):
+            bar.update(jj)
+            results.append(result)
+        p.close()
+        p.join()
+    return results

@@ -1,5 +1,8 @@
 #Los valores de string deben ser entregados sin comillas, salvo casos como "RA DEC" cuando
 #se quiere hacer un match (stilts) con mas de una columna
+[XYtoRADEC.PY]
+nprocs = 1
+
 
 [CMD.PY]
 #Modo para seleccionar los limites (manual o auto)
@@ -28,15 +31,16 @@ modo_ms       = ID
 
 [MASTER_MATCH_ID.PY]
 #Minimo de epocas para considerar una estrella
-min_epochs_mm = 2
+min_epochs_mm = 8
+nprocs_mmi    = 1
 
 [MASTERCAT.PY]
 #Numero minimo de epocas para considerar la estrella (mastercat, PM_1a1, VPDHmag y master_match_id)
-min_epochs  = 2
+min_epochs  = 8
 
 #Magnitud minima y maxima para estrellas a transformar
 min_mag     = 11
-max_mag     = 14
+max_mag     = 15
 
 #Error maximo a considerar
 max_err     = .05
@@ -62,7 +66,7 @@ tol       = 0.3
 nrefstars_tl = 51
 
 #Minimo de vecinos para considerar (sino tira 888)
-min_nei   = 4
+min_nei   = 5
 
 #Radio interior y exterior. Exterior = 0 -> selecciona nrefstars mas cercanas
 rad_int   = 1
@@ -82,15 +86,15 @@ local     = True
 
 #Corte en magnitud para considerar estrellas a analizar
 ma1 = 11.0
-ma2 = 14.0
+ma2 = 19.0
 
 #Corte en magnitud para las refstars
 mr1 = 11.0
-mr2 = 14.0
+mr2 = 15.0
 
 #Corte en magnitud para plotear las refstars
 mp1 = 11.0
-mp2 = 12.0
+mp2 = 14.0
 
 #Radio (pix) dentro del cual una refstar se considera para plot
 rad_ref = 99999999
@@ -103,38 +107,38 @@ y0 = 554
 lim = 2
 
 #Plot de epocas
-plot_ep = True
+plot_ep = False
 
 #Plot delta vs epocas y delta vs coor_x o coor_y
-plot_del_ep = True
-plot_del_xy = True
+plot_del_ep = False
+plot_del_xy = False
 
 [PM_1a1.PY]
 #Numero minimo de epocas en que debe estar la estrella
-nframes   = 2
+nframes   = 8
 
 #Delta del bin
 nbins     = 1
 
 #Limites del plot VPD en mas/yr
-limplotpm = 30
+limplotpm = 20
 
 [VPDHmag.PY]
 #Limites del plot (bineado) en mas/yr
-limplotvp = 30
+limplotvp = 20
 
 #Limite de magnitudes para plotear
-mags_l  = 11
-mags_h  = 14
+mags_l  = 9
+mags_h  = 19
 
 #Intervalo de magnitudes
-delta   = .5
+delta   = 1
 
 #Minimo de epocas en que debe estar una estrella para considerar
-min_ep  = 2
+min_ep  = 8
 
 #Minimo de vecinos con los que hizo la transformacion
-min_nei = 0
+min_nei = 5
 
 #Numero de sigmas para hacer rejection por errores (modulo pmxe y pmye)
 sigma_err = 3
