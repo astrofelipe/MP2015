@@ -7,12 +7,13 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 import multiprocessing
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 from matplotlib import gridspec
 from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.utils.console import ProgressBar
 from astropy.table import Table, join, hstack
+from pm_funcs import barra
 import pm_funcs
 
 #PARAMETROS
@@ -59,7 +60,8 @@ if not os.path.isfile('PM.dat'):
     os.system(ejecuta)
     '''
 
-    todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    #todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+    todos   = barra(load_file, archivos, nprocs)
     maximos = np.zeros(len(todos))
     refdatax = load_file(referencia)
     refdatax = refdatax.T[np.argsort(refdatax[0])].T
@@ -208,7 +210,8 @@ def PM_calc(i):
 
         return pmxx, pmyy, pmex, pmey
 
-PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
+#PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
+PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
 
 #PMS_all = []
 #for i in ProgressBar(xrange(len(dx))):
