@@ -1,11 +1,13 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import sys
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 from sklearn.neighbors import NearestNeighbors as NN
 import pm_funcs
+from pm_funcs import barra
 
-min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc = pm_funcs.get_mastercat()
+min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc, nprocs = pm_funcs.get_mastercat()
+nprocs      = int(nprocs)
 iteraciones = int(iteraciones)
 nrefstars = nrefstars_mc
 
@@ -176,7 +178,8 @@ if iteracion2=='local':
                 return tx, ty
 
             print 'Procesando epoca %d/%d' % (j, nro_ep-1)
-            rr = Parallel(n_jobs=4, verbose=0)(delayed(tl)(ii) for ii in xrange(len(x2[in2])))
+            #rr = Parallel(n_jobs=4, verbose=0)(delayed(tl)(ii) for ii in xrange(len(x2[in2])))
+            rr = barra(tl, xrange(len(x2[in2])), nprocs)
             tx, ty = np.array(zip(*rr))
 
             xx[:,j][in2] = tx

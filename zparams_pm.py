@@ -54,6 +54,9 @@ iteracion2   = global
 #Numero de vecinos locales (contando a la estrella propia) si iteracion2 = local
 nrefstars_mc = 51
 
+nprocs_mc   = 1
+
+
 [MATCH_1a1.PY]
 #ID o "RA DEC" (comillas para varias columnas)
 modo_ma   = ID

@@ -59,11 +59,11 @@ def get_master_match():
     return min_epochs_mm, nprocs_mmi
 
 def get_mastercat():
-    min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc = params['MASTERCAT.PY'].values()
-    min_epochs, min_mag, max_mag, max_err, iteraciones, nrefstars_mc = np.array([min_epochs, min_mag, max_mag, max_err, iteraciones, nrefstars_mc]).astype(float)
+    min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc, nprocs_mc = params['MASTERCAT.PY'].values()
+    min_epochs, min_mag, max_mag, max_err, iteraciones, nrefstars_mc, nprocs_mc = np.array([min_epochs, min_mag, max_mag, max_err, iteraciones, nrefstars_mc, nprocs_mc]).astype(float)
 
     iteracion2 = str(iteracion2)
-    return min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc
+    return min_epochs, min_mag, max_mag, max_err, iteraciones, iteracion2, nrefstars_mc, nprocs_mc
 
 def get_match1a1():
     modo_ma = str(params['MATCH_1a1.PY']['modo_ma'])
