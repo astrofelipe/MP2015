@@ -64,6 +64,9 @@ modo_ma   = ID
 #Tolerancia match (caso RA DEC)
 tol       = 0.3
 
+#Numero procesadores
+nprocs_m1a1 = 1
+
 [TLINEAL_1a1.PY]
 #Numero de refstars(+1) deseadas
 nrefstars_tl = 51

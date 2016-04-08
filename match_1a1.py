@@ -4,6 +4,7 @@ import sys
 import multiprocessing as mp
 import numpy as np
 import pm_funcs
+from pm_funcs import barra
 
 #####Informacion extra
 if len(sys.argv) == 1:
@@ -52,9 +53,6 @@ def match(cat):
     #print execute,'\n'
     os.system(execute)
 
-cpus = (1 + mp.cpu_count()/2)
-
-pool = mp.Pool(processes=cpus)
-pool.map(match,catalog)
+barra(match, catalog, nprocs)
 
 #ProgressBar.map(match,catalog,multiprocess=True)
