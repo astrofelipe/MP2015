@@ -15,24 +15,28 @@ if len(sys.argv) == 1:
 
 	print
 	print 'Como ejecutar:', sys.argv[0]
-	print 'python', sys.argv[0], '<lista con catalogos>'
+	print 'python', sys.argv[0], '<path a los archivos> <lista con catalogos>'
 	print
 	print 'Output: archivos *.dat con XY convertidos a RADEC (sobreescribiendolos)'
 	print
 
 	sys.exit(1)
 
-lista  = sys.argv[1]
+path   = sys.argv[1]
+lista  = sys.argv[2]
 nprocs = get_XYtoRADEC()
+
+if path[-1]!='/':
+	path = path + '/'
 
 #Transforma de XY a RADEC
 def XYtoRADEC(ep):
 	ffn,cfn = ep
 
-	id,x,y,mag,err = np.loadtxt(cfn,usecols=range(5),skiprows=3,unpack=True)
+	id,x,y,mag,err = np.loadtxt(path+cfn,usecols=range(5),skiprows=3,unpack=True)
 	id = id.astype(int)
 
-	hdr    = pf.open(ffn)[0].header
+	hdr    = pf.open(path+ffn)[0].header
 	w      = wcs.WCS(hdr)
 	ra,dec = np.transpose(w.wcs_pix2world(np.transpose([x,y]),1))
 
