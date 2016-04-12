@@ -17,7 +17,7 @@ from pm_funcs import barra
 import pm_funcs
 
 #PARAMETROS
-nframes, nbins, limplotpm = pm_funcs.get_pm1a1()
+nframes, nbins, limplotpm, nprocs = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
 print 'Usando...'

@@ -132,6 +132,9 @@ nbins     = 1
 #Limites del plot VPD en mas/yr
 limplotpm = 20
 
+#Numero procesadores
+nprocs_pm = 1
+
 [VPDHmag.PY]
 #Limites del plot (bineado) en mas/yr
 limplotvp = 20
