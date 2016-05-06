@@ -198,7 +198,7 @@ def PM_calc(i):
         pmyy = popt[0]
         pmey = np.sqrt(pcov[0,0])
 
-        print pmxx, pmex, linear_regression(x, yx, ss)
+        print popt, pcov, linear_regression(x, yx, ss)
 
         '''
         res = yx - recta(x,*popt)
