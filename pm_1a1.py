@@ -175,6 +175,8 @@ def PM_calc(i):
         yy  = dy[i][ma]
         ss  = see[ma]
 
+        '''
+
         #model = linear_model.RANSACRegressor(linear_model.LinearRegression())
         #model = linear_model.LinearRegression()
         #gp = GaussianProcess(theta0=1e-4, nugget=1e-10)
@@ -198,11 +200,20 @@ def PM_calc(i):
         #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
         pmey = np.sqrt(pcov[0,0])
+        '''
 
         br = BayesianRegression()
+        br.fit(x[:, np.newaxis], yx)
+
+        pmxx = br.coef_[0]
+        pmex = br.beta_
+
         br.fit(x[:, np.newaxis], yy)
 
-        print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss), br.coef_
+        pmyy = br.coef_[0]
+        pmex = br.beta_
+
+        #print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss), br.coef_
 
         '''
         res = yx - recta(x,*popt)
@@ -214,7 +225,7 @@ def PM_calc(i):
         print
         '''
 
-        return pmxx, pmyy, pmex, pmey
+        #return pmxx, pmyy, pmex, pmey
 
 #PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
 PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
