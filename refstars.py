@@ -33,7 +33,7 @@ refstars = data[idx]
 hdr = 'ID RA_1 DEC_1 X_1 Y_1 MAG_1 MAG_ERR_1 ID_2 RA_2 DEC_2 X_2 Y_2 MAG_2 MAG_ERR_2'
 fmt = '%d %.7f %.7f %.3f %.3f %.3f %.3f %d %.7f %.7f %.3f %.3f %.3f %.3f'
 print('\tGuardando...')
-np.savetxt('arefstars.dat', refstars, header=hdr, fmt=fmt)
+np.savetxt('refstars0.gc', refstars, header=hdr, fmt=fmt)
 
 '''
 fig, ax = plt.subplots()
