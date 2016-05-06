@@ -14,6 +14,7 @@ from astropy.io import ascii
 from astropy.utils.console import ProgressBar
 from astropy.table import Table, join, hstack
 from pm_funcs import barra, linear_regression
+from bayesian_regression import BayesianRegression
 import pm_funcs
 
 #PARAMETROS
@@ -198,7 +199,10 @@ def PM_calc(i):
         pmyy = popt[0]
         pmey = np.sqrt(pcov[0,0])
 
-        print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss)
+        br = BayesianRegression()
+        br.fit(x, yy)
+
+        print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss), br.coef_
 
         '''
         res = yx - recta(x,*popt)
