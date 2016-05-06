@@ -200,7 +200,7 @@ def PM_calc(i):
         pmey = np.sqrt(pcov[0,0])
 
         br = BayesianRegression()
-        br.fit(x, yy)
+        br.fit(x[:, np.newaxis], yy)
 
         print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss), br.coef_
 
