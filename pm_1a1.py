@@ -13,7 +13,7 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.utils.console import ProgressBar
 from astropy.table import Table, join, hstack
-from pm_funcs import barra
+from pm_funcs import barra, linear_regression
 import pm_funcs
 
 #PARAMETROS
@@ -197,6 +197,8 @@ def PM_calc(i):
         #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
         pmey = np.sqrt(pcov[0,0])
+
+        print pmxx, pmex, linear_regression(x, yx, ss)
 
         '''
         res = yx - recta(x,*popt)
