@@ -4,6 +4,16 @@ import numpy as np
 params = ConfigParser()
 params.read('zparams_pm.py')
 
+#Regresion Lineal
+def linear_regression(x, y, yerr):
+    A     = np.vander(x,2)
+    ATA   = np.dot(A.T, A / yerr[:, np.newaxis]**2)
+    sig_w = np.linalg.inv(ATA)
+    mu_w  = np.linalg.solve(ATA, np.dot(A.T, y / yerr**2))
+
+    return mu_w, sig_w
+
+
 def get_script():
     radio, itera = np.array(params['SCRIPT.PY'].values()).astype(int)
     output  = str(params['TLINEAL_1a1.PY']['output'])
