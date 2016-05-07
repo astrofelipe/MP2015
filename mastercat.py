@@ -76,7 +76,7 @@ def transformacion(ep):
     m1 = ms[:, 0][common*magcon]
     m2 = ms[:, ep][common*magcon]
 
-    mdm = np.mean(m1-m2)
+    mdm = np.nanmean(m1-m2)
     mm2 = ms[:, ep] + mdm
 
     poptx, pcovx = curve_fit(linear, [xx2, yy2], xx1)
@@ -163,7 +163,7 @@ if iteracion2=='local':
             m1 = ms[:, 0][common*magcon]
             m2 = ms[:, j][common*magcon]
 
-            mdm = np.mean(m1-m2)
+            mdm = np.nanmean(m1-m2)
             mm2 = ms[:, j] + mdm
 
             #Busca vecinos mas cercanos (en 2)
