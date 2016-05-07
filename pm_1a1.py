@@ -111,7 +111,6 @@ if not os.path.isfile('PM.hdf5'):
 else:
     print '\nPM.dat encontrado, no se creo archivo!'
 
-sys.exit(1)
 #Calcula los PM
 yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
 see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))
@@ -125,7 +124,8 @@ yrs = (yr-yr[0])/365.25
 yrs = yrs[nro_epoca-1]
 see = see[nro_epoca-1]
 
-dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
+#dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
+dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 dxdy_data = np.array(dxdy_data.tolist())
 
 ids = dxdy_data[:,0]
