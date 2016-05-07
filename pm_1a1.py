@@ -105,12 +105,13 @@ if not os.path.isfile('PM.hdf5'):
 
     output = Table(allcat, names=hdr)
     print 'Guardando datos...'
-    output.write('PM.hdf5', path='data', fill_values=[('-9898','')], compression=True)
+    output.write('PM.hdf5', path='data', compression=True)
     #ascii.write(output, 'PM.dat', delimiter=',', fill_values=[('-9898','')])
 
 else:
     print '\nPM.dat encontrado, no se creo archivo!'
 
+sys.exit(1)
 #Calcula los PM
 yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
 see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))
