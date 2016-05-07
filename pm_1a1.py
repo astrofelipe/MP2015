@@ -5,13 +5,11 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from sklearn import linear_model
 import multiprocessing
-#from joblib import Parallel, delayed
 from matplotlib import gridspec
 from scipy.optimize import curve_fit
 from astropy.io import ascii
-from astropy.utils.console import ProgressBar
+from astropy.utils.console import ProgressBar, color_print
 from astropy.table import Table, join, hstack
 from pm_funcs import barra, linear_regression
 from bayesian_regression import BayesianRegression
@@ -21,9 +19,10 @@ import pm_funcs
 nframes, nbins, limplotpm, nprocs = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
-print 'Usando...'
-print 'nframes: %d' % nframes
-print 'nbins:   %d' % nbins
+color_print('PM_1a1.py', 'yellow')
+print '\tnframes: %d' % nframes
+print '\tnbins:   %d' % nbins
+print '\tnprocs:  %d' % nprocs
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 cpun = multiprocessing.cpu_count()
@@ -44,7 +43,6 @@ referencia = sys.argv[1]
 
 archivos   = np.sort(glob.glob('./PMs/PM_*'))
 nro_arch   = len(archivos)
-#threshold  = int(nro_arch * thr_per / 100)
 
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 print 'Epocas: ', nro_epoca
@@ -127,6 +125,7 @@ see = see[nro_epoca-1]
 #dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
 dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 dxdy_data = np.array(dxdy_data.tolist())
+print np.sum(dxdy_data==-9898)
 dxdy_data[dxdy_data==-9898] == np.nan
 
 ids = dxdy_data[:,0]
@@ -235,7 +234,7 @@ nbins = np.arange(-limplot, limplot+nbins, nbins)
 fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
 ax.set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
-ax.text(-25, 25, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
+ax.text(-15, 15, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
