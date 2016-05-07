@@ -117,7 +117,8 @@ if not os.path.isfile('PM.dat'):
 
     output = Table(allcat, names=hdr)
     print 'Guardando datos...'
-    ascii.write(output, 'PM.dat', delimiter=',', fill_values=[('-9898','')])
+    output.write('PM.hdf5', path='data', fill_values=[('-9898','')], compression=True)
+    #ascii.write(output, 'PM.dat', delimiter=',', fill_values=[('-9898','')])
 
 else:
     print '\nPM.dat encontrado, no se creo archivo!'
@@ -135,7 +136,6 @@ yrs = (yr-yr[0])/365.25
 yrs = yrs[nro_epoca-1]
 see = see[nro_epoca-1]
 
-#dxdy_data = np.genfromtxt('PM.dat', delimiter=',')
 dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
 dxdy_data = np.array(dxdy_data.tolist())
 
@@ -175,33 +175,21 @@ def PM_calc(i):
         yy  = dy[i][ma]
         ss  = see[ma]
 
+        #Algoritmo antiguo
         '''
-
-        #model = linear_model.RANSACRegressor(linear_model.LinearRegression())
-        #model = linear_model.LinearRegression()
-        #gp = GaussianProcess(theta0=1e-4, nugget=1e-10)
-        #gp.fit(x[:, np.newaxis], yx)
-        #x_pred = np.linspace(x.min(), x.max(),1000)[:, np.newaxis]
-        #y_pred, mse = gp.predict(x[:, np.newaxis], eval_MSE=True)
-        #gsig = np.sqrt(mse)
-        #conf = 2.236 * gsig
-        #clip = np.abs(y_pred - yx) < conf
-
         #Ajusta pmx
-        #model.fit(x[:, np.newaxis], yx)
         popt, pcov = curve_fit(recta, x, yx, sigma=ss)
-        #pmxx = model.estimator_.coef_[0,0]
         pmxx = popt[0]
         pmex = np.sqrt(pcov[0,0])
 
         #Ajusta pmy
-        #model.fit(x[:, np.newaxis], yy)
         popt, pcov = curve_fit(recta, x, yy, sigma=ss)
-        #pmyy = model.estimator_.coef_[0,0]
         pmyy = popt[0]
         pmey = np.sqrt(pcov[0,0])
         '''
 
+        #Bayesian Linear Regression (no funciona por ahora y mas costoso)
+        '''
         br = BayesianRegression()
         br.fit(x[:, np.newaxis], yx)
 
@@ -212,20 +200,18 @@ def PM_calc(i):
 
         pmyy = br.coef_[0]
         pmex = br.beta_
-
-        #print popt, pcov, np.sqrt(pcov), linear_regression(x, yy, ss), br.coef_
-
-        '''
-        res = yx - recta(x,*popt)
-        print np.std(res)
-        print np.sqrt(pmex)
-        print np.sqrt(pcov[1,1])
-        print
-        print pmxx
-        print
         '''
 
-        #return pmxx, pmyy, pmex, pmey
+        #Con matrices
+        mu, sig = linear_regression(x, yx, ss)
+        pmxx    = mu[0]
+        pmex    = sig[0,0]
+
+        mu, sig = linear_regression(x, yy, ss)
+        pmyy    = mu[0]
+        pmey    = sig[0,0]
+
+        return pmxx, pmyy, pmex, pmey
 
 #PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
 PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
