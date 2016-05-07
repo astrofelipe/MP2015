@@ -127,6 +127,7 @@ see = see[nro_epoca-1]
 #dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
 dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 dxdy_data = np.array(dxdy_data.tolist())
+dxdy_data[dxdy_data==-9898] == np.nan
 
 ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
