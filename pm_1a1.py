@@ -50,18 +50,7 @@ nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 print 'Epocas: ', nro_epoca
 
 #Realiza el match entre los PM_*.dat
-if not os.path.isfile('PM.dat'):
-    '''
-    ejecuta  = 'java -jar %s/stilts.jar tmatchn multimode=pairs nin=%d matcher=exact ' % (stilts_folder, nro_arch+1)
-    ejecuta += 'in1=%s ifmt1=ascii values1=\"ID\" join1=always suffix1="REF" ' % referencia
-    for i in range(1,nro_arch+1):
-        ejecuta += 'in%d=%s ifmt%d=ascii values%d=\"ID\" suffix%d=%d ' % (i+1, archivos[i-1], i+1, i+1, i+1, nro_epoca[i-1])
-    ejecuta += 'out=PM.dat ofmt=ascii'
-
-    os.system(ejecuta)
-    '''
-
-    #todos   = Parallel(n_jobs=cpun/2, verbose=8)(delayed(load_file)(a) for a in archivos)
+if not os.path.isfile('PM.hdf5'):
     todos   = barra(load_file, archivos, nprocs)
     maximos = np.zeros(len(todos))
     refdatax = load_file(referencia)
@@ -71,7 +60,6 @@ if not os.path.isfile('PM.dat'):
         maximos[i] = np.max(todos[i][0])
     maximo = np.max(maximos)
     maximo = np.max([maximo, np.nanmax(refdatax[0])])
-    #print'\tMaximo: %d' %maximo
 
     total_id  = np.arange(1, maximo+1)
 
