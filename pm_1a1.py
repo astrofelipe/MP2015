@@ -19,7 +19,8 @@ import pm_funcs
 nframes, nbins, limplotpm, nprocs = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
-color_print('PM_1a1.py', 'yellow')
+color_print('[PM_1a1.py]', 'yellow')
+color_print('Parametros:', 'lightgray')
 print '\tnframes: %d' % nframes
 print '\tnbins:   %d' % nbins
 print '\tnprocs:  %d' % nprocs
@@ -45,10 +46,12 @@ archivos   = np.sort(glob.glob('./PMs/PM_*'))
 nro_arch   = len(archivos)
 
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
-print 'Epocas: ', nro_epoca
+color_print('Epocas:', 'lightgray')
+print nro_epoca
 
 #Realiza el match entre los PM_*.dat
 if not os.path.isfile('PM.hdf5'):
+    print '\nPM.hdf5 no encontrado, generando archivo...'
     todos   = barra(load_file, archivos, nprocs)
     maximos = np.zeros(len(todos))
     refdatax = load_file(referencia)
@@ -104,10 +107,13 @@ if not os.path.isfile('PM.hdf5'):
     output = Table(allcat, names=hdr)
     print 'Guardando datos...'
     output.write('PM.hdf5', path='data', compression=True)
-    #ascii.write(output, 'PM.dat', delimiter=',', fill_values=[('-9898','')])
+    dxdy_data = output
+    #del output
 
 else:
     print '\nPM.dat encontrado, no se creo archivo!'
+    print '\nAbriendo PM.hdf5'
+    dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 
 #Calcula los PM
 yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
@@ -122,8 +128,6 @@ yrs = (yr-yr[0])/365.25
 yrs = yrs[nro_epoca-1]
 see = see[nro_epoca-1]
 
-#dxdy_data = np.array(ascii.read('PM.dat', format='csv', fill_values=('',np.nan)))
-dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 dxdy_data = np.array(dxdy_data.tolist())
 dxdy_data[dxdy_data==-9898] = np.nan
 
