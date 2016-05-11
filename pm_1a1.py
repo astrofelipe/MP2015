@@ -111,7 +111,7 @@ if not os.path.isfile('PM.hdf5'):
     #del output
 
 else:
-    print '\nPM.dat encontrado, no se creo archivo!'
+    print '\nPM.hdf5 encontrado, no se creo archivo!'
     print '\nAbriendo PM.hdf5'
     dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 
