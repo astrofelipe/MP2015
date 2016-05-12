@@ -5,11 +5,13 @@ params = ConfigParser()
 params.read('zparams_pm.py')
 
 #Regresion Lineal
-def linear_regression(x, y, yerr):
+def linear_regression(x, y, w):
     A     = np.vander(x,2)
-    ATA   = np.dot(A.T, A / yerr[:, np.newaxis]**2)
-    sig_w = np.linalg.inv(ATA)
-    mu_w  = np.linalg.solve(ATA, np.dot(A.T, y / yerr**2))
+    W     = np.diag(w)
+    ATWA  = np.dot(A.T, np.dot(W, A))
+    #ATA   = np.dot(A.T, A / yerr[:, np.newaxis]**2)
+    sig_w = np.linalg.inv(ATWA)
+    mu_w  = np.linalg.solve(ATWA, np.dot(A.T, np.dot(W, y)))
 
     return mu_w, sig_w
 

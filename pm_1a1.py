@@ -206,6 +206,7 @@ def PM_calc(i):
         return pmxx, pmyy, pmex, pmey
 
 #PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
+color_print('Calculando PMs...', 'orange')
 PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
 
 #PMS_all = []
