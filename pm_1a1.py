@@ -195,11 +195,11 @@ def PM_calc(i):
         '''
 
         #Con matrices
-        mu, sig = linear_regression(x, yx, ss)
+        mu, sig = linear_regression(x, yx, 1.0/ss**2)
         pmxx    = mu[0]
         pmex    = sig[0,0]
 
-        mu, sig = linear_regression(x, yy, ss)
+        mu, sig = linear_regression(x, yy, 1.0/ss**2)
         pmyy    = mu[0]
         pmey    = sig[0,0]
 
