@@ -38,6 +38,8 @@ data = np.array(data.tolist())
 data = data.T
 data[data==-9898] == np.nan
 
+print data
+
 ids = data[:, 0::7]
 
 nro_ep = ids.shape[1]
