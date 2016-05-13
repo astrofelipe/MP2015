@@ -92,7 +92,7 @@ te = np.array([mo+'-%03d.fits' % i for i in nro_epoca])  #Archivos presentes
 print mo
 print te
 
-eff_ep = np.in1d(yr, te)
+eff_ep = np.in1d(zn[ky], te)
 print eff_ep
 
 se = se[ky][eff_ep]
