@@ -127,12 +127,14 @@ yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
 
 #Filtra solo la banda K
 yr_ma = np.array(['k' in y for y in yep])
+yep   = yep[yr_ma]
 yr    = yr[yr_ma]
 see   = see[yr_ma]
 
 #Quiero solo las epocas con las que estoy trabajando
 #Busca si el numero de epoca esta en yr_ma
-eff_epoch = np.sum([np.char.find(yr_ma, str(i)) for i in nro_epoca], axis=0) > 0
+print yep, nro_epoca
+eff_epoch = np.sum([np.char.find(yep, str(i)) for i in nro_epoca], axis=0) > 0
 
 yrs = (yr-yr[0])/365.25 #yr[0] deberia dar igual, siempre que importe solo la pendiente
 yrs = yrs[eff_epoch]
