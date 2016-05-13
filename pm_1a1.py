@@ -11,8 +11,8 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.utils.console import ProgressBar, color_print
 from astropy.table import Table, join, hstack
-from pm_funcs import barra, linear_regression
-from bayesian_regression import BayesianRegression
+from pm_funcs import barra
+from linfit import linfit
 import pm_funcs
 
 #PARAMETROS
@@ -194,6 +194,7 @@ def PM_calc(i):
         pmex = br.beta_
         '''
 
+        '''
         #Con matrices
         mu, sig = linear_regression(x, yx, 1.0/ss**2)
         pmxx    = mu[0]
@@ -202,6 +203,16 @@ def PM_calc(i):
         mu, sig = linear_regression(x, yy, 1.0/ss**2)
         pmyy    = mu[0]
         pmey    = sig[0,0]
+        '''
+
+        #Con linfit!
+        fit, cvm = linfit(x, yx, sigmay=ss)
+        pmxx = fit[0]
+        pmex = np.sqrt(cvm[0,0])
+
+        fit, cvm = linfit(x, yy, sigma=ss)
+        pmyy = fit[0]
+        pmey = np.sqrt(cvm[0,0])
 
         return pmxx, pmyy, pmex, pmey
 
