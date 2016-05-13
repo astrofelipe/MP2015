@@ -83,11 +83,16 @@ print 'epocas =',nro_epoca
 
 se,el,yr = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,5,6))
 zn = np.genfromtxt('zinfo_img', unpack=True, usecols=(0,), dtype='string')
-ky = np.array(['k' in z for z in zn])
+ky = np.array(['k' in z for z in zn])   #Aqui estan los k
 yr = yr[ky]
 
-se = se[ky][nro_epoca-1]
-el = el[ky][nro_epoca-1]
+mo = yr[0].split('-')[0]    #Forma de los nombres de archivos
+te = np.array([mo+'-%03d.fits' % i for i in nro_epoca])  #Archivos presentes
+
+eff_ep = np.in1d(yr, te)
+
+se = se[ky][eff_ep]
+el = el[ky][eff_ep]
 
 def linear(coords,a,b,c):
     x,y = coords
@@ -583,7 +588,7 @@ if not muygrande:
         fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
 yrs = (yr-yr[0])/365.25
-eff_yrs = yrs[nro_epoca-1]
+eff_yrs = yrs[eff_ep]
 #print 'yrs:', yrs
 #print 'eff_yrs:', eff_yrs
 #sys.exit()

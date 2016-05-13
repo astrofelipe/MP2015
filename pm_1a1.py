@@ -132,22 +132,13 @@ yr    = yr[yr_ma]
 see   = see[yr_ma]
 
 #Quiero solo las epocas con las que estoy trabajando
-#Busca si el numero de epoca esta en yr_ma
+#Busca si el numero de epoca esta en yep
 molde = yep[0].split('-')[0]
 tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
-
-print yep
-print tengo
-print archivos
-#eff_epoch = np.sum([np.char.find(yep, '%03d' % i)!=-1 for i in nro_epoca], axis=0) > 0
 eff_epoch = np.in1d(yep, tengo)
-print eff_epoch
 
-print eff_epoch.shape
 
 yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
-print yrs.shape
-
 yrs = yrs[eff_epoch]
 see = see[eff_epoch]
 
