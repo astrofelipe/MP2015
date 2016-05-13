@@ -36,7 +36,7 @@ print '\nLeyendo datos...'
 data = np.array(Table.read(masterst, path='data'))
 data = np.array(data.tolist())
 data = data.T
-data[data==-9898] == np.nan
+data[data==-9898] = np.nan
 
 print data
 
