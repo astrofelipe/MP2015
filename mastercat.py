@@ -132,6 +132,7 @@ if iteracion2=='global':
             xx[:,j] = tx
             yy[:,j] = ty
             mm[:,j] = mm2
+            print mm2
 
         print 'Valores de XY antes:'
         print np.transpose([xs[:,0], ys[:,0]])
