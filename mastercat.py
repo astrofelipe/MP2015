@@ -38,11 +38,7 @@ data = np.array(data.tolist())
 #data = data.T
 data[data==-9898] = np.nan
 
-print data
-print data.shape
-
 ids = data[:, 0::7]
-print ids
 
 nro_ep = ids.shape[1]
 found  = np.sum(np.isfinite(ids), axis=1)
@@ -148,8 +144,6 @@ if iteracion2=='global':
 
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
-        print ms[:,0]
-        print np.nanmean(mm, axis=1)
 
 if iteracion2=='local':
     for i in xrange(iteraciones-1):
