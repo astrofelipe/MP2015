@@ -41,6 +41,7 @@ data[data==-9898] = np.nan
 print data
 
 ids = data[:, 0::7]
+print ids
 
 nro_ep = ids.shape[1]
 found  = np.sum(np.isfinite(ids), axis=1)
