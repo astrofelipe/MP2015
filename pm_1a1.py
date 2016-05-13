@@ -133,7 +133,13 @@ see   = see[yr_ma]
 
 #Quiero solo las epocas con las que estoy trabajando
 #Busca si el numero de epoca esta en yr_ma
-eff_epoch = np.sum([np.char.find(yep, '%03d' % i)!=-1 for i in nro_epoca], axis=0) > 0
+molde = yep[-1].split('-')[-1]
+tengo = np.array([molde+'%03d.fits' % i for i in nro_epoca])
+
+print yep
+print tengo
+#eff_epoch = np.sum([np.char.find(yep, '%03d' % i)!=-1 for i in nro_epoca], axis=0) > 0
+eff_epoch = np.in1d(tengo, yep)
 print eff_epoch
 
 yrs = (yr-yr[0])/365.25 #yr[0] deberia dar igual, siempre que importe solo la pendiente
@@ -268,7 +274,7 @@ ax2  = plt.subplot(gs[2])
 axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
-ax2.pcolormesh(xedges, yedges, Hm, cmap='magma')
+ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
 axu.hist(pmxa, bins=nbins, histtype='step')
 axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 
