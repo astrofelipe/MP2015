@@ -86,6 +86,8 @@ zn = np.genfromtxt('zinfo_img', unpack=True, usecols=(0,), dtype='string')
 ky = np.array(['k' in z for z in zn])   #Aqui estan los k
 yr = yr[ky]
 
+print yr
+
 mo = yr[0].split('-')[0]    #Forma de los nombres de archivos
 te = np.array([mo+'-%03d.fits' % i for i in nro_epoca])  #Archivos presentes
 
