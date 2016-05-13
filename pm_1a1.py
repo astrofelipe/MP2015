@@ -105,15 +105,16 @@ if not os.path.isfile('PM.hdf5'):
     allcat[nans] = -9898
 
     output = Table(allcat, names=hdr)
-    print 'Guardando datos...'
+    print 'Guardando PM.hdf5...'
     output.write('PM.hdf5', path='data', compression=True)
+    output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
     dxdy_data = output
     #del output
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
-    if os.path.isfile('PM_final.dat'):
-        print '\nPM_final.dat encontrado! Bye'
+    if os.path.isfile('PM.dat'):
+        print '\nPM.dat encontrado! Bye'
         sys.exit(1)
     print '\nAbriendo PM.hdf5'
     dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
