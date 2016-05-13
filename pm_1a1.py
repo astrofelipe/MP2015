@@ -138,7 +138,7 @@ tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 
 print yep
 print tengo
-print archivos==tengo
+print archivos
 #eff_epoch = np.sum([np.char.find(yep, '%03d' % i)!=-1 for i in nro_epoca], axis=0) > 0
 eff_epoch = np.in1d(yep, tengo)
 print eff_epoch
