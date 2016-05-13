@@ -138,11 +138,15 @@ tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 
 print yep
 print tengo
+print archivos==tengo
 #eff_epoch = np.sum([np.char.find(yep, '%03d' % i)!=-1 for i in nro_epoca], axis=0) > 0
-eff_epoch = np.in1d(tengo, yep)
+eff_epoch = np.in1d(yep, tengo)
 print eff_epoch
 
-yrs = (yr-yr[0])/365.25 #yr[0] deberia dar igual, siempre que importe solo la pendiente
+print eff_epoch.shape
+print yrs.shape
+
+yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
 yrs = yrs[eff_epoch]
 see = see[eff_epoch]
 
