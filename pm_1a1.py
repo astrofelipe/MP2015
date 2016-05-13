@@ -114,11 +114,11 @@ if not os.path.isfile('PM.hdf5'):
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
-    if os.path.isfile('PM.dat'):
-        print '\nPM.dat encontrado! Bye'
-        sys.exit(1)
-    print '\nAbriendo PM.hdf5'
-    dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
+if os.path.isfile('PM_final.dat'):
+    print '\nPM_final.dat encontrado! Bye'
+    sys.exit(1)
+print '\nAbriendo PM.hdf5'
+dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 
 #Calcula los PM
 
