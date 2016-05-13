@@ -107,6 +107,7 @@ if not os.path.isfile('PM.hdf5'):
     output = Table(allcat, names=hdr)
     print 'Guardando PM.hdf5...'
     output.write('PM.hdf5', path='data', compression=True)
+    print 'Guardando PM.dat...'
     output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
     dxdy_data = output
     #del output
