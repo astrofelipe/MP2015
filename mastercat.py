@@ -39,6 +39,7 @@ data = data.T
 data[data==-9898] = np.nan
 
 print data
+print data.shape
 
 ids = data[:, 0::7]
 print ids
