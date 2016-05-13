@@ -32,7 +32,9 @@ if iteracion2=='local':
 
 
 print '\nLeyendo datos...'
-data = np.genfromtxt(masterst, unpack=True, delimiter=',')
+#data = np.genfromtxt(masterst, unpack=True, delimiter=',')
+data = np.array(Table.read(masterst, path='data'))
+data = np.array(data.tolist())
 data = data.T
 
 ids = data[:, 0::7]
