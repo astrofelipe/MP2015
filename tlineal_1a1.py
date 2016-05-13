@@ -72,21 +72,19 @@ if not archivos.shape:
     archivos = np.atleast_1d(archivos)
 
 nro_arch = np.size(archivos)
-print 'archivos =',nro_arch
+print 'Archivos =',nro_arch
 ##esto es para asignar numero de filas al disegno del plot output.pdf
 nro_rows  = nro_arch/3 + 1
 nro_rows2 = nro_arch/2 + 1
-print 'rows =',nro_rows
+print 'Rows =',nro_rows
 #?que hace este?
 nro_epoca = np.sort([int(f.split('-')[1].split('_')[0]) for f in archivos])
-print 'epocas =',nro_epoca
+print 'Epocas a trabajar\n',nro_epoca
 
 se,el,yr = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,5,6))
 zn = np.genfromtxt('zinfo_img', unpack=True, usecols=(0,), dtype='string')
 ky = np.array(['k' in z for z in zn])   #Aqui estan los k
 yr = yr[ky]
-
-print zn
 
 mo = zn[0].split('-')[0]    #Forma de los nombres de archivos
 te = np.array([mo+'-%03d.fits' % i for i in nro_epoca])  #Archivos presentes
