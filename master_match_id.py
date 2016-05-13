@@ -83,4 +83,4 @@ print 'Guardando...'
 output = Table(allcat, names=hdr)
 ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
 allcat[allcat==-9898] = np.nan
-allcat.write('master_match.hdf5', path='data', compression=True)
+output.write('master_match.hdf5', path='data', compression=True)
