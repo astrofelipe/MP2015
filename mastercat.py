@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.optimize import curve_fit
 import sys
-#from joblib import Parallel, delayed
+from astropy.table import Table
 from sklearn.neighbors import NearestNeighbors as NN
 import pm_funcs
 from pm_funcs import barra
