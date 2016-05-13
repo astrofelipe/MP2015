@@ -210,7 +210,7 @@ def PM_calc(i):
         pmxx = fit[0]
         pmex = np.sqrt(cvm[0,0])
 
-        fit, cvm = linfit(x, yy, sigma=ss)
+        fit, cvm = linfit(x, yy, sigmay=ss)
         pmyy = fit[0]
         pmey = np.sqrt(cvm[0,0])
 
