@@ -112,7 +112,7 @@ if not os.path.isfile('PM.hdf5'):
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
-    if not os.path.isfile('PM_final.dat'):
+    if os.path.isfile('PM_final.dat'):
         print '\nPM_final.dat encontrado! Bye'
         sys.exit(1)
     print '\nAbriendo PM.hdf5'
