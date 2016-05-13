@@ -89,17 +89,10 @@ yr = yr[ky]
 mo = zn[ky][0].split('-')[0]    #Forma de los nombres de archivos
 te = np.array([mo+'-%03d.fits' % i for i in nro_epoca])  #Archivos presentes
 
-print mo
-print te
-
 eff_ep = np.in1d(zn[ky], te)
-print eff_ep
 
 se = se[ky][eff_ep]
 el = el[ky][eff_ep]
-
-print se
-print el
 
 def linear(coords,a,b,c):
     x,y = coords

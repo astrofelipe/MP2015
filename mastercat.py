@@ -141,6 +141,8 @@ if iteracion2=='global':
 
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+        print ms[:,0]
+        print np.nanmean(mm, axis=1)
 
 if iteracion2=='local':
     for i in xrange(iteraciones-1):
