@@ -112,25 +112,37 @@ if not os.path.isfile('PM.hdf5'):
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
+    if not os.path.isfile('PM_final.dat'):
+        print '\nPM_final.dat encontrado! Bye'
+        sys.exit(1)
     print '\nAbriendo PM.hdf5'
     dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 
 #Calcula los PM
+
+#Lee zinfo
 yr  = np.genfromtxt('zinfo_img',unpack=True,usecols=(6,))
 see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))
 yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
 
+#Filtra solo la banda K
 yr_ma = np.array(['k' in y for y in yep])
 yr    = yr[yr_ma]
 see   = see[yr_ma]
 
-yrs = (yr-yr[0])/365.25
-yrs = yrs[nro_epoca-1]
-see = see[nro_epoca-1]
+#Quiero solo las epocas con las que estoy trabajando
+#Busca si el numero de epoca esta en yr_ma
+eff_epoch = np.sum([np.char.find(yr_ma, str(i)) for i in nro_epoca], axis=0) > 0
 
+yrs = (yr-yr[0])/365.25 #yr[0] deberia dar igual, siempre que importe solo la pendiente
+yrs = yrs[eff_epoch]
+see = see[eff_epoch]
+
+#Recupero los NaN de la parte previa para que sea mas facil ignorarlos
 dxdy_data = np.array(dxdy_data.tolist())
 dxdy_data[dxdy_data==-9898] = np.nan
 
+#Identificar columnas
 ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
@@ -139,6 +151,7 @@ nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
 
+#Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
 nei_mas  = nei_sum == nei.shape[1]
 nei[:,0][nei_mas] = 999
@@ -146,12 +159,11 @@ nei[:,0][nei_mas] = 999
 mean_nei = np.nanmean(nei, axis=1)
 std_nei  = np.nanstd(nei, axis=1)
 
-#mean_nei[np.isnan(mean_nei)] = 999
-#std_nei[np.isnan(std_nei)]   = 999
-
+#Mascara para los dx o dy que tienen valores validos (ie no NaN ni 888)
 dx_fin = np.isfinite(dx)*(dx!=888.8)
 dy_fin = np.isfinite(dy)*(dy!=888.8)
 
+#Aqui se guardan los PM en la direccion X e Y
 PM_X = np.zeros(dx_fin.shape[0]) - 999
 PM_Y = np.zeros(dy_fin.shape[0]) - 999
 
@@ -159,6 +171,7 @@ count = np.sum(np.isfinite(dx), axis=1)
 
 def PM_calc(i):
     if not dx_fin[i].sum() >= nframes:
+        #Si no esta en el minimo de frames, devuelve NaN
         return np.nan, np.nan, np.nan, np.nan
     else:
         ma  = dx_fin[i]
@@ -194,8 +207,8 @@ def PM_calc(i):
         pmex = br.beta_
         '''
 
-        '''
         #Con matrices
+        '''
         mu, sig = linear_regression(x, yx, 1.0/ss**2)
         pmxx    = mu[0]
         pmex    = sig[0,0]
@@ -205,7 +218,7 @@ def PM_calc(i):
         pmey    = sig[0,0]
         '''
 
-        #Con linfit!
+        #Con linfit (rapido!)
         fit, cvm = linfit(x, yx, sigmay=ss)
         pmxx = fit[0]
         pmex = np.sqrt(cvm[0,0])
@@ -220,14 +233,7 @@ def PM_calc(i):
 color_print('Calculando PMs...', 'orange')
 PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
 
-#PMS_all = []
-#for i in ProgressBar(xrange(len(dx))):
-#    apm = PM_calc(i)
-#    PMS_all.append(apm)
-
-#PMS_all = np.transpose(PMS_all)
-
-
+#Separo PM y errores, ademas escala y convierte a mas/yr
 PMS = np.array(PMS_all[0:2])
 PME = np.array(PMS_all[2:])
 PMS = PMS * 1000 * 0.339
@@ -235,21 +241,18 @@ PME = PME * 1000 * 0.339
 
 PM_X, PM_Y = PMS
 PMXE, PMYE = PME
-#PM_X, PM_Y = PM_X[np.isfinite(PM_X)], PM_Y[np.isfinite(PM_Y)]
-#ids = ids[np.isfinite(PM_X)]
 
 #Plots
 pmxa = PM_X[np.isfinite(PM_X)]
 pmya = PM_Y[np.isfinite(PM_Y)]
 
-#nbins = int(np.sqrt(len(pmxa)))
 nbins = np.arange(-limplot, limplot+nbins, nbins)
-#nbins    = np.arange(-30, 30, 0.1)
 
 fig, ax = plt.subplots()
-ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2)
+ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2, rasterized=True)
 ax.set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 ax.text(-15, 15, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
+print 'Guardando VPD.pdf'
 plt.savefig('VPD.pdf', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
@@ -263,7 +266,7 @@ ax2  = plt.subplot(gs[2])
 axu  = plt.subplot(gs[0])
 axr  = plt.subplot(gs[3])
 
-ax2.pcolormesh(xedges, yedges, Hm, cmap='hot')
+ax2.pcolormesh(xedges, yedges, Hm, cmap='magma')
 axu.hist(pmxa, bins=nbins, histtype='step')
 axr.hist(pmya, bins=nbins, histtype='step', orientation='horizontal')
 
@@ -272,6 +275,7 @@ axr.set(ylim=(-limplot, limplot))
 ax2.set_xlim(-limplot, limplot)
 ax2.set_ylim(-limplot, limplot)
 
+print 'Guardando VPDH.pdf'
 plt.savefig('VPDH.pdf', dpi=200)
 
 PM_X[np.isnan(PM_X)] = 999
@@ -282,11 +286,7 @@ PMYE[np.isnan(PMYE)] = 999
 fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
 hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
 
-if not os.path.isfile('PM_final.dat'):
-    np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)
-else:
-    print '\nPM_final.dat encontrado, no se creo archivo!'
-
-#plt.show()
+print 'Guardando PM_final.dat'
+np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)
 
 print 'Done!'
