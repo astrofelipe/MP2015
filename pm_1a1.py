@@ -134,7 +134,7 @@ see   = see[yr_ma]
 #Quiero solo las epocas con las que estoy trabajando
 #Busca si el numero de epoca esta en yr_ma
 molde = yep[0].split('-')[0]
-tengo = np.array([molde+'%03d.fits' % i for i in nro_epoca])
+tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 
 print yep
 print tengo
