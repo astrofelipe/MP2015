@@ -1,6 +1,7 @@
 import os
 import sys
 import glob
+import h5py
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -102,14 +103,19 @@ if not os.path.isfile('PM.hdf5'):
     no_ids = np.isfinite(allcat[:,0])
     allcat = allcat[no_ids]
     nans = np.isnan(allcat)
-    allcat[nans] = -9898
+    #allcat[nans] = -9898
 
-    output = Table(allcat, names=hdr)
+    #output = Table(allcat, names=hdr)
     print 'Guardando PM.hdf5...'
-    output.write('PM.hdf5', path='data', compression=True)
+    h5f = h5py.File('PM.hdf5', 'w')
+    h5f.create_dataset('data', data=allcat)
+    h5f.close()
+    #output.write('PM.hdf5', path='data', compression=True)
     print 'Guardando PM.dat...'
-    output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
-    dxdy_data = output
+    np.savetxt('PM.dat', allcat)
+    dxdy_data = allcat
+    #output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
+    #dxdy_data = output
     #del output
 
 else:
