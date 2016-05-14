@@ -117,15 +117,20 @@ if not os.path.isfile('PM.hdf5'):
     nans = np.isnan(allcat)
     allcat[nans] = -9898
     output = Table(allcat, names=hdr)
-    print output
+
+    from guppy import hpy
+    h=hpy()
+    h.heap()
+
     output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
-    #dxdy_data = output
-    #del output
+    del output, nans, no_ids, hdr, total_id
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
     print '\nAbriendo PM.hdf5'
-    dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
+    h5f = h5py.File('PM.hdf5', 'r')
+    dah = h5f['data']
+    #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
     print '\nPM_final.dat encontrado! Bye'
     sys.exit(1)
@@ -156,8 +161,8 @@ yrs = yrs[eff_epoch]
 see = see[eff_epoch]
 
 #Recupero los NaN de la parte previa para que sea mas facil ignorarlos
-dxdy_data = np.array(dxdy_data.tolist())
-dxdy_data[dxdy_data==-9898] = np.nan
+#dxdy_data = np.array(dxdy_data.tolist())
+#dxdy_data[dxdy_data==-9898] = np.nan
 
 #Identificar columnas
 ids = dxdy_data[:,0]
