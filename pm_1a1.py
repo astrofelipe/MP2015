@@ -120,7 +120,8 @@ if not os.path.isfile('PM.hdf5'):
 
     from guppy import hpy
     h=hpy()
-    h.heap()
+    print h.heap()
+    sys.exit(1)
 
     output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
     del output, nans, no_ids, hdr, total_id
