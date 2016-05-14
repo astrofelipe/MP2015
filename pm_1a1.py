@@ -110,21 +110,25 @@ if not os.path.isfile('PM.hdf5'):
     h5f = h5py.File('PM.hdf5', 'w')
     h5f.create_dataset('data', data=allcat)
     h5f.close()
-    #output.write('PM.hdf5', path='data', compression=True)
-    print 'Guardando PM.dat...'
-    np.savetxt('PM.dat', allcat)
     dxdy_data = allcat
-    #output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
+    #output.write('PM.hdf5', path='data', compression=True)
+
+    print 'Guardando PM.dat...'
+    nans = np.isnan(allcat)
+    allcat[nans] = -9898
+    output = Table(allcat, names=hdr)
+    output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
     #dxdy_data = output
     #del output
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
+    print '\nAbriendo PM.hdf5'
+    dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
     print '\nPM_final.dat encontrado! Bye'
     sys.exit(1)
-print '\nAbriendo PM.hdf5'
-dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
+
 
 #Calcula los PM
 
