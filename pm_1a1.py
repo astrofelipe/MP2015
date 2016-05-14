@@ -117,6 +117,7 @@ if not os.path.isfile('PM.hdf5'):
     nans = np.isnan(allcat)
     allcat[nans] = -9898
     output = Table(allcat, names=hdr)
+    print output
     output.write('PM.dat', delimiter=',', fill_values=[('-9898','')])
     #dxdy_data = output
     #del output
