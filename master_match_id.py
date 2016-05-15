@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-#import h5py
+import h5py
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
@@ -83,5 +83,5 @@ nans = np.isnan(allcat)
 allcat[nans] = -9898
 print 'Guardando...'
 output = Table(allcat, names=hdr)
-ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
+#ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
 output.write('master_match.h5', path='data')
