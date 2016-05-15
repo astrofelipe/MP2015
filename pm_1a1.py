@@ -176,8 +176,7 @@ dec = dxdy_data[:,2]
 nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
-
-print ids
+print dx, dx.shape
 
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
@@ -190,6 +189,8 @@ std_nei  = np.nanstd(nei, axis=1)
 #Mascara para los dx o dy que tienen valores validos (ie no NaN ni 888)
 dx_fin = np.isfinite(dx)*(dx!=888.8)
 dy_fin = np.isfinite(dy)*(dy!=888.8)
+
+print dx_fin, dx_fin.shape
 
 #Aqui se guardan los PM en la direccion X e Y
 PM_X = np.zeros(dx_fin.shape[0]) - 999
