@@ -248,11 +248,7 @@ for i in xrange(nro_arch):
                 msk     = (dist[j]!=0)*(dist[j]>rad_int)
                 dist[j] = dist[j][msk]
                 nei[j]  = nei[j][msk]
-                #print'j =',j
-                #print'nei[j] =', nei
-                #print'id', rid1[nei[j]]
-                #print'numero de refstars', len(dist[j])
-                #print'distancia de refstars\n', (dist[j])
+
                 #Toma las mas brillantes si tengo mas que nrefstars
                 if len(dist[j])>nrefstars:
                     if sort_mag:
@@ -261,17 +257,11 @@ for i in xrange(nro_arch):
                         mnei    = np.argsort(lrm)[:nrefstars]
                         dist[j] = dist[j][mnei]
                         nei[j]  = nei[j][mnei]
-                #print'numero de refstars', len(dist[j])
                 #Toma las mas cercanas si tengo mas que nrefstars
                     else:
                         mnei     = np.argsort(dist[j])[:nrefstars]
                         dist[j] = dist[j][mnei]
                         nei[j]  = nei[j][mnei]
-                        #print'numero de refstars', len(dist[j])
-                        #con este lo paro cuando termina de analizar j=0
-                        #sys.exit()
-                        #con este lo paro cuando termina el for
-                        #sys.exit()
 
         #Refstars mas cercanos sin restriccion de distancias (rad_ext=0)
         else:
@@ -326,20 +316,6 @@ for i in xrange(nro_arch):
             ctyk = linear([x2[k],y2[k]],*popty)
 
             return ctxk, ctyk, nnek
-
-        '''
-        results = []
-        with ProgressBar(x1.size) as bar:
-            ncpu = int(multiprocessing.cpu_count() * procs)
-            if ncpu < 1: ncpu = 1
-            ptl  = multiprocessing.Pool(processes=ncpu)
-
-            for jj, result in enumerate(ptl.map(local_tlineal, xrange(x1.size))):
-                bar.update(jj)
-                results.append(result)
-            ptl.close()
-            ptl.join()
-        '''
 
         results = barra(local_tlineal, xrange(x1.size), nprocs)
         results = np.transpose(results)
@@ -409,24 +385,11 @@ for i in xrange(nro_arch):
         #?Porque non-linear? ####Use non-linear least squares to fit a function, f, to data.
         poptx, pcovx = curve_fit(linear,[x2,y2],x1)
         popty, pcovy = curve_fit(linear,[x2,y2],y1)
-        #print'\nx2', x2
-        #print'y2', y2
-        #print'\nx1', x1
-        #print'y1', y1
-
-        #obtengo los valores del fit ax+by+c
-        #print'\npoptx', poptx
-        #print'popty', popty
-        #matrices de cov
-        #print'\npcovx', pcovx
-        #print'\npcovy', pcovy
 
         #calcula las coords transformadas (ct):se le dan x2,y2 y usa poptx,popty
         ctx = linear([x2,y2],*poptx)
         cty = linear([x2,y2],*popty)
         nne = np.zeros(len(ctx)) - 1
-        #print'\nx_transformed:\n', ctx
-        #print'y_transformed\n', cty
 
         #cuando se usan? En el plot de output, se dan estos valores para la dist_med,
         #dist_max, media_vec, min_vec
@@ -456,6 +419,7 @@ for i in xrange(nro_arch):
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
     np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI', fmt='%d %f %f %d')
+    del data
 
     #PLOT OUTPUT.PSF
 
