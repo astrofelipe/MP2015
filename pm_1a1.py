@@ -152,7 +152,7 @@ yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
 #Filtra solo la banda K
 yr_ma = np.array(['k' in y for y in yep])
 print yr_ma.shape, yep.shape, yr.shape, see.shape
-print yr_ma
+print yr_ma.sum()
 yep   = yep[yr_ma]
 yr    = yr[yr_ma]
 see   = see[yr_ma]
