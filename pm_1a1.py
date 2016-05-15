@@ -101,9 +101,7 @@ if not os.path.isfile('PM.hdf5'):
 
     hdr = np.hstack(hdr).tolist()
 
-    print allcat.shape
     allcat = np.hstack([refdata, allcat])
-    print allcat.shape
     no_ids = np.isfinite(allcat[:,0])
     allcat = allcat[no_ids]
     nans = np.isnan(allcat)
@@ -118,18 +116,12 @@ if not os.path.isfile('PM.hdf5'):
     #output.write('PM.hdf5', path='data', compression=True)
 
     print 'Guardando PM.dat...'
-    #nans = np.isnan(allcat)
-    #allcat[nans] = -9898
-    #output = Table(allcat, names=hdr)
+    nans = np.isnan(allcat)
+    allcat[nans] = -9898
+    output = Table(allcat, names=hdr)
 
-    #from guppy import hpy
-    #h=hpy()
-    #print h.heap()
-    #sys.exit(1)
-
-    #output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
-    #del output, nans, no_ids, hdr, total_id, todos
-    print allcat.shape
+    output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
+    del output, nans, no_ids, hdr, total_id, todos, allcat
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
@@ -184,8 +176,6 @@ dy  = dxdy_data[:,9::4]
 nei = nei.T[eff_tengo].T
 dx  = dx.T[eff_tengo].T
 dy  = dy.T[eff_tengo].T
-
-print dx.shape
 
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
