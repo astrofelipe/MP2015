@@ -164,7 +164,7 @@ eff_epoch = np.in1d(yep, tengo)
 
 yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
 print yrs.shape
-print eff_epoch.shape, eff_epoch.sum()
+print yep.shape, tengo.shape, eff_epoch.shape, eff_epoch.sum()
 yrs = yrs[eff_epoch]
 print yrs.shape
 see = see[eff_epoch]
