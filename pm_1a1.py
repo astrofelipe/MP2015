@@ -177,6 +177,8 @@ nei = dxdy_data[:,10::4]
 dx  = dxdy_data[:,8::4]
 dy  = dxdy_data[:,9::4]
 
+print ids
+
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
 nei_mas  = nei_sum == nei.shape[1]
