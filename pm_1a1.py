@@ -134,6 +134,7 @@ else:
     print '\nAbriendo PM.hdf5'
     h5f = h5py.File('PM.hdf5', 'r')
     dxdy_data = h5f['data']
+    print dxdy_data
     #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
     print '\nPM_final.dat encontrado! Bye'
