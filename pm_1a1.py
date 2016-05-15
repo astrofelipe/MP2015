@@ -125,8 +125,8 @@ if not os.path.isfile('PM.hdf5'):
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
-    print '\nAbriendo PM.hdf5'
-    h5f = h5py.File('PM.hdf5', 'r')
+    print '\nAbriendo PM.h5'
+    h5f = h5py.File('PM.h5', 'r')
     dxdy_data = h5f['data']
     #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):

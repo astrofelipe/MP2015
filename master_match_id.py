@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+#import h5py
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
@@ -33,7 +34,7 @@ def load_file(archivo):
 #    data = np.genfromtxt(f, unpack=True)
 #    todos.append(data)
 
-print 'Leyendo archivos...'
+print '\nLeyendo archivos...'
 #todos = Parallel(n_jobs=4, verbose=8)(delayed(load_file)(f) for f in archivos)
 todos = barra(load_file, archivos, nprocs)
 
@@ -77,9 +78,10 @@ found  = np.sum(np.isfinite(ids), axis=1)
 rej    = found >= min_epochs
 allcat = allcat[rej]
 
+print 'Convirtiendo a tabla...'
 nans = np.isnan(allcat)
 allcat[nans] = -9898
 print 'Guardando...'
 output = Table(allcat, names=hdr)
 ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
-output.write('master_match.hdf5', path='data', compression=True)
+output.write('master_match.h5', path='data')
