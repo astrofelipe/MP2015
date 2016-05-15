@@ -86,7 +86,7 @@ if not os.path.isfile('PM.hdf5'):
 
         allcat[:,i*4:i*4+4][com] = todos[i].T
 
-    del ids, orden, todos, com
+    del ids, orden, com
 
     #Genera el header
     hdr = []
@@ -125,7 +125,7 @@ if not os.path.isfile('PM.hdf5'):
     #sys.exit(1)
 
     output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
-    del output, nans, no_ids, hdr, total_id
+    del output, nans, no_ids, hdr, total_id, todos
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
