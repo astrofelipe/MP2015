@@ -1,6 +1,7 @@
 import numpy as np
-from scipy.optimize import curve_fit
 import sys
+import h5py
+from scipy.optimize import curve_fit
 from astropy.table import Table
 from sklearn.neighbors import NearestNeighbors as NN
 import pm_funcs
