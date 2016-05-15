@@ -72,7 +72,8 @@ if not os.path.isfile('PM.hdf5'):
     refdata[refidsm] = refdatax.T
 
     #Genera matriz donde van todos los catalogos
-    allcat    = np.zeros((maximo, len(todos)*4))
+    #allcat    = np.zeros((maximo, len(todos)*4))
+    allcat    = np.memmap('allcat.temp', dtype='float32', mode='w+', shape=(maximo, len(todos)*4))
     allcat[:] = np.nan
 
 
@@ -124,7 +125,7 @@ if not os.path.isfile('PM.hdf5'):
     #print h.heap()
     #sys.exit(1)
 
-    output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
+    #output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
     del output, nans, no_ids, hdr, total_id, todos
 
 else:
