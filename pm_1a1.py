@@ -101,8 +101,9 @@ if not os.path.isfile('PM.hdf5'):
 
     hdr = np.hstack(hdr).tolist()
 
+    print allcat.shape
     allcat = np.hstack([refdata, allcat])
-    print allcat
+    print allcat.shape
     no_ids = np.isfinite(allcat[:,0])
     allcat = allcat[no_ids]
     nans = np.isnan(allcat)
