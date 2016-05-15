@@ -151,12 +151,9 @@ yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
 
 #Filtra solo la banda K
 yr_ma = np.array(['k' in y for y in yep])
-print yr_ma.shape, yep.shape, yr.shape, see.shape
-print yr_ma.sum()
 yep   = yep[yr_ma]
 yr    = yr[yr_ma]
 see   = see[yr_ma]
-print yr_ma.shape, yep.shape, yr.shape, see.shape
 
 
 #Quiero solo las epocas con las que estoy trabajando
@@ -164,13 +161,11 @@ print yr_ma.shape, yep.shape, yr.shape, see.shape
 molde = yep[0].split('-')[0]
 tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 eff_epoch = np.in1d(yep, tengo)
-print tengo.shape, eff_epoch.shape
-
 
 yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
-print yrs
+print yrs.shape
 yrs = yrs[eff_epoch]
-print yrs
+print yrs.shape
 see = see[eff_epoch]
 
 #Recupero los NaN de la parte previa para que sea mas facil ignorarlos
