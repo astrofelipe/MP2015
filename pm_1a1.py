@@ -176,9 +176,9 @@ ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
 dec = dxdy_data[:,2]
-nei = dxdy_data[:,10::4]
-dx  = dxdy_data[:,8::4]
-dy  = dxdy_data[:,9::4]
+nei = dxdy_data[:,10::4][eff_tengo[:,np.newaxis]]
+dx  = dxdy_data[:,8::4][eff_tengo[:,np.newaxis]]
+dy  = dxdy_data[:,9::4][eff_tengo[:,np.newaxis]]
 
 print dx.shape, eff_tengo.shape
 
