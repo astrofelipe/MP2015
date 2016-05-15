@@ -116,9 +116,9 @@ if not os.path.isfile('PM.hdf5'):
     #output.write('PM.hdf5', path='data', compression=True)
 
     print 'Guardando PM.dat...'
-    nans = np.isnan(allcat)
-    allcat[nans] = -9898
-    output = Table(allcat, names=hdr)
+    #nans = np.isnan(allcat)
+    #allcat[nans] = -9898
+    #output = Table(allcat, names=hdr)
 
     #from guppy import hpy
     #h=hpy()
@@ -126,13 +126,14 @@ if not os.path.isfile('PM.hdf5'):
     #sys.exit(1)
 
     #output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
-    del output, nans, no_ids, hdr, total_id, todos
+    #del output, nans, no_ids, hdr, total_id, todos
+    print allcat.shape
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
     print '\nAbriendo PM.hdf5'
     h5f = h5py.File('PM.hdf5', 'r')
-    dah = h5f['data']
+    dxdy_data = h5f['data']
     #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
     print '\nPM_final.dat encontrado! Bye'
