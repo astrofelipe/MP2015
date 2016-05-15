@@ -163,6 +163,8 @@ tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 eff_epoch = np.in1d(yep, tengo)
 
 yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
+print tengo
+print yep
 print yrs.shape
 print yep.shape, tengo.shape, eff_epoch.shape, eff_epoch.sum(), len(nro_epoca)
 yrs = yrs[eff_epoch]
