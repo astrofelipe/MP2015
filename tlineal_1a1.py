@@ -130,9 +130,9 @@ stdy_fie   = np.zeros(nro_arch)
 
 #fig_delta, ax_delta = plt.subplots(nro_rows*2,ncols=3,figsize=[5*3,2*nro_rows])
 #con el que sigue plotea test_del_xy.pdf de 2 en 2
-fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_rows])
+#fig_delta, ax_delta = plt.subplots(nrows=nro_arch,ncols=2,figsize=[5*1.5,3*nro_rows])
 #?que hace ravel?
-ad = np.ravel(ax_delta)
+#ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
 if nro_arch < 100:
@@ -545,6 +545,8 @@ for i in xrange(nro_arch):
 
         ii += 1
 
+    #Comentado para que no haga los Plots
+    '''
     #PLOT OUTPUT_DEL_XY.PSF
     ad[2*i].scatter(x1[~ref],dx[~ref],s=1,rasterized=True,lw=0,color='#0055FF')
     ad[2*i].scatter(x1[ref*m_ref],dx[ref*m_ref],s=1,rasterized=True,lw=0,color='#FF5500')
@@ -573,6 +575,7 @@ for i in xrange(nro_arch):
                 fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
         except:
             muygrande = True
+    '''
 
 #Aca termina el for para todos los catalogos de input
 
