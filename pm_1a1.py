@@ -207,8 +207,8 @@ def PM_calc(i):
         return np.nan, np.nan, np.nan, np.nan
     else:
         ma  = dx_fin[i]
-        print dx.shape, dx_fin.shape, ma.shape
-        print yrs.shape, dx[i].shape, dy[i].shape, see.shape
+        #print dx.shape, dx_fin.shape, ma.shape
+        #print yrs.shape, dx[i].shape, dy[i].shape, see.shape
         x   = yrs[ma]
         yx  = dx[i][ma]
         yy  = dy[i][ma]
