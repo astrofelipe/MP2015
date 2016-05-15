@@ -161,7 +161,7 @@ see   = see[yr_ma]
 molde = yep[0].split('-')[0]
 tengo = np.array([molde+'-%03d.fits' % i for i in nro_epoca])
 eff_epoch = np.in1d(yep, tengo) #Epocas que tengo de zinfo
-eff_tengo = np.in1d(tengo, yep)[np.newaxis,:] #Epocas de zinfo que tengo
+eff_tengo = np.in1d(tengo, yep) #Epocas de zinfo que tengo
 
 yrs = (yr-yr[0])/365.2422 #yr[0] deberia dar igual, siempre que importe solo la pendiente
 yrs = yrs[eff_epoch]
@@ -176,11 +176,16 @@ ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
 dec = dxdy_data[:,2]
-nei = dxdy_data[:,10::4][eff_tengo]
-dx  = dxdy_data[:,8::4][eff_tengo]
-dy  = dxdy_data[:,9::4][eff_tengo]
+nei = dxdy_data[:,10::4]
+dx  = dxdy_data[:,8::4]
+dy  = dxdy_data[:,9::4]
 
-print dx.shape, eff_tengo[np.newaxis,:].shape
+#Saca las columnas que no estan en el zinfo (no tendre informacion de yrs)
+nei = nei.T[eff_tengo].T
+dx  = dx.T[eff_tengo].T
+dy  = dy.T[eff_tengo].T
+
+print dx.shape
 
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
