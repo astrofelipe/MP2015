@@ -115,13 +115,13 @@ if not os.path.isfile('PM.hdf5'):
     dxdy_data = allcat
     #output.write('PM.hdf5', path='data', compression=True)
 
-    print 'Guardando PM.dat...'
-    nans = np.isnan(allcat)
-    allcat[nans] = -9898
-    output = Table(allcat, names=hdr)
+    #print 'Guardando PM.dat...'
+    #nans = np.isnan(allcat)
+    #allcat[nans] = -9898
+    #output = Table(allcat, names=hdr)
 
-    output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
-    del output, nans, no_ids, hdr, total_id, todos, allcat
+    #output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
+    #del output, nans, no_ids, hdr, total_id, todos, allcat
 
 else:
     print '\nPM.hdf5 encontrado, no se creo archivo!'
