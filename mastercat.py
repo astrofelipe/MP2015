@@ -33,10 +33,12 @@ if iteracion2=='local':
 
 print '\nLeyendo datos...'
 #data = np.genfromtxt(masterst, unpack=True, delimiter=',')
-data = np.array(Table.read(masterst, path='data'))
-data = np.array(data.tolist())
+#data = np.array(Table.read(masterst, path='data'))
+#data = np.array(data.tolist())
 #data = data.T
-data[data==-9898] = np.nan
+#data[data==-9898] = np.nan
+h5f  = h5py.File(masterst, 'r')
+data = h5f['data']
 
 ids = data[:, 0::7]
 

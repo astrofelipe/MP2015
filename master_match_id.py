@@ -78,10 +78,13 @@ found  = np.sum(np.isfinite(ids), axis=1)
 rej    = found >= min_epochs
 allcat = allcat[rej]
 
-print 'Convirtiendo a tabla...'
-nans = np.isnan(allcat)
-allcat[nans] = -9898
+#print 'Convirtiendo a tabla...'
+#nans = np.isnan(allcat)
+#allcat[nans] = -9898
 print 'Guardando...'
-output = Table(allcat, names=hdr)
+h5f = h5py.File('master_match.h5', 'w')
+h5f.create_dataset('data', data=allcat)
+h5f.close()
+#output = Table(allcat, names=hdr)
 #ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
-output.write('master_match.h5', path='data')
+#output.write('master_match.h5', path='data')
