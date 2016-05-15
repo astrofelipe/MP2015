@@ -68,7 +68,6 @@ if not os.path.isfile('PM.hdf5'):
     refdata  = np.zeros((maximo, len(refdatax)))
     refdata[:] = np.nan
 
-
     refidsm = np.in1d(total_id, refdatax[0])
     refdata[refidsm] = refdatax.T
 
@@ -86,6 +85,8 @@ if not os.path.isfile('PM.hdf5'):
         com      = np.in1d(total_id, todos[i][0])
 
         allcat[:,i*4:i*4+4][com] = todos[i].T
+
+    del ids, orden, todos, com
 
     #Genera el header
     hdr = []
@@ -118,10 +119,10 @@ if not os.path.isfile('PM.hdf5'):
     allcat[nans] = -9898
     output = Table(allcat, names=hdr)
 
-    from guppy import hpy
-    h=hpy()
-    print h.heap()
-    sys.exit(1)
+    #from guppy import hpy
+    #h=hpy()
+    #print h.heap()
+    #sys.exit(1)
 
     output.write('PM.dat', fill_values=[('-9898','')], format='ascii.csv')
     del output, nans, no_ids, hdr, total_id
