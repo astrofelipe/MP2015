@@ -176,11 +176,11 @@ ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
 dec = dxdy_data[:,2]
-nei = dxdy_data[:,10::4][eff_tengo[np.newaxis:,]]
-dx  = dxdy_data[:,8::4][eff_tengo[np.newaxis:,]]
-dy  = dxdy_data[:,9::4][eff_tengo[np.newaxis:,]]
+nei = dxdy_data[:,10::4]
+dx  = dxdy_data[:,8::4]
+dy  = dxdy_data[:,9::4]
 
-print dx.shape, eff_tengo.shape
+print dx.shape, eff_tengo[:,np.newaxis].shape
 
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
