@@ -102,6 +102,7 @@ if not os.path.isfile('PM.hdf5'):
     hdr = np.hstack(hdr).tolist()
 
     allcat = np.hstack([refdata, allcat])
+    print allcat
     no_ids = np.isfinite(allcat[:,0])
     allcat = allcat[no_ids]
     nans = np.isnan(allcat)
@@ -134,7 +135,6 @@ else:
     print '\nAbriendo PM.hdf5'
     h5f = h5py.File('PM.hdf5', 'r')
     dxdy_data = h5f['data']
-    print dxdy_data
     #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
     print '\nPM_final.dat encontrado! Bye'
