@@ -117,7 +117,7 @@ for i in range(itera):
     subprocess.call('mv %s*.pdf iter_%d' % (output, (last_idx+i+1)), shell=True)
     subprocess.call('mv %s iter_%d' % (refstars, (last_idx+i+1)), shell=True)
     makedir('iter_%d/PMs' % (last_idx+i+1))
-    subprocess.call('mv PM*.dat iter_%d' % (last_idx+i+1), shell=True)
+    subprocess.call('mv PM*.h5 iter_%d' % (last_idx+i+1), shell=True)
     subprocess.call('mv PMs/* iter_%d/PMs' % (last_idx+i+1), shell=True)
     subprocess.call('mv VPD*.pdf iter_%d' % (last_idx+i+1), shell=True)
 
