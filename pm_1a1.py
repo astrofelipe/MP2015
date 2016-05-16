@@ -51,8 +51,8 @@ color_print('Epocas:', 'lightgray')
 print nro_epoca
 
 #Realiza el match entre los PM_*.dat
-if not os.path.isfile('PM.hdf5'):
-    print '\nPM.hdf5 no encontrado, generando archivo...'
+if not os.path.isfile('PM.h5'):
+    print '\nPM.h5 no encontrado, generando archivo...'
     todos   = barra(load_file, archivos, nprocs)
     maximos = np.zeros(len(todos))
     refdatax = load_file(referencia)
@@ -108,8 +108,8 @@ if not os.path.isfile('PM.hdf5'):
     #allcat[nans] = -9898
 
     #output = Table(allcat, names=hdr)
-    print 'Guardando PM.hdf5...'
-    h5f = h5py.File('PM.hdf5', 'w')
+    print 'Guardando PM.h5...'
+    h5f = h5py.File('PM.h5', 'w')
     h5f.create_dataset('data', data=allcat)
     h5f.close()
     dxdy_data = allcat
@@ -124,7 +124,7 @@ if not os.path.isfile('PM.hdf5'):
     #del output, nans, no_ids, hdr, total_id, todos, allcat
 
 else:
-    print '\nPM.hdf5 encontrado, no se creo archivo!'
+    print '\nPM.h5 encontrado, no se creo archivo!'
     print '\nAbriendo PM.h5'
     h5f = h5py.File('PM.h5', 'r')
     dxdy_data = h5f['data']
