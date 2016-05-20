@@ -81,5 +81,5 @@ for i in xrange(len(ax)):
     ax[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
     ap[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 
-fig.savefig('VPDHmag.pdf', dpi=200, bbox_inches='tight')
-fip.savefig('VPDmag.pdf', dpi=200, bbox_inches='tight')
+fig.savefig('VPDHmag.ps', dpi=200, bbox_inches='tight')
+fip.savefig('VPDmag.ps', dpi=200, bbox_inches='tight')

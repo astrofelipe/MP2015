@@ -280,8 +280,8 @@ fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2, rasterized=True)
 ax.set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 ax.text(-15, 15, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
-print 'Guardando VPD.pdf'
-plt.savefig('VPD.pdf', dpi=200)
+print 'Guardando VPD.ps'
+plt.savefig('VPD.ps', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
 H  = np.rot90(H)
@@ -303,8 +303,8 @@ axr.set(ylim=(-limplot, limplot))
 ax2.set_xlim(-limplot, limplot)
 ax2.set_ylim(-limplot, limplot)
 
-print 'Guardando VPDH.pdf'
-plt.savefig('VPDH.pdf', dpi=200)
+print 'Guardando VPDH.ps'
+plt.savefig('VPDH.ps', dpi=200)
 
 PM_X[np.isnan(PM_X)] = 999
 PM_Y[np.isnan(PM_Y)] = 999

@@ -57,7 +57,7 @@ if (len(sys.argv) > 3) or cmd_pdf:
     K,J = np.genfromtxt(output,unpack=True,usecols=(5,12))
 
     fig, ax = plt.subplots()
-    ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=True)
+    ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=False)
     ax.set_xlabel('$J-K$')
     ax.set_ylabel('$K$')
     if cmd_modo=='manual':
@@ -69,6 +69,6 @@ if (len(sys.argv) > 3) or cmd_pdf:
         if sys.argv[3] == '-p':
             plt.show()
     if cmd_pdf:
-        print '\nGuardando PDF...'
-        fig.savefig(output.replace('.dat', '.pdf'), dpi=200, bbox_inches='tight')
+        print '\nGuardando PS...'
+        fig.savefig(output.replace('.dat', '.ps'), dpi=200, bbox_inches='tight')
 print '\nDone!'
