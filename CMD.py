@@ -20,7 +20,7 @@ if len(sys.argv) == 1:
 
     sys.exit(1)
 
-cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf = pm_funcs.get_CMD()
+cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf, show_ref = pm_funcs.get_CMD()
 
 #Numero de epocas a usar
 k_epoch = int(sys.argv[1])
@@ -53,8 +53,8 @@ os.system('java -jar %s/stilts.jar tmatch2 \
     #idk, rak, dek, xk, yk, magk, magek = np.genfromtxt(k_catalog, unpack=True)
     #idj, raj, dej, xj, yj, magj, magej = np.genfromtxt(j_catalog, unpack=True)
 
-if (len(sys.argv) > 3) or cmd_pdf:
-    K,J = np.genfromtxt(output,unpack=True,usecols=(5,12))
+if cmd_pdf:
+    ids, K, J = np.genfromtxt(output,unpack=True,usecols=(5,12))
 
     fig, ax = plt.subplots()
     ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=False)
@@ -65,10 +65,11 @@ if (len(sys.argv) > 3) or cmd_pdf:
         ax.set_ylim(mag1,mag2)
     else:
         ax.invert_yaxis()
-    if len(sys.argv) > 3:
-        if sys.argv[3] == '-p':
-            plt.show()
-    if cmd_pdf:
-        print '\nGuardando PS...'
-        fig.savefig(output.replace('.dat', '.ps'), dpi=200, bbox_inches='tight')
+    if show_ref:
+        idr = np.genfromtxt('refstars0.gc', unpack=True, usecols=(0,))
+        idx = np.in1d(ids, idr)
+        ax.plot((J-K)[idx], K[idx], '.r', ms=2, alpha=.5, rasterized=False)
+
+    print '\nGuardando PS...'
+    fig.savefig(output.replace('.dat', '.ps'), dpi=200, bbox_inches='tight')
 print '\nDone!'
