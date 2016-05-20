@@ -10,4 +10,4 @@ outf = sys.argv[1].replace('h5', 'dat')
 print '\nAbriendo archivo...'
 t = Table.read(inf, path='data')
 print '\nGuardando como ASCII (CSV)...'
-subprocess.call("sed -i 's/nan//g' %s" % output, shell=True)
+subprocess.call("sed -i 's/nan//g' %s" % outf, shell=True)
