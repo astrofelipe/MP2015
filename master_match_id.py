@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import h5py
+import subprocess
 from astropy.io import ascii
 from astropy.table import Table
 from astropy.utils.console import ProgressBar
@@ -82,9 +83,10 @@ allcat = allcat[rej]
 #nans = np.isnan(allcat)
 #allcat[nans] = -9898
 print 'Guardando...'
-h5f = h5py.File('master_match.h5', 'w')
+h5f = h5py.File('master_match.temp', 'w')
 h5f.create_dataset('data', data=allcat)
 h5f.close()
+subprocess.call('mv master_match.temp master_match.h5', shell=True)
 #output = Table(allcat, names=hdr)
 #ascii.write(output, 'master_match.dat', delimiter=',', fill_values=[('-9898','')])
 #output.write('master_match.h5', path='data')

@@ -109,9 +109,10 @@ if not os.path.isfile('PM.h5'):
 
     #output = Table(allcat, names=hdr)
     print 'Guardando PM.h5...'
-    h5f = h5py.File('PM.h5', 'w')
+    h5f = h5py.File('PM.temp', 'w')
     h5f.create_dataset('data', data=allcat)
     h5f.close()
+    subprocess.call('mv PM.temp PM.h5', shell=True)
     dxdy_data = allcat
     #output.write('PM.hdf5', path='data', compression=True)
 
