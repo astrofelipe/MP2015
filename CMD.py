@@ -54,7 +54,7 @@ os.system('java -jar %s/stilts.jar tmatch2 \
     #idj, raj, dej, xj, yj, magj, magej = np.genfromtxt(j_catalog, unpack=True)
 
 if cmd_pdf:
-    ids, K, J = np.genfromtxt(output,unpack=True,usecols=(5,12))
+    ids, K, J = np.genfromtxt(output,unpack=True,usecols=(0,5,12))
 
     fig, ax = plt.subplots()
     ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=False)
