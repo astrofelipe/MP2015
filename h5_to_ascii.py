@@ -9,4 +9,4 @@ outf = sys.argv[1].replace('h5', 'dat')
 print '\nAbriendo archivo...'
 t = Table.read(inf, path='data')
 print '\nGuardando como ASCII...'
-t.write(outf, format='ascii')
+t.write(outf, format='ascii.daophot')

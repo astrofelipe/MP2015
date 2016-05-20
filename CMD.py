@@ -57,7 +57,7 @@ if (len(sys.argv) > 3) or cmd_pdf:
     K,J = np.genfromtxt(output,unpack=True,usecols=(5,12))
 
     fig, ax = plt.subplots()
-    ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=False)
+    ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=True)
     ax.set_xlabel('$J-K$')
     ax.set_ylabel('$K$')
     if cmd_modo=='manual':
