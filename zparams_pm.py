@@ -61,7 +61,7 @@ nprocs_mc   = 1
 
 
 [MATCH_1a1.PY]
-#ID o "RA DEC" (comillas para varias columnas)
+#ID o RA DEC
 modo_ma   = ID
 
 #Tolerancia match (caso RA DEC)
