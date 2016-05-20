@@ -147,9 +147,9 @@ if iteracion2=='global':
         print np.transpose([xs[:,0], ys[:,0]])
 
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
-        print ms[:,0]
+        #print ms[:,0]
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
-        print ms[:,0]
+        #print ms[:,0]
 
 if iteracion2=='local':
     for i in xrange(iteraciones-1):

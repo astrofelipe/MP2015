@@ -72,7 +72,7 @@ for i in xrange(len(ax)):
     co.append(ax[i].pcolormesh(xedges,yedges,Hmasked, cmap='coolwarm'))
     plt.colorbar(co[i], ax=ax[i])
 
-    ap[i].plot(x, y, '.k', ms=2)
+    ap[i].plot(x, y, '.k', ms=2, rasterized=True)
 
     nstars = len(x)
     ax[i].text(.066,.933, 'Nro stars: %d' % nstars, transform = ax[i].transAxes)
