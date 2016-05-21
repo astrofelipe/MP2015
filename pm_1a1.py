@@ -7,6 +7,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import multiprocessing
+import subprocess
 from matplotlib import gridspec
 from scipy.optimize import curve_fit
 from astropy.io import ascii
