@@ -24,8 +24,13 @@ with h5py.File('PM.h5') as f:
     print('Extrayendo seeing')
     yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
     hak = np.array(['k' in y for y in yep])
+    yep = yep[hak]
 
-    see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))[hak]
+    molde = yep[0].split('-')[0]
+    tengo = np.array([molde+'-%03d.fits' % i for i in pms])
+    effep = np.in1d(yep, tengo)
+
+    see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))[hak][effep]
     print(see,see.shape)
 
     print('Extrayendo DX y DY')
