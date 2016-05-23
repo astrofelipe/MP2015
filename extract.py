@@ -28,4 +28,4 @@ with h5py.File('PM.h5') as f:
         output = output[np.isfinite(dx)]
 
 
-    np.savetxt('id_estrella_de_interes.dat', output, fmt='%03d %.3f %.3f')
+    np.savetxt('id_estrella_de_interes.dat', output, fmt='%03d %.3f %.3f', header='EPOCH DX DY')
