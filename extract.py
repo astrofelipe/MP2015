@@ -30,7 +30,8 @@ with h5py.File('PM.h5') as f:
     tengo = np.array([molde+'-%03d.fits' % i for i in pms])
     effep = np.in1d(yep, tengo)
 
-    see, jd = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,6))[hak][effep]
+    zinfodat = np.genfromtxt('zinfo_img',usecols=(4,6))[hak][effep]
+    see, jd  = zinfodat.T
 
     print('Extrayendo DX y DY')
     idx = np.where(idx)[0][0]
