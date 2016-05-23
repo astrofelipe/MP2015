@@ -5,6 +5,7 @@ import glob
 import numpy as np
 
 theid = int(sys.argv[1])
+hidenan = True
 
 with h5py.File('PM.h5') as f:
     ids = f['data'][:,0]
@@ -21,9 +22,10 @@ with h5py.File('PM.h5') as f:
     row = f['data'][idx]
     dx  = row[8::4]
     dy  = row[9::4]
-    print(dx.shape, dy.shape, pms.shape, dx[np.isfinite(dx)].shape, dy[np.isfinite(dy)].shape)
 
     output = np.vstack((pms, dx, dy)).T
-    print(output.shape)
+    if hidenan:
+        output = output[np.isfinite(dx)]
+
 
     np.savetxt('id_estrella_de_interes.dat', output, fmt='%03d %.3f %.3f')
