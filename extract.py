@@ -32,13 +32,14 @@ with h5py.File('PM.h5') as f:
 
     zinfodat = np.genfromtxt('zinfo_img',usecols=(4,6))[hak][effep]
     see, jd  = zinfodat.T
-    print(see.shape, jd.shape, pms.shape, dx.shape)
 
     print('Extrayendo DX y DY')
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
     dx  = row[8::4]
     dy  = row[9::4]
+
+    print(see.shape, jd.shape, pms.shape, dx.shape)
 
     output = np.vstack((pms, jd, dx, dy, see)).T
     if hidenan:
