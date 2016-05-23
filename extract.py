@@ -39,12 +39,10 @@ with h5py.File('PM.h5') as f:
     dx  = row[8::4]
     dy  = row[9::4]
 
-    print(see.shape, jd.shape, pms.shape, dx.shape)
-
     output = np.vstack((pms, jd, dx, dy, see)).T
     if hidenan:
         print('No se guardaran filas donde la estrella no esta')
         output = output[np.isfinite(dx)]
 
     print('Guardando...')
-    np.savetxt('%d.dat' % theid, output, fmt='%03d %.3f %.3f %.8f', header='EPOCH DX DY SEEING')
+    np.savetxt('%d.dat' % theid, output, fmt='%03d %.8f %.3f %.3f %.8f', header='EPOCH DX DY SEEING')
