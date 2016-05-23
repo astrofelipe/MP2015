@@ -16,10 +16,9 @@ with h5py.File('PM.h5') as f:
 
     pms = glob.glob('PMs/*.dat')
     pms = np.sort([s.split('_')[-1].split('.')[0] for s in pms])
-    print(pms)
 
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
     dx  = row[8::4]
     dy  = row[9::4]
-    print(dx,dy)
+    print(dx.shape, dy.shape, pms.shape, dx[np.isfinite(dx)].shape, dy[np.isfinite(dy)].shape)
