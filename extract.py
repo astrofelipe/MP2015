@@ -45,4 +45,4 @@ with h5py.File('PM.h5') as f:
         output = output[np.isfinite(dx)]
 
     print('Guardando...')
-    np.savetxt('%d.dat' % theid, output, fmt='%03d %.8f %.3f %.3f %.8f', header='EPOCH DX DY SEEING')
+    np.savetxt('%d.dat' % theid, output, fmt='%03d %.8f %.3f %.3f %.8f', header='EPOCH JD DX DY SEEING')
