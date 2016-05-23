@@ -15,7 +15,7 @@ with h5py.File('PM.h5') as f:
         sys.exit(1)
 
     pms = glob.glob('PMs/*.dat')
-    pms = np.sort([s.split('_')[-1].split('.')[0] for s in pms])
+    pms = np.sort([int(s.split('_')[-1].split('.')[0]) for s in pms])
 
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
@@ -26,4 +26,4 @@ with h5py.File('PM.h5') as f:
     output = np.vstack((pms, dx, dy)).T
     print(output.shape)
 
-    np.savetxt('id_estrella_de_interes.dat', output, fmt='%s %.3f %.3f')
+    np.savetxt('id_estrella_de_interes.dat', output, fmt='%03d %.3f %.3f')
