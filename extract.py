@@ -23,7 +23,7 @@ with h5py.File('PM.h5') as f:
     dy  = row[9::4]
     print(dx.shape, dy.shape, pms.shape, dx[np.isfinite(dx)].shape, dy[np.isfinite(dy)].shape)
 
-    output = np.hstack((pms, dx, dy))
+    output = np.vstack((pms, dx, dy))
     print(output.shape)
 
     np.savetxt('id_estrella_de_interes.dat', output, fmt='%s %.3f %.3f')
