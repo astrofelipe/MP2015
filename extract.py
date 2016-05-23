@@ -35,6 +35,7 @@ with h5py.File('PM.h5') as f:
     dy  = row[9::4]
 
     output = np.vstack((pms, dx, dy)).T
+    print(output.shape)
     if hidenan:
         print('No se guardaran filas donde la estrella no esta')
         output = output[np.isfinite(dx)]
