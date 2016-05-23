@@ -1,5 +1,6 @@
 import sys
 import h5py
+import numpy as np
 
 theid = sys.argv[1]
 
