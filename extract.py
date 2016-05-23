@@ -13,7 +13,7 @@ with h5py.File('PM.h5') as f:
         print('ID no encontrado!')
         sys.exit(1)
 
-    idx = np.where(idx)[0]
+    idx = np.where(idx)[0,0]
     print(idx)
     row = f['data'][idx]
     print(row)
