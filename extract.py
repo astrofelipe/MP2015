@@ -32,6 +32,7 @@ with h5py.File('PM.h5') as f:
 
     zinfodat = np.genfromtxt('zinfo_img',usecols=(4,6))[hak][effep]
     see, jd  = zinfodat.T
+    print(see.shape, jd.shape)
 
     print('Extrayendo DX y DY')
     idx = np.where(idx)[0][0]
