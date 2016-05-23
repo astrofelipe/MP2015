@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import sys
 import h5py
+import glob
 import numpy as np
 
 theid = int(sys.argv[1])
@@ -12,6 +13,9 @@ with h5py.File('PM.h5') as f:
     if np.sum(idx) == 0:
         print('ID no encontrado!')
         sys.exit(1)
+
+    pms = glob.glob('PMs/*.dat')
+    print(pms)
 
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
