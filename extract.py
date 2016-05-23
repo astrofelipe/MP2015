@@ -15,7 +15,7 @@ with h5py.File('PM.h5') as f:
         sys.exit(1)
 
     pms = glob.glob('PMs/*.dat')
-    pms = np.sort([s.split('_')[-1].splt('.')[0] for s in pms])
+    pms = np.sort([s.split('_')[-1].split('.')[0] for s in pms])
     print(pms)
 
     idx = np.where(idx)[0][0]
