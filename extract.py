@@ -21,6 +21,13 @@ with h5py.File('PM.h5') as f:
     pms = glob.glob('PMs/*.dat')
     pms = np.sort([int(s.split('_')[-1].split('.')[0]) for s in pms])
 
+    print('Extrayendo seeing')
+    yep = np.genfromtxt('zinfo_img',unpack=True,usecols=(0,),dtype='string')
+    hak = np.array(['k' in y for y in yep])
+
+    see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))[hak]
+    print(see,see.shape)
+
     print('Extrayendo DX y DY')
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
