@@ -30,7 +30,7 @@ with h5py.File('PM.h5') as f:
     tengo = np.array([molde+'-%03d.fits' % i for i in pms])
     effep = np.in1d(yep, tengo)
 
-    see = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,))[hak][effep]
+    see, jd = np.genfromtxt('zinfo_img',unpack=True,usecols=(4,6))[hak][effep]
 
     print('Extrayendo DX y DY')
     idx = np.where(idx)[0][0]
@@ -38,10 +38,10 @@ with h5py.File('PM.h5') as f:
     dx  = row[8::4]
     dy  = row[9::4]
 
-    output = np.vstack((pms, dx, dy, see)).T
+    output = np.vstack((pms, jd, dx, dy, see)).T
     if hidenan:
         print('No se guardaran filas donde la estrella no esta')
         output = output[np.isfinite(dx)]
 
     print('Guardando...')
-    np.savetxt('id_estrella_de_interes.dat', output, fmt='%03d %.3f %.3f %.8f', header='EPOCH DX DY SEEING')
+    np.savetxt('%d.dat' % theid, output, fmt='%03d %.3f %.3f %.8f', header='EPOCH DX DY SEEING')
