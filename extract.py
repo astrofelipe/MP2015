@@ -15,4 +15,4 @@ with h5py.File('PM.h5') as f:
 
     idx = np.where(idx)[0][0]
     row = f['data'][idx]
-    print(row[:15])
+    print(row[6:30])
