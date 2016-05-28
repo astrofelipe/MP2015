@@ -17,13 +17,16 @@ def linear_regression(x, y, w):
 
 
 def get_script():
-    radio, itera = np.array(params['SCRIPT.PY'].values()).astype(int)
+    radio, itera, max_err = np.array(params['SCRIPT.PY'].values())
+    radio = int(radio)
+    itera = int(itera)
+    max_err = float(itera)
     output  = str(params['TLINEAL_1a1.PY']['output'])
     refer   = str(params['TLINEAL_1a1.PY']['refer'])
     nframes = int(params['PM_1a1.PY']['nframes'])
     min_ep  = int(params['VPDHmag.PY']['min_ep'])
 
-    return radio, itera, output, refer, nframes, min_ep
+    return radio, itera, output, refer, nframes, min_ep, max_err
 
 def get_VPDHmag():
     limplotvp, magl, magh, delta, min_ep, min_nei, sigma_err = np.array(params['VPDHmag.PY'].values()).astype('float')

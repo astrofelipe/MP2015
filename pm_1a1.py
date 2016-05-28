@@ -249,11 +249,11 @@ def PM_calc(i):
         '''
 
         #Con linfit (rapido!)
-        fit, cvm = linfit(x, yx, sigmay=ss)
+        fit, cvm = linfit(x, yx)#, sigmay=ss)
         pmxx = fit[0]
         pmex = np.sqrt(cvm[0,0])
 
-        fit, cvm = linfit(x, yy, sigmay=ss)
+        fit, cvm = linfit(x, yy)#, sigmay=ss)
         pmyy = fit[0]
         pmey = np.sqrt(cvm[0,0])
 

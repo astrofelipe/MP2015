@@ -6,7 +6,7 @@ import pm_funcs
 from astropy.utils.console import color_print
 
 #PARAMETROS
-radio, itera, output, refer, nframes, min_ep = pm_funcs.get_script()
+radio, itera, output, refer, nframes, min_ep, max_err = pm_funcs.get_script()
 
 print 'Iniciando script con...'
 print 'radio: %d' % radio
@@ -85,10 +85,11 @@ if continua:
         sys.exit(1)
 
     print '\nGenerando nuevo archivo de refstars a partir de la ultima iteracion'
-    ids, pmx, pmy, nf = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6))
+    ids, pmx, pmy, nf, pmxe, pmye = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6,7,8))
     pmr = np.sqrt(pmx**2 + pmy**2)
+    pme = np.sqrt(np.square(pmxe) + np.square(pmye))
 
-    mask = (pmr <= radio) * (nf >= nframes)
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx))
     data = data[mask]
@@ -123,10 +124,14 @@ for i in range(itera):
     subprocess.call('mv VPD*.ps iter_%d' % (last_idx+i+1), shell=True)
 
     color_print('\tGenerando nuevo archivo de refstars', 'cyan')
-    ids, pmx, pmy, nf = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6))
+    ids, pmx, pmy, nf, pmex, pmey = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6,7,8))
     pmr = np.sqrt(pmx**2 + pmy**2)
+    pme = np.sqrt(np.square(pmex) + np.square(pmey))
 
-    mask = (pmr <= radio) * (nf >= nframes)
+    if i>0:
+        mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
+    else:
+        mask = (pmr <= radio) * (nf >= nframes)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1))
     data = data[mask]

@@ -164,3 +164,6 @@ radio = 3
 
 #Numero de iteraciones
 itera = 3
+
+#Maximo error para considerar en las refstars (mas/yr)
+max_err = 1
