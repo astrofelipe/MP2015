@@ -128,10 +128,7 @@ for i in range(itera):
     pmr = np.sqrt(pmx**2 + pmy**2)
     pme = np.sqrt(np.square(pmex) + np.square(pmey))
 
-    if i>0:
-        mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
-    else:
-        mask = (pmr <= radio) * (nf >= nframes)
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1))
     data = data[mask]
