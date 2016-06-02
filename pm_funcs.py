@@ -114,3 +114,13 @@ def barra(funcion, items, cpus):
         p.close()
         p.join()
     return results
+
+#SigmaClip
+def sigma_clip(data, cendata, sig=3, iter=1):
+    filtrada = np.ma.array(data, copy=True)
+
+    for i in range(iter):
+        res = data - cendata
+        filtered_data.mask += res * res > np.var(filtrada) * sig ** 2
+
+    return filtrada
