@@ -273,7 +273,7 @@ def PM_calc(i):
 
                 res = np.sqrt(resx**2 + resy**2)
                 std = np.sqrt(stdx**2 + stdy**2)
-                clip = clip * (res < nsigma*std)
+                clip = clip * (res <= nsigma*std)
 
                 #Vuelve a calcular
                 fitx, cvm = linfit(x[clip], yx[clip])#, sigmay=ss)
