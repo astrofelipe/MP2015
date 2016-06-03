@@ -89,7 +89,13 @@ if continua:
     pmr = np.sqrt(pmx**2 + pmy**2)
     pme = np.sqrt(np.square(pmxe) + np.square(pmye))
 
-    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
+    if os.path.isfile('zelimchisha'):
+        rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
+        id_mask = ~np.in1d(ids, rej_ids)
+    else:
+        id_mask = np.ones(len(ids)).astype(bool)
+
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx))
     data = data[mask]

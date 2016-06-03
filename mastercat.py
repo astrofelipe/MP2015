@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import h5py
+import os
 from scipy.optimize import curve_fit
 from astropy.table import Table
 from sklearn.neighbors import NearestNeighbors as NN
@@ -43,13 +44,22 @@ data = h5f['data']
 
 ids = data[:, 0::7]
 
+if os.path.isfile('zelimchisha'):
+    rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
+    id_mask = ~np.in1d(np.nanmean(ids, axis=1), rej_ids)
+else:
+    id_mask = np.ones(len(ids)).astype(bool)
+
 nro_ep = ids.shape[1]
 found  = np.sum(np.isfinite(ids), axis=1)
-rej    = found >= min_epochs
+rej1   = (found >= min_epochs)
+rej    = rej1 & id_mask
 
 print 'Numero de epocas: %d' % nro_ep
 print 'Numero total de estrellas: %d' % len(ids)
-print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej))
+print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej1))
+print 'Numero de estrellas de zelimchisha encontradas: %d' % (~id_mask).sum()
+print 'Numero de estrellas a utilizar para las transformaciones: %d' % rej.sum()
 
 ids = data[:, 0::7][rej]
 ras = data[:, 1::7][rej]
@@ -58,6 +68,8 @@ xs  = data[:, 3::7][rej]
 ys  = data[:, 4::7][rej]
 ms  = data[:, 5::7][rej]
 es  = data[:, 6::7][rej]
+
+
 
 def transformacion(ep):
     magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
