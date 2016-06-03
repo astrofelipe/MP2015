@@ -39,9 +39,6 @@ if len(sys.argv) == 1:
 ## Las estrellas de referencia (refstars) son las que se usan para llevar a cabo las transformaciones
 ## de coordenadas de cada estrella analizada
 
-#Numero de procesadores (fraccion)
-procs = 2.0/3.0
-
 nrefstars_tl, min_nei, rad_int, rad_ext, output, refer, sort_mag, \
 local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy, nprocs = pm_funcs.get_tlineal()
 

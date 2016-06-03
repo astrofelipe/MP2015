@@ -56,10 +56,10 @@ rej1   = (found >= min_epochs)
 rej    = rej1 & id_mask
 
 print 'Numero de epocas: %d' % nro_ep
-print 'Numero total de estrellas: %d' % len(ids)
+print 'Numero total de estrellas en %s: %d' % (masterst, len(ids))
 print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej1))
 print 'Numero de estrellas de zelimchisha encontradas: %d' % (~id_mask).sum()
-print 'Numero de estrellas a utilizar para las transformaciones: %d' % rej.sum()
+#print 'Numero de estrellas a utilizar para las transformaciones: %d' % rej.sum()
 
 ids = data[:, 0::7][rej]
 ras = data[:, 1::7][rej]

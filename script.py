@@ -64,7 +64,23 @@ if not os.path.isfile('refstars0.gc'):
     sys.exit()
 
 if not continua:
-    subprocess.call('cp refstars0.gc refstars.gc', shell=True)
+    #subprocess.call('cp refstars0.gc refstars.gc', shell=True)
+    ids = np.genfromtxt('refstars0.gc', unpack=True, usecols=(0,))
+
+    if os.path.isfile('zelimchisha'):
+        print '\nEliminando estrellas de zelimchisha'
+        rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
+        id_mask = ~np.in1d(ids, rej_ids)
+        print '\tEncontradas %d estrellas' % (~id_mask).sum()
+    else:
+        id_mask = np.ones(len(ids)).astype(bool)
+
+    data = np.genfromtxt('refstars0.gc')
+    data = data[id_mask]
+
+    print 'Guardando refstars para primera iteracion'
+    np.savetxt(refstars, data, fmt='%f')
+
     last_idx = 0
 
     for i in range(1,itera+1):
@@ -134,7 +150,13 @@ for i in range(itera):
     pmr = np.sqrt(pmx**2 + pmy**2)
     pme = np.sqrt(np.square(pmex) + np.square(pmey))
 
-    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err)
+    if os.path.isfile('zelimchisha'):
+        rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
+        id_mask = ~np.in1d(ids, rej_ids)
+    else:
+        id_mask = np.ones(len(ids)).astype(bool)
+
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1))
     data = data[mask]
