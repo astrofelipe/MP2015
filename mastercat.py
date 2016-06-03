@@ -66,24 +66,27 @@ def transformacion(ep):
 
     x1 = xs[:, 0]
     y1 = ys[:, 0]
+    m1 = ms[:, 0]
 
     if ep==0:
         x2 = xb
         y2 = yb
+        m2 = mb
     else:
         x2 = xs[:, ep]
         y2 = ys[:, ep]
+        m2 = ms[:, ep]
 
     xx1 = x1[common*magcon]
     xx2 = x2[common*magcon]
     yy1 = y1[common*magcon]
     yy2 = y2[common*magcon]
 
-    m1 = ms[:, 0][common*magcon]
-    m2 = ms[:, ep][common*magcon]
+    #m1 = ms[:, 0][common*magcon]
+    #m2 = ms[:, ep][common*magcon]
 
-    mdm = np.nanmean(m1-m2)
-    mm2 = ms[:, ep] + mdm
+    mdm = np.nanmean((m1-m2)[common*magcon])
+    mm2 = m2 + mdm
 
     poptx, pcovx = curve_fit(linear, [xx2, yy2], xx1)
     popty, pcovy = curve_fit(linear, [xx2, yy2], yy1)
@@ -105,6 +108,7 @@ mm[:, 0] = ms[:, 0]
 #Backup de la primera epoca
 xb = np.copy(xs[:,0])
 yb = np.copy(ys[:,0])
+mb = np.copy(ms[:,0])
 
 print '\nIteracion 1'
 for j in xrange(1, nro_ep):
@@ -135,7 +139,6 @@ if iteracion2=='global':
             xx[:,j] = tx
             yy[:,j] = ty
             mm[:,j] = mm2
-            print mm2
 
         print 'Valores de XY antes:'
         print np.transpose([xs[:,0], ys[:,0]])
@@ -147,9 +150,7 @@ if iteracion2=='global':
         print np.transpose([xs[:,0], ys[:,0]])
 
         msmask  = np.ma.array(mm, mask=np.isnan(mm))
-        #print ms[:,0]
         ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
-        #print ms[:,0]
 
 if iteracion2=='local':
     for i in xrange(iteraciones-1):
