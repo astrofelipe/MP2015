@@ -85,7 +85,7 @@ if continua:
         sys.exit(1)
 
     print '\nGenerando nuevo archivo de refstars a partir de la ultima iteracion'
-    ids, pmx, pmy, nf, pmxe, pmye = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6,7,8))
+    ids, pmx, pmy, nf, pmxe, pmye = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6,8,9))
     pmr = np.sqrt(pmx**2 + pmy**2)
     pme = np.sqrt(np.square(pmxe) + np.square(pmye))
 
@@ -94,8 +94,8 @@ if continua:
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx))
     data = data[mask]
 
-    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
-    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
+    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %d %.6f %.6f %.0f %.2f'
+    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES CFRAMES PMXE PMYE NEI NEI_STD'
 
     np.savetxt(refstars, data, fmt=fmt, header=hdr)
 

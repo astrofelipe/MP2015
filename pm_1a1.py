@@ -1,3 +1,5 @@
+from __future__ import division, print_function
+
 import os
 import sys
 import glob
@@ -18,14 +20,14 @@ from linfit import linfit
 import pm_funcs
 
 #PARAMETROS
-nframes, nbins, limplotpm, nprocs = pm_funcs.get_pm1a1()
+nframes, nbins, limplotpm, nprocs, sig_iter, nsigma = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
 color_print('[PM_1a1.py]', 'yellow')
 color_print('Parametros:', 'lightgray')
-print '\tnframes: %d' % nframes
-print '\tnbins:   %d' % nbins
-print '\tnprocs:  %d' % nprocs
+print('\tnframes: %d' % nframes)
+print('\tnbins:   %d' % nbins)
+print('\tnprocs:  %d' % nprocs)
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 cpun = multiprocessing.cpu_count()
@@ -49,11 +51,11 @@ nro_arch   = len(archivos)
 
 nro_epoca = np.sort([int(f.split('_')[1].split('.')[0]) for f in archivos])
 color_print('Epocas:', 'lightgray')
-print nro_epoca
+print(nro_epoca)
 
 #Realiza el match entre los PM_*.dat
 if not os.path.isfile('PM.h5'):
-    print '\nPM.h5 no encontrado, generando archivo...'
+    print('\nPM.h5 no encontrado, generando archivo...')
     todos   = barra(load_file, archivos, nprocs)
     maximos = np.zeros(len(todos))
     refdatax = load_file(referencia)
@@ -79,7 +81,7 @@ if not os.path.isfile('PM.h5'):
 
 
     #Rellena la matriz
-    print 'Ingresando datos a la matriz...'
+    print('Ingresando datos a la matriz...')
     for i in ProgressBar(xrange(len(todos))):
         ids      = todos[i][0]
         orden    = np.argsort(ids)
@@ -109,7 +111,7 @@ if not os.path.isfile('PM.h5'):
     #allcat[nans] = -9898
 
     #output = Table(allcat, names=hdr)
-    print 'Guardando PM.h5...'
+    print('Guardando PM.h5...')
     h5f = h5py.File('PM.temp', 'w')
     h5f.create_dataset('data', data=allcat)
     h5f.close()
@@ -126,13 +128,13 @@ if not os.path.isfile('PM.h5'):
     #del output, nans, no_ids, hdr, total_id, todos, allcat
 
 else:
-    print '\nPM.h5 encontrado, no se creo archivo!'
-    print '\nAbriendo PM.h5'
+    print('\nPM.h5 encontrado, no se creo archivo!')
+    print('\nAbriendo PM.h5')
     h5f = h5py.File('PM.h5', 'r')
     dxdy_data = h5f['data']
     #dxdy_data = np.array(Table.read('PM.hdf5', path='data'))
 if os.path.isfile('PM_final.dat'):
-    print '\nPM_final.dat encontrado! Bye'
+    print('\nPM_final.dat encontrado! Bye')
     sys.exit(1)
 
 
@@ -200,7 +202,7 @@ count = np.sum(np.isfinite(dx), axis=1)
 def PM_calc(i):
     if not dx_fin[i].sum() >= nframes:
         #Si no esta en el minimo de frames, devuelve NaN
-        return np.nan, np.nan, np.nan, np.nan
+        return np.nan, np.nan, np.nan, np.nan, 0
     else:
         ma  = dx_fin[i]
         #print dx.shape, dx_fin.shape, ma.shape
@@ -249,15 +251,40 @@ def PM_calc(i):
         '''
 
         #Con linfit (rapido!)
-        fit, cvm = linfit(x, yx)#, sigmay=ss)
-        pmxx = fit[0]
+        fitx, cvm = linfit(x, yx)#, sigmay=ss)
+        pmxx = fitx[0]
         pmex = np.sqrt(cvm[0,0])
 
-        fit, cvm = linfit(x, yy)#, sigmay=ss)
-        pmyy = fit[0]
+        fity, cvm = linfit(x, yy)#, sigmay=ss)
+        pmyy = fity[0]
         pmey = np.sqrt(cvm[0,0])
 
-        return pmxx, pmyy, pmex, pmey
+        #Sigma Clip
+        clip = np.ones(len(x)).astype(bool)
+        if sig_iter>0:
+            for si in range(sig_iter):
+                modelx = recta(x, *fitx)
+                resx   = yx - modelx
+                stdx   = np.nanstd(resx)
+
+                modely = recta(x, *fity)
+                resy   = yy - modely
+                stdy   = np.nanstd(resy)
+
+                res = np.sqrt(resx**2 + resy**2)
+                std = np.sqrt(stdx**2 + stdy**2)
+                clip = clip * (res < nsigma*std)
+
+                #Vuelve a calcular
+                fitx, cvm = linfit(x[clip], yx[clip])#, sigmay=ss)
+                pmxx = fitx[0]
+                pmex = np.sqrt(cvm[0,0])
+
+                fity, cvm = linfit(x[clip], yy[clip])#, sigmay=ss)
+                pmyy = fity[0]
+                pmey = np.sqrt(cvm[0,0])
+
+        return pmxx, pmyy, pmex, pmey, clip.sum()
 
 #PMS_all = np.transpose(Parallel(n_jobs=cpun/2, verbose=8)(delayed(PM_calc)(i) for i in xrange(len(dx))))
 color_print('Calculando PMs...', 'orange')
@@ -265,9 +292,11 @@ PMS_all = np.transpose(barra(PM_calc, xrange(len(dx)),nprocs))
 
 #Separo PM y errores, ademas escala y convierte a mas/yr
 PMS = np.array(PMS_all[0:2])
-PME = np.array(PMS_all[2:])
+PME = np.array(PMS_all[2:4])
 PMS = PMS * 1000 * 0.339
 PME = PME * 1000 * 0.339
+
+clip_epoch = np.array(PMS_all[-1])
 
 PM_X, PM_Y = PMS
 PMXE, PMYE = PME
@@ -282,7 +311,7 @@ fig, ax = plt.subplots()
 ax.plot(PM_X, PM_Y, '.k', alpha=.75, ms=2, rasterized=True)
 ax.set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 ax.text(-15, 15, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
-print 'Guardando VPD.ps'
+print('Guardando VPD.ps')
 plt.savefig('VPD.ps', dpi=200)
 
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
@@ -305,7 +334,7 @@ axr.set(ylim=(-limplot, limplot))
 ax2.set_xlim(-limplot, limplot)
 ax2.set_ylim(-limplot, limplot)
 
-print 'Guardando VPDH.ps'
+print('Guardando VPDH.ps')
 plt.savefig('VPDH.ps', dpi=200)
 
 PM_X[np.isnan(PM_X)] = 999
@@ -313,10 +342,10 @@ PM_Y[np.isnan(PM_Y)] = 999
 PMXE[np.isnan(PMXE)] = 999
 PMYE[np.isnan(PMYE)] = 999
 
-fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
-hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
+fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %d %.6f %.6f %.0f %.2f'
+hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES CFRAMES PMXE PMYE NEI NEI_STD'
 
-print 'Guardando PM_final.dat'
-np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)
+print('Guardando PM_final.dat')
+np.savetxt('PM_final.dat', np.transpose([ids, ra, dec, PM_X, PM_Y, mag, count, clip_epoch, PMXE, PMYE, mean_nei, std_nei]), fmt=fmt, header=hdr)
 
-print 'Done!'
+print('Done!')

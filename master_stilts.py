@@ -23,7 +23,7 @@ if modo_ms == 'ID':
     matcher = 'exact'
 
 if modo_ms == 'RA DEC':
-    modo_ms == '"RA DEC"'
+    modo_ms = '"RA DEC"'
 
 supermatch  = 'java -jar %s/stilts.jar tmatchn multimode=group nin=%d matcher=%s ' % (stilts_folder, len(archivos), matcher)
 for i in xrange(1, len(archivos)+1):

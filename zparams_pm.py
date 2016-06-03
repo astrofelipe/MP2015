@@ -138,6 +138,12 @@ limplotpm = 20
 #Numero procesadores
 nprocs_pm = 1
 
+#Numero de iteraciones para sigma clip (0 no lo hace)
+sig_iter = 1
+
+#Numero de sigmas para hacer el clip
+nsigma = 3
+
 [VPDHmag.PY]
 #Limites del plot (bineado) en mas/yr
 limplotvp = 20

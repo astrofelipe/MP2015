@@ -90,10 +90,12 @@ def get_match1a1():
     return modo_ma, tol, nprocs_m1a1
 
 def get_pm1a1():
-    nframes, nbins, limplotpm, nprocs_pm = np.array(params['PM_1a1.PY'].values()).astype(float)
+    nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma = np.array(params['PM_1a1.PY'].values()).astype(float)
     nprocs_pm = int(nprocs_pm)
+    sig_iter  = int(sig_iter)
+    nsigma    = int(nsigma)
 
-    return nframes, nbins, limplotpm, nprocs_pm
+    return nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma
 
 def get_XYtoRADEC():
     nprocs = np.array(params['XYtoRADEC.PY'].values()).astype(float)
@@ -114,13 +116,3 @@ def barra(funcion, items, cpus):
         p.close()
         p.join()
     return results
-
-#SigmaClip
-def sigma_clip(data, cendata, sig=3, iter=1):
-    filtrada = np.ma.array(data, copy=True)
-
-    for i in range(iter):
-        res = data - cendata
-        filtered_data.mask += res * res > np.var(filtrada) * sig ** 2
-
-    return filtrada

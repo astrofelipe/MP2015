@@ -43,7 +43,7 @@ if modo=='ID':
     matcher = 'exact'
 
 if modo == 'RA DEC':
-    modo == '"RA DEC"'
+    modo = '"RA DEC"'
 
 #for cat in catalog:
 def match(cat):

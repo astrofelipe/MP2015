@@ -21,16 +21,16 @@ print 'min_ep: %d' % min_ep
 celdas = int((mags[1] - mags[0]) / delta)
 sep    = np.arange(mags[0], mags[1]+delta, delta)
 
-data = np.genfromtxt('PM_final.dat', unpack=True)
+data = np.genfromtxt('PM_final.dat', unpack=True, usecols=range(11))
 #Rejection por 999
 ma_999 = data[3] != 999
 data = data.T[ma_999].T
 
 #Rejection por vecinos
-ma_nei = data[9] >= min_nei
+ma_nei = data[10] >= min_nei
 
 #Rejection por errores
-pme = np.sqrt(data[7]**2 + data[8]**2)
+pme = np.sqrt(data[8]**2 + data[9]**2)
 ma_pme = np.abs(pme - np.nanmedian(pme)) < sigma_err*mad_std(pme - np.nanmedian(pme))
 
 #Rejection por numero de epocas
