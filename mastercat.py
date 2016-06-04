@@ -52,12 +52,11 @@ else:
 
 nro_ep = ids.shape[1]
 found  = np.sum(np.isfinite(ids), axis=1)
-rej1   = (found >= min_epochs)
-rej    = rej1 & id_mask
+rej    = (found >= min_epochs)
 
 print 'Numero de epocas: %d' % nro_ep
 print 'Numero total de estrellas en %s: %d' % (masterst, len(ids))
-print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej1))
+print 'Numero de estrellas en %d epocas: %d' % (min_epochs, np.sum(rej))
 print 'Numero de estrellas de zelimchisha encontradas: %d' % (~id_mask).sum()
 #print 'Numero de estrellas a utilizar para las transformaciones: %d' % rej.sum()
 
@@ -74,7 +73,7 @@ es  = data[:, 6::7][rej]
 def transformacion(ep):
     magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
     common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, ep])
-    print 'Numero de estrellas utilizadas en %d: %d' % (ep, np.sum(magcon*common))
+    print 'Numero de estrellas utilizadas para transformar en %d: %d/%d' % (ep, np.sum(magcon*common*id_mask), np.sum(np.isfinite(ids[:,ep])))
 
     x1 = xs[:, 0]
     y1 = ys[:, 0]
@@ -89,15 +88,15 @@ def transformacion(ep):
         y2 = ys[:, ep]
         m2 = ms[:, ep]
 
-    xx1 = x1[common*magcon]
-    xx2 = x2[common*magcon]
-    yy1 = y1[common*magcon]
-    yy2 = y2[common*magcon]
+    xx1 = x1[common*magcon*id_mask]
+    xx2 = x2[common*magcon*id_mask]
+    yy1 = y1[common*magcon*id_mask]
+    yy2 = y2[common*magcon*id_mask]
 
     #m1 = ms[:, 0][common*magcon]
     #m2 = ms[:, ep][common*magcon]
 
-    mdm = np.nanmean((m1-m2)[common*magcon])
+    mdm = np.nanmean((m1-m2)[common*magcon*id_mask])
     mm2 = m2 + mdm
 
     poptx, pcovx = curve_fit(linear, [xx2, yy2], xx1)
