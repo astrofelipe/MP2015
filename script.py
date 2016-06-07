@@ -161,8 +161,8 @@ for i in range(itera):
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1))
     data = data[mask]
 
-    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %.6f %.6f %.0f %.2f'
-    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES PMXE PMYE NEI NEI_STD'
+    fmt = '%d %.6f %.6f %.6f %.6f %.3f %d %d %.6f %.6f %.0f %.2f'
+    hdr = 'ID RA DEC PM_X PM_Y MAG_K NFRAMES CFRAMES PMXE PMYE NEI NEI_STD'
 
     np.savetxt(refstars, data, fmt=fmt, header=hdr)
 
