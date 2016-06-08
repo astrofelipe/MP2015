@@ -146,7 +146,7 @@ for i in range(itera):
     subprocess.call('mv VPD*.ps iter_%d' % (last_idx+i+1), shell=True)
 
     color_print('\tGenerando nuevo archivo de refstars', 'cyan')
-    ids, pmx, pmy, nf, pmex, pmey = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6,7,8))
+    ids, pmx, pmy, nf, pmex, pmey = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6,8,9))
     pmr = np.sqrt(pmx**2 + pmy**2)
     pme = np.sqrt(np.square(pmex) + np.square(pmey))
 
