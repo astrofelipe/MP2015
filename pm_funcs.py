@@ -20,7 +20,7 @@ def get_script():
     radio, itera, max_err = np.array(params['SCRIPT.PY'].values())
     radio = int(radio)
     itera = int(itera)
-    max_err = float(itera)
+    max_err = float(max_err)
     output  = str(params['TLINEAL_1a1.PY']['output'])
     refer   = str(params['TLINEAL_1a1.PY']['refer'])
     nframes = int(params['PM_1a1.PY']['nframes'])
