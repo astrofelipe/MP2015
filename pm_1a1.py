@@ -190,8 +190,8 @@ mean_nei = np.nanmean(nei, axis=1)
 std_nei  = np.nanstd(nei, axis=1)
 
 #Mascara para los dx o dy que tienen valores validos (ie no NaN ni 888)
-dx_fin = np.isfinite(dx)*(dx!=888.8)
-dy_fin = np.isfinite(dy)*(dy!=888.8)
+dx_fin = np.isfinite(dx)*(~np.isclose(dx, 888.8, rtol=1e-4))
+dy_fin = np.isfinite(dy)*(~np.isclose(dy, 888.8, rtol=1e-4))
 
 #Aqui se guardan los PM en la direccion X e Y
 PM_X = np.zeros(dx_fin.shape[0]) - 999
@@ -204,7 +204,7 @@ def PM_calc(i):
         #Si no esta en el minimo de frames, devuelve NaN
         return np.nan, np.nan, np.nan, np.nan, 0
     else:
-        ma  = dx_fin[i]
+        ma  = dx_fin[i]*dy_fin[i]
         #print dx.shape, dx_fin.shape, ma.shape
         #print yrs.shape, dx[i].shape, dy[i].shape, see.shape
         x   = yrs[ma]
@@ -259,7 +259,7 @@ def PM_calc(i):
         pmyy = fity[0]
         pmey = np.sqrt(cvm[0,0])
 
-        #Sigma Clip
+        ##Sigma Clip
         clip = np.ones(len(x)).astype(bool)
         if sig_iter>0:
             for si in range(sig_iter):
