@@ -41,8 +41,8 @@ ids, ra, dec, pmx, pmy, mag, nep, pmxe, pmye, nei, neistd = np.transpose(data.T[
 #Rejection por vecinos
 ma_nei = nei >= min_nei
 
-fig, ax = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
-fip, ap = plt.subplots(nrows=celdas, figsize=[4.2, 4.2*celdas])
+fig, ax = plt.subplots(nrows=celdas, figsize=[1.25*4, 1.25*3*celdas])
+fip, ap = plt.subplots(nrows=celdas, figsize=[1.25*4, 1.25*4*celdas])
 bins = np.arange(-limplot,limplot+1,1)
 co   = []
 
@@ -81,5 +81,7 @@ for i in xrange(len(ax)):
     ax[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
     ap[i].set(xlim=(-limplot, limplot), ylim=(-limplot, limplot))
 
-fig.savefig('VPDHmag.ps', dpi=200, bbox_inches='tight')
-fip.savefig('VPDmag.ps', dpi=200, bbox_inches='tight')
+fig.tight_layout()
+fip.tight_layout()
+fig.savefig('VPDHmag.png', dpi=200)
+fip.savefig('VPDmag.png', dpi=200)
