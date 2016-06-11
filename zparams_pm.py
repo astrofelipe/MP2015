@@ -17,7 +17,7 @@ col2     = 2
 
 #Limite en magnitud
 mag1     = 20
-mag2     = 10
+mag2     = 8
 
 #Genera PDF
 cmd_pdf  = True
@@ -94,8 +94,8 @@ sort_mag  = False
 local     = True
 
 #Corte en magnitud para considerar estrellas a analizar
-ma1 = 11.0
-ma2 = 19.0
+ma1 = 8.0
+ma2 = 20.0
 
 #Corte en magnitud para las refstars
 mr1 = 11.0
@@ -149,8 +149,8 @@ nsigma = 3
 limplotvp = 20
 
 #Limite de magnitudes para plotear
-mags_l  = 9
-mags_h  = 19
+mags_l  = 8
+mags_h  = 20
 
 #Intervalo de magnitudes
 delta   = 1
