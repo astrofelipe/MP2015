@@ -137,13 +137,13 @@ for i in range(itera):
     subprocess.call('python %s/VPDHmag.py' % stilts_folder, shell=True)
 
     color_print('\tMoviendo archivos', 'cyan')
-    subprocess.call('mv %s*.ps iter_%d' % (output, (last_idx+i+1)), shell=True)
+    subprocess.call('mv %s*.png iter_%d' % (output, (last_idx+i+1)), shell=True)
     subprocess.call('mv %s iter_%d' % (refstars, (last_idx+i+1)), shell=True)
     makedir('iter_%d/PMs' % (last_idx+i+1))
     subprocess.call('mv PM*.h5 iter_%d' % (last_idx+i+1), shell=True)
     subprocess.call('mv PM_final.dat iter_%d' % (last_idx+i+1), shell=True)
     subprocess.call('mv PMs/* iter_%d/PMs' % (last_idx+i+1), shell=True)
-    subprocess.call('mv VPD*.ps iter_%d' % (last_idx+i+1), shell=True)
+    subprocess.call('mv VPD*.png iter_%d' % (last_idx+i+1), shell=True)
 
     color_print('\tGenerando nuevo archivo de refstars', 'cyan')
     ids, pmx, pmy, nf, pmex, pmey = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6,8,9))
