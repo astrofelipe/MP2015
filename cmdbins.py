@@ -21,7 +21,6 @@ col_max = 2.0     #Limites en color (eje x)
 
 #PMs
 max_err = 10.0   #Error maximo (modulo) para puntos a mostrar
-pm_magl = 15    #Estrellas con magnitud mayor usan rad_pm2
 rad_pm  = np.arange(5,9.5,0.5) #Radios para seleccionar estrellas (arreglo largo nro de bines)
 
 x0, y0  = -6.82687392, 10.52710485  #Centro para la seleccion
@@ -114,12 +113,6 @@ for i in range(nint):
     #Seleccion
     maskred = ((pmx[maskmag] - x0)**2 + (pmy[maskmag] - y0)**2)**0.5 <= rad_pm[i]
     xc, yc  = circle(x0, y0, rad_pm[i])
-    #if mags[i+1]-dmag < pm_magl:
-    #    maskred = ((pmx[maskmag] - x0)**2 + (pmy[maskmag] - y0)**2)**0.5 <= rad_pm1
-    #    xc, yc  = circle(x0, y0, rad_pm1)
-    #else:
-    #    maskred = ((pmx[maskmag] - x0)**2 + (pmy[maskmag] - y0)**2)**0.5 <= rad_pm2
-    #    xc, yc  = circle(x0, y0, rad_pm2)
 
     xr, yr  = x[maskred], y[maskred]
     pm[i].plot(xr, yr, '.r', ms=pmd_psize)#, rasterized=True)
