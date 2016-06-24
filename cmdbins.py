@@ -5,12 +5,13 @@ import numpy as np
 import sys
 
 #README
-if sys.argv[1] == '-h':
-    print 'Para ejecutar:'
-    print 'python cmdbins.py <'
-
-
-
+if (len(sys.argv) == 2):
+    if (sys.argv[1] == '-h'):
+        print
+        print 'Para ejecutar:'
+        print 'python cmdbins.py <output de PM_1a1> <archivo con fotometria>'
+        print
+        sys.exit(1)
 
 ##############
 # PARAMETROS #
