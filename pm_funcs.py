@@ -1,8 +1,23 @@
 from configparser import ConfigParser
+from astropy.utils.console import color_print
+import os
 import numpy as np
 
 params = ConfigParser()
-params.read('zparams_pm.py')
+
+if os.path.isfile('zparams_pm.py'):
+    params.read('zparams_pm.py')
+else:
+    folder = os.path.dirname(os.path.realpath(__file__))
+    params.read('%s/zparams_pm.py' % folder)
+    print ''
+    color_print('###############################################', 'yellow')
+    color_print('#', 'yellow', '                                             ', 'lightcyan', '#', 'yellow')
+    color_print('#', 'yellow', '  zparams_pm.py no encontrado en la carpeta  ', 'white', '#', 'yellow')
+    color_print('#', 'yellow', '\033[1m' + '      Utilizando parametros por defecto      ', 'lightred', '#', 'yellow')
+    color_print('#', 'yellow', '                                             ', 'lightcyan', '#', 'yellow')
+    color_print('###############################################', 'yellow')
+    print ''
 
 #Regresion Lineal
 def linear_regression(x, y, w):
@@ -55,6 +70,7 @@ def get_tlineal():
     local, ma1, ma2, mr1, mr2, mp1, mp2, rad_ref, x0, y0, lim, plot_ep, plot_del_ep, plot_del_xy, nprocs_tl
 
 def get_CMD():
+
     cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf, show_ref = params['CMD.PY'].values()
     col1, col2, mag1, mag2 = np.array([col1, col2, mag1, mag2]).astype(float)
     cmd_modo = str(cmd_modo)
