@@ -3,6 +3,15 @@ import matplotlib.gridspec as gs
 from matplotlib import rc
 import numpy as np
 import sys
+
+#README
+if sys.argv[1] == '-h':
+    print 'Para ejecutar:'
+    print 'python cmdbins.py <'
+
+
+
+
 ##############
 # PARAMETROS #
 ##############
@@ -29,7 +38,7 @@ pm_min = -24
 pm_max = 24     #Limites en PMX y PMY
 
 #Plots
-rc('text', usetex=True) #Usa TeX para las fuentes
+#rc('text', usetex=True) #Usa TeX para las fuentes
 rc('xtick', labelsize=15) #Tamano fuente ticks en x
 rc('ytick', labelsize=15) #Tamano fuente ticks en y
 rc('xtick.major', size=7.5) #Tamano fuente ticks en x
@@ -90,7 +99,7 @@ magB[inter1]  = mag2[inter2]
 mags = np.arange(min_mag, max_mag+1, dmag)
 
 #Tweak
-mags[-1] = 18.2
+#mags[-1] = 18.2
 
 nint = len(mags) - 1
 bands = ['K_s', 'H', 'J', 'Y' ,'Z']
@@ -122,20 +131,20 @@ for i in range(nint):
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_y\enskip\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_y\mathrm{mas\ yr^{-1}}$')
         else:
-            pm[i].set_ylabel('$\mu_y\enskip\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\mu_y\mathrm{mas\ yr^{-1}}$')
 
 
     #Plotea en el panel derecho
     to.plot((magB-magK)[maskmag][maskred], magK[maskmag][maskred], '.k', ms=cmd_psize, rasterized=True)
     fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize, rasterized=True)
 
-pm[-1].set_xlabel('$\mu_x\enskip\mathrm{mas\ yr^{-1}}$')
+pm[-1].set_xlabel('$\mu_x\mathrm{mas\ yr^{-1}}$')
 
-to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
+#to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
-max_mag += 0.2  #Tweak
+#max_mag += 0.2  #Tweak
 
 to.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel='$%s - K_s$' % b2nam, yticks=mag_ticks)
 fi.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel='$%s - K_s$' % b2nam, yticks=mag_ticks)
