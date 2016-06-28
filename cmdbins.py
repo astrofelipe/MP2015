@@ -31,15 +31,16 @@ col_max = 2.0     #Limites en color (eje x)
 
 #PMs
 max_err = 10.0   #Error maximo (modulo) para puntos a mostrar
-rad_pm  = np.arange(5,9.5,0.5) #Radios para seleccionar estrellas (arreglo largo nro de bines)
+rad_pm  = np.arange(4,9.5,0.5) #Radios para seleccionar estrellas (arreglo largo nro de bines)
 
-x0, y0  = -6.82687392, 10.52710485  #Centro para la seleccion
+#x0, y0  = -6.82687392, 10.52710485  #Centro para la seleccion
+x0, y0  = 10.52710485, 6.82687392  #Centro para la seleccion
 
 pm_min = -24
 pm_max = 24     #Limites en PMX y PMY
 
 #Plots
-#rc('text', usetex=True) #Usa TeX para las fuentes
+rc('text', usetex=True) #Usa TeX para las fuentes
 rc('xtick', labelsize=15) #Tamano fuente ticks en x
 rc('ytick', labelsize=15) #Tamano fuente ticks en y
 rc('xtick.major', size=7.5) #Tamano fuente ticks en x
@@ -132,16 +133,16 @@ for i in range(nint):
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_y\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_y$  $\mathrm{mas\ yr^{-1}}$')
         else:
-            pm[i].set_ylabel('$\mu_y\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\mu_y$  $\mathrm{mas\ yr^{-1}}$')
 
 
     #Plotea en el panel derecho
     to.plot((magB-magK)[maskmag][maskred], magK[maskmag][maskred], '.k', ms=cmd_psize, rasterized=True)
     fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize, rasterized=True)
 
-pm[-1].set_xlabel('$\mu_x\mathrm{mas\ yr^{-1}}$')
+pm[-1].set_xlabel('$\mu_x$  $\mathrm{mas\ yr^{-1}}$')
 
 #to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
