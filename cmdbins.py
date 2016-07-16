@@ -1,43 +1,43 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
+import argparse
 from matplotlib import rc
 import numpy as np
 import sys
 
 #README
-if (len(sys.argv) == 2):
-    if (sys.argv[1] == '-h'):
-        print
-        print 'Para ejecutar:'
-        print 'python cmdbins.py <output de PM_1a1> <archivo con fotometria>'
-        print
-        sys.exit(1)
+parser = argparse.ArgumentParser(description='CMD Bins')
+parser.add_argument('INPUT', help='Catalogo final de PMs')
+parser.add_argument('x0', type=float, help='Coordenada X para elegir estrellas')
+parser.add_argument('y0', type=float, help='Coordenada Y para elegir estrellas')
+parser.add_argument('--filter', type=str, default='J', help='Segundo filtro para confeccionar color (Default J)')
+parser.add_argument('--mags', type=float, nargs=2, default=(10, 18), help='Limites en magnitud (Default 10 18)', metavar=('min', 'max'))
+parser.add_argument('--dmag', type=float, default=1.0, help='Intervalo para hacer los cortes (Default 1)', metavar='dmag')
+parser.add_argument('--max-err', type=float, default=10.0, help='Maximo error a considerar (Default 10)', metavar='err')
+parser.add_argument('--color', type=float, nargs=2, default=(0, 2), help='Limite en color', metavar=('min', 'max'))
+parser.add_argument('--radios', type=float, nargs=2, default=(4, 9.5), help='Limite en radios para seleccionar (Default 4 9.5)', metavar=('min', 'max'))
+parser.add_argument('--dradio', type=float, default=0.5, help='Incremento en radio de seleccion por bin de magnitud (Default 0.5)', metavar='dr')
+parser.add_argument('--lim', type=float, nargs=2, default=(-24, 24), help='Limite en los ejes del VPD', metavar=('min', 'max'))
+parser.add_argument('--no-save', action='store_true', help='Mostrar plot en pantalla en vez de guardar')
+
+args = parser.parse_args()
 
 ##############
 # PARAMETROS #
 ##############
-#Segundo filtro
-band2 = 7 #Para confeccionar color (band2 - K) -- K, H, J, Y, Z vienen en las columnas 3, 5, 7, 9, 11
-file1 = sys.argv[1]    #Archivo con los PM
-file2 = sys.argv[2]    #Archivo para extraer el filtro
+file1 = args.INPUT
 
-#Magnitudes
-min_mag = 10.0
-max_mag = 18.0  #Limites en magnitud para el plot
-dmag    = 1.0   #Intervalo para hacer los cortes
+b2nam            = args.filter
+min_mag, max_mag = args.mags
+dmag             = args.dmag
+col_min, col_max = args.color
+max_err          = args.max_err
+rad_pm           = np.arange(args.radios[0], args.radios[1], args.dradio)
+pm_min, pm_max   = args.lim
 
-col_min = 0.0
-col_max = 2.0     #Limites en color (eje x)
 
-#PMs
-max_err = 10.0   #Error maximo (modulo) para puntos a mostrar
-rad_pm  = np.arange(4,9.5,0.5) #Radios para seleccionar estrellas (arreglo largo nro de bines)
-
-#x0, y0  = -6.82687392, 10.52710485  #Centro para la seleccion
-x0, y0  = 10.52710485, 6.82687392  #Centro para la seleccion
-
-pm_min = -24
-pm_max = 24     #Limites en PMX y PMY
+x0, y0  = args.x0, args.y0
+#x0, y0  = 10.52710485, 6.82687392  #Centro para la seleccion
 
 #Plots
 rc('text', usetex=True) #Usa TeX para las fuentes
@@ -48,7 +48,7 @@ rc('ytick.major', size=7.5) #Tamano fuente ticks en x
 rc('axes', labelsize=24) #Tamano fuente labels
 
 cmd_psize = 3   #Tamano puntos CMD
-pmd_psize = 1   #Tamano puntos diagrama PM
+pmd_psize = 2   #Tamano puntos diagrama PM
 
 pm_ticks  = np.arange(-30,31,15) #Ticks para ejes del diagrama de PM. Intervalo de 15 en el rango [-30,31) para que incluya al 30
 mag_ticks = np.arange(10,20,1)   #Ticks para eje de magnitud. Intervalo de 1, desde 9 a 20. Son solo los ticks, los limites mandan en el resultado final.
@@ -65,35 +65,13 @@ def circle(x0, y0, r):
 # LEE ARCHIVOS Y FILTRA #
 #########################
 #PM_final
-data = np.genfromtxt(file1, usecols=(0,3,4,5,8,9))
+data = np.genfromtxt(file1, usecols=(0,3,7,13,14,15,16))
 #Filtra por error
-pme = (data[:,4]**2 + data[:,5]**2)**0.5
+pme = (data[:,4]**2 + data[:,6]**2)**0.5
 maskerr = pme <= max_err
 
-ids, pmx, pmy, magK, pmex, pmey = data[maskerr].T
+ids, magK, magB, pmx, pmex, pmy, pmey = data[maskerr].T
 ids = ids.astype(int)
-
-#Segundo archivo
-id2, mag2 = np.genfromtxt(file2, unpack=True, usecols=(0,band2), skip_header=3)
-id2 = id2.astype(int)
-
-orden = np.argsort(id2)
-id2   = id2[orden]
-mag2  = mag2[orden]
-mag2[mag2>98] = np.nan
-
-#Descarta los IDs 5000000 (sin fotometria en Ks)
-#mask5 = id2 < 5000000
-#id2   = id2[mask5]
-#mag2  = mag2[mask5]
-
-#Interseccion y magnitud en banda 2 a usar
-magB    = np.empty_like(magK)
-magB[:] = np.nan
-
-inter1 = np.in1d(ids, id2)
-inter2 = np.in1d(id2, ids)
-magB[inter1]  = mag2[inter2]
 
 ########
 # PLOT #
@@ -105,7 +83,6 @@ mags = np.arange(min_mag, max_mag+1, dmag)
 
 nint = len(mags) - 1
 bands = ['K_s', 'H', 'J', 'Y' ,'Z']
-b2nam = bands[int((band2-1)/2 - 1)]
 
 fig  = plt.figure(figsize=[5*5.5/2, nint*3/2])
 grid = gs.GridSpec(nint, 5)
@@ -133,16 +110,16 @@ for i in range(nint):
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_y$  $\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_b$  $\mathrm{mas\ yr^{-1}}$')
         else:
-            pm[i].set_ylabel('$\mu_y$  $\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\mu_b$  $\mathrm{mas\ yr^{-1}}$')
 
 
     #Plotea en el panel derecho
-    to.plot((magB-magK)[maskmag][maskred], magK[maskmag][maskred], '.k', ms=cmd_psize, rasterized=True)
-    fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize, rasterized=True)
+    to.plot((magB-magK)[maskmag][maskred], magK[maskmag][maskred], '.k', ms=cmd_psize)#, rasterized=True)
+    fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize)#, rasterized=True)
 
-pm[-1].set_xlabel('$\mu_x$  $\mathrm{mas\ yr^{-1}}$')
+pm[-1].set_xlabel('$\mu_\ell\cos b$  $\mathrm{mas\ yr^{-1}}$')
 
 #to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
@@ -154,4 +131,7 @@ fi.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel=
 
 #Cambios finales
 grid.update(hspace=0, wspace=0.8)            #Espacio vertical nulo, horizontal mayor
-fig.savefig('cmdcut.png', dpi=200, bbox_inches='tight')
+if args.no_save:
+    plt.show()
+else:
+    fig.savefig('cmdcut.png', dpi=200, bbox_inches='tight')

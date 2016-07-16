@@ -20,6 +20,7 @@ parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', action='store_true', help='Continua desde la ultima iteracion')
 parser.add_argument('-p', '--peak', type=int, help='Usa el peak de los PM para calcular nuevas refstars')
+parser.add_argument('-r', '--refstars', action='store_true', help='Selecciona refstars solo de refstars0')
 
 args = parser.parse_args()
 
@@ -75,17 +76,16 @@ if not os.path.isfile('refstars0.gc'):
     print '\nArchivo refstars0.gc no encontrado!'
     sys.exit()
 
-if not continua:
-    #subprocess.call('cp refstars0.gc refstars.gc', shell=True)
-    ids = np.genfromtxt('refstars0.gc', unpack=True, usecols=(0,))
+idsr = np.genfromtxt('refstars0.gc', unpack=True, usecols=(0,))
 
+if not continua:
     if os.path.isfile('zelimchisha'):
         print '\nEliminando estrellas de zelimchisha'
         rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
-        id_mask = ~np.in1d(ids, rej_ids)
+        id_mask = ~np.in1d(idsr, rej_ids)
         print '\tEncontradas %d estrellas' % (~id_mask).sum()
     else:
-        id_mask = np.ones(len(ids)).astype(bool)
+        id_mask = np.ones(len(idsr)).astype(bool)
 
     data = np.genfromtxt('refstars0.gc')
     data = data[id_mask]
@@ -137,7 +137,12 @@ if continua:
     #Filtro por radio en PM
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
 
-    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask)
+    if args.refstars:
+        pm0 = np.in1d(ids, idsr)
+    else:
+        pm0 = True
+
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask) * (pm0)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx))
     data = data[mask]
@@ -148,7 +153,7 @@ if continua:
     np.savetxt(refstars, data, fmt=fmt, header=hdr)
 
 for i in range(itera):
-    color_print('\nComenzando iteracion: %d' % (i+1), 'lightcyan')
+    color_print('\nComenzando iteracion: %d' % (last_idx+i+1), 'lightcyan')
 
     #Crea carpeta para guardar los outputs
     makedir('iter_%d' % (last_idx+i+1))
@@ -195,7 +200,12 @@ for i in range(itera):
 
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
 
-    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask)
+    if args.refstars:
+        pm0 = np.in1d(ids, idsr)
+    else:
+        pm0 = True
+
+    mask = (pmr <= radio) * (nf >= nframes) * (pme <= max_err) * (id_mask) * (pm0)
 
     data = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1))
     data = data[mask]
