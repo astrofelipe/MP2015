@@ -91,6 +91,8 @@ pm = [plt.subplot(grid[i,0]) for i in range(nint)]
 to = plt.subplot(grid[:,1:3])
 fi = plt.subplot(grid[:,3:])
 
+filtro = np.zeros(len(pmx)).astype(bool)
+
 #Itera haciendo los cortes en magnitud para el plot de PMs
 for i in range(nint):
     maskmag = (magK < mags[i+1]) & (magK > mags[i])
@@ -100,6 +102,7 @@ for i in range(nint):
 
     #Seleccion
     maskred = ((pmx[maskmag] - x0)**2 + (pmy[maskmag] - y0)**2)**0.5 <= rad_pm[i]
+    filtro[maskmag] += maskred
     xc, yc  = circle(x0, y0, rad_pm[i])
 
     xr, yr  = x[maskred], y[maskred]
@@ -128,10 +131,20 @@ pm[-1].set_xlabel('$\mu_\ell\cos b$  $\mathrm{mas\ yr^{-1}}$')
 to.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel='$%s - K_s$' % b2nam, yticks=mag_ticks)
 fi.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel='$%s - K_s$' % b2nam, yticks=mag_ticks)
 
+#Guarda catalogos
+fmt  = '%d %.6f %.6f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.3f %.2f %.3f %.2f %d'
+hdr  = 'ID L B Ks EKs H EH J EJ Y EY Z EZ ULCOSB EULCOSB UB EUB NFRAMES'
+data = np.genfromtxt(file1)
+
+data_in  = data[maskerr][filtro]
+data_out = data[maskerr][~filtro]
+np.savetxt(file1.replace('.gale', '_in.gale'), data_in, fmt=fmt, header=hdr)
+np.savetxt(file1.replace('.gale', '_out.gale'), data_out, fmt=fmt, header=hdr)
+
 
 #Cambios finales
 grid.update(hspace=0, wspace=0.8)            #Espacio vertical nulo, horizontal mayor
 if args.no_save:
     plt.show()
 else:
-    fig.savefig('cmdcut.png', dpi=200, bbox_inches='tight')
+    fig.savefig(file1.replace('.gale', '.png'), dpi=200, bbox_inches='tight')
