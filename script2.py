@@ -10,6 +10,7 @@ from astropy.utils.console import color_print
 radio, itera, output, refer, nframes, min_ep, max_err = pm_funcs.get_script()
 
 print 'Iniciando script con...'
+print 'linea de comando: %s' % ' '.join(sys.argv)
 print 'radio: %d' % radio
 print 'itera: %d' % itera
 print
@@ -20,7 +21,7 @@ parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', action='store_true', help='Continua desde la ultima iteracion')
 parser.add_argument('-p', '--peak', type=int, help='Usa el peak de los PM para calcular nuevas refstars')
-parser.add_argument('-r', '--refstars', action='store_true', help='Selecciona refstars solo de refstars0')
+parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 
 args = parser.parse_args()
 
