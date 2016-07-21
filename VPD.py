@@ -1,8 +1,13 @@
 from __future__ import division, print_function
 from sklearn import mixture
+from sklearn.neighbors import KernelDensity
 from astroML.density_estimation import XDGMM
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from scipy.optimize import curve_fit
+from astroML.plotting import hist
+from matplotlib import cm
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 import numpy as np
 import pandas as pd
 import argparse
@@ -55,24 +60,84 @@ idx  = np.argmin((x**2 + y**2)**0.5)
 radio = ((pmx[mask] - x[idx])**2 + (pmy[mask] - y[idx])**2)**0.5 < 3
 print(radio.sum())
 
+#Gaussianas
+def gaussian(x, amp, mu, sig):
+    return amp * np.exp(-(x-mu)**2 / (2*sig**2))
+
+def two_gaussian(x, amp1, mu1, sig1,
+                    amp2, mu2, sig2):
+    return (gaussian(x, amp1, mu1, sig1, 0) +
+            gaussian(x, amp2, mu2, sig2, 0))
+
+def three_gaussian(x, amp1, mu1, sig1,
+                      amp2, mu2, sig2,
+                      amp3, mu3, sig3):
+    return (gaussian(x, amp1, mu1, sig1) +
+    gaussian(x, amp2, mu2, sig2) +
+    gaussian(x, amp3, mu3, sig3))
+
 #Plot
-bins = np.arange(-15,15,1)
-fig, ax = plt.subplots(figsize=[10,10])
+bins  = np.arange(-15,15,1)
+cmap  = cm.get_cmap('jet')
+color = cmap(np.linspace(0, 1, cmap.N))
+
+fig = plt.figure(figsize=[10,10])
+
+gs  = gridspec.GridSpec(4,4)
+
+ax = plt.subplot(gs[1:,:-1])
+axu = plt.subplot(gs[0,:-1])
+axd = plt.subplot(gs[1:,-1])
+
+#KDE
+kde = KernelDensity(kernel='gaussian').fit((pmx[mask])[:,np.newaxis])
+xx  = np.arange(-15, 15, 0.05)
+yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+
+a0  = np.exp(kde.score_samples(x[:,np.newaxis]))
+p0  = [a0[0], x[0], 3, a0[1], x[1], 3, a0[2], x[2], 3]
+popt, pcov = curve_fit(three_gaussian, xx, yy, p0=p0, maxfev=10000)
+x0g = popt[1::3]
+
+hist(pmx[mask], ax=axu, bins='blocks', range=(-15,15), histtype='stepfilled', normed=True, color=cmap(0), alpha=.8)
+axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.25), lw=2)
+axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.50), lw=2)
+axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.75), lw=2)
+axu.plot(xx,yy, dashes=(5,5), color=cmap(1))
+
+kde = KernelDensity(kernel='gaussian').fit((pmy[mask])[:,np.newaxis])
+xx  = np.arange(-15, 15, 0.05)
+yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+
+a0  = np.exp(kde.score_samples(y[:,np.newaxis]))
+p0  = [a0[0], y[0], 3, a0[1], y[1], 3, a0[2], y[2], 3]
+popt, pcov = curve_fit(three_gaussian, xx, yy, p0=p0, maxfev=10000)
+y0g = popt[1::3]
+
+hist(pmy[mask], ax=axd, bins='blocks', range=(-15,15), histtype='stepfilled', normed=True, color=cmap(0), alpha=.8, orientation='horizontal')
+axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.25), lw=2)
+axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.50), lw=2)
+axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.75), lw=2)
+axd.plot(yy,xx, dashes=(5,5), color=cmap(1))
+
+
+print(x0g, y0g)
 
 if args.hexbins != None:
     h = ax.hexbin(data.T[0], data.T[1], gridsize=args.hexbins)
 else:
     H, xedges, yedges, img = ax.hist2d(data.T[0], data.T[1], bins=bins)
     extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
-    h = ax.matshow(np.rot90(H), extent=extent)
+    h = ax.matshow(np.rot90(H), extent=extent, cmap=cmap)
     ax.grid(linestyle='-', color='white', lw=.5, which='both', alpha=.2)
     ax.minorticks_on()
 
-ax.plot(x, y, 'ow')
+#ax.plot(x, y, 'ow')
+ax.plot(x0g, y0g, 'ow')
 div = make_axes_locatable(ax)
-cax = div.append_axes("right", size="5%", pad=0.2)
+#cax = div.append_axes("right", size="5%", pad=0.2)
 
-fig.colorbar(h, cax=cax)
+#fig.colorbar(h, cax=cax)
 ax.set_aspect('equal')
 
 if args.no_save:
