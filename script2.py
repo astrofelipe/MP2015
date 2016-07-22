@@ -141,6 +141,8 @@ if continua:
     ids, pmx, pmy, nf, pmxe, pmye = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx), unpack=True, usecols=(0,3,4,6,8,9))
     #Filtro por errores
     pme = np.sqrt(pmxe**2 + pmye**2)
+    pm1 = (pmx**2 + pmy**2)**0.5 < 30
+
     #Filtro por zelimchisha
     if os.path.isfile('zelimchisha'):
         rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
