@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 import pm_funcs
 from astropy.utils.console import color_print
+from sklearn.neighbors import KernelDensity
 
 #PARAMETROS
 radio, itera, output, refer, nframes, min_ep, max_err = pm_funcs.get_script()
@@ -38,6 +39,29 @@ continua = args.continua
 def makedir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
+def gaussian(x, amp, mu, sig):
+    if (amp < 0) or (sig < 0):
+        return np.inf
+    return amp * np.exp(-(x-mu)**2 / (2*sig**2))
+
+def two_gaussian(x, amp1, mu1, sig1,
+                    amp2, mu2, sig2):
+    return (gaussian(x, amp1, mu1, sig1) +
+            gaussian(x, amp2, mu2, sig2))
+
+def three_gaussian(x, amp1, mu1, sig1,
+                      amp2, mu2, sig2,
+                      amp3, mu3, sig3):
+    return (gaussian(x, amp1, mu1, sig1) +
+    gaussian(x, amp2, mu2, sig2) +
+    gaussian(x, amp3, mu3, sig3))
+
+if args.peak == 2:
+    gf = two_gaussian
+if args.peak == 3:
+    gf = three_gaussian
+
 
 
 #PIPELINE
@@ -127,11 +151,45 @@ if continua:
     if args.peak != None:
         print '\tCalculando peak para centrar refstars'
         from sklearn import mixture
-        XG  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask)]
-        gmm = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        idx = np.argmin(np.sum(gmm.means_**2, axis=1))
+        XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
+        gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
+        xg,yg = np.transpose(g.means_)
 
-        x0,y0 = gmm.means_[idx]
+        #Centros x
+        kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
+        xx  = np.arange(-15, 15, 0.05)
+        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+        a0  = np.exp(kde.score_samples(xg[:,np.newaxis]))
+        if args.peak == 3:
+            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3, a0[2]/2.0, xg[2], 3]
+        elif args.peak == 2:
+            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
+
+        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
+        x0g = popt[1::3]
+        x0e = np.sqrt(np.diag(pcov)[1::3])
+
+        #Centros y
+        kde = KernelDensity(kernel='gaussian').fit(XG[:,1][:, np.newaxis])
+        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+        a0  = np.exp(kde.score_samples(yg[:,np.newaxis]))
+        if args.peak == 3:
+            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3, a0[2]/2.0, yg[2], 3]
+        elif args.peak == 2:
+            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
+
+        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
+        y0g = popt[1::3]
+        y0e = np.sqrt(np.diag(pcov)[1::3])
+
+        cen = np.transpose([x0g, y0g])
+        idx = np.argmin(np.sum(cen**2, axis=1))
+
+        if np.sum(cen[idx]**2) > 3:
+            x0,y0 = gmm.means_[idx]
+            print '\tCentros muy grandes, volviendo a los guess'
+        else:
+            x0,y0 = cen[idx]
         print '\t', x0, y0
     else:
         x0,y0 = 0,0
@@ -180,6 +238,8 @@ for i in range(itera):
     color_print('\tGenerando nuevo archivo de refstars', 'cyan')
     ids, pmx, pmy, nf, pmex, pmey = np.genfromtxt('iter_%d/PM_final.dat' % (last_idx+i+1), unpack=True, usecols=(0,3,4,6,8,9))
     pme = np.sqrt(pmex**2 + pmey**2)
+    pm1 = (pmx**2 + pmy**2)**0.5 < 30
+
 
     if os.path.isfile('zelimchisha'):
         rej_ids = np.genfromtxt('zelimchisha', unpack=True, usecols=(0,))
@@ -190,11 +250,39 @@ for i in range(itera):
     if args.peak != None:
         print '\tCalculando peak para centrar refstars'
         from sklearn import mixture
-        XG  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask)]
-        gmm = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        idx = np.argmin(np.sum(gmm.means_**2, axis=1))
+        XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
+        gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
+        xg,yg = np.transpose(g.means_)
 
-        x0,y0 = gmm.means_[idx]
+        #Centros x
+        kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
+        xx  = np.arange(-15, 15, 0.05)
+        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+        a0  = np.exp(kde.score_samples(xg[:,np.newaxis]))
+        p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
+
+        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
+        x0g = popt[1::3]
+        x0e = np.sqrt(np.diag(pcov)[1::3])
+
+        #Centros y
+        kde = KernelDensity(kernel='gaussian').fit(XG[:,1][:, np.newaxis])
+        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+        a0  = np.exp(kde.score_samples(yg[:,np.newaxis]))
+        p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
+
+        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
+        y0g = popt[1::3]
+        y0e = np.sqrt(np.diag(pcov)[1::3])
+
+        cen = np.transpose([x0g, y0g])
+        idx = np.argmin(np.sum(cen**2, axis=1))
+
+        if np.sum(cen[idx]**2) > 3:
+            x0,y0 = gmm.means_[idx]
+            print '\tCentros muy grandes, volviendo a los guess'
+        else:
+            x0,y0 = cen[idx]
         print '\t', x0, y0
     else:
         x0,y0 = 0,0
