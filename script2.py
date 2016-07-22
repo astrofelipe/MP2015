@@ -123,7 +123,7 @@ if not continua:
 
     #for i in range(1,itera+1):
     #    if os.path.exists('iter_%d' % i):
-    subprocess.call('rm -r iter_*' % i, shell=True)
+    subprocess.call('rm -r iter_*', shell=True)
 
 if continua:
     import glob
