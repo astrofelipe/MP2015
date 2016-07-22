@@ -121,9 +121,9 @@ if not continua:
 
     last_idx = 0
 
-    for i in range(1,itera+1):
-        if os.path.exists('iter_%d' % i):
-            subprocess.call('rm -r iter_%d' % i, shell=True)
+    #for i in range(1,itera+1):
+    #    if os.path.exists('iter_%d' % i):
+    subprocess.call('rm -r iter_*' % i, shell=True)
 
 if continua:
     import glob
