@@ -5,6 +5,7 @@ import subprocess
 import numpy as np
 import pm_funcs
 from astropy.utils.console import color_print
+from scipy.optimize import curve_fit
 from sklearn.neighbors import KernelDensity
 
 #PARAMETROS
