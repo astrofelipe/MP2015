@@ -155,7 +155,7 @@ if continua:
         from sklearn import mixture
         XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
         gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        xg,yg = np.transpose(g.means_)
+        xg,yg = np.transpose(gmm.means_)
 
         #Centros x
         kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
@@ -254,7 +254,7 @@ for i in range(itera):
         from sklearn import mixture
         XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
         gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        xg,yg = np.transpose(g.means_)
+        xg,yg = np.transpose(gmm.means_)
 
         #Centros x
         kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
