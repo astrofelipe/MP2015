@@ -33,8 +33,11 @@ max_err = args.max_err
 n_comp  = args.comp
 
 #Lee datos
-#ID L B Ks EKs H EH J EJ Y EY Z EZ ULCOSB EULCOSB UB EUB NFRAMES
-ids, magK, pmx, pmex, pmy, pmey, nframes = np.genfromtxt(inputs, unpack=True, usecols=(0,3,13,14,15,16, 17))
+if 'PM_final' in inputs:
+    ids, pmx, pmy, magK, nframes, pmex, pmey = np.genfromtxt(inputs, unpack=True, usecols=(0,3,4,5,6,8,9))
+else:
+    #ID L B Ks EKs H EH J EJ Y EY Z EZ ULCOSB EULCOSB UB EUB NFRAMES
+    ids, magK, pmx, pmex, pmy, pmey, nframes = np.genfromtxt(inputs, unpack=True, usecols=(0,3,13,14,15,16, 17))
 
 #Filtros
 mag_mask = (magK < max_mag) & (magK > min_mag)
@@ -52,22 +55,24 @@ print('\tTotal de estrellas:                %d' % len(mask))
 print('\tNumero de estrellas seleccionadas: %d' % mask.sum())
 
 #Calcula centros
-g    = mixture.GMM(n_components=n_comp).fit(data)
+g    = mixture.GMM(n_components=n_comp, covariance_type='full').fit(data)
 x, y = np.transpose(g.means_)
+print('X_guess Y_guess')
 print(g.means_)
 idx  = np.argmin((x**2 + y**2)**0.5)
 
-radio = ((pmx[mask] - x[idx])**2 + (pmy[mask] - y[idx])**2)**0.5 < 3
-print(radio.sum())
+#radio = ((pmx[mask] - x[idx])**2 + (pmy[mask] - y[idx])**2)**0.5 < 3
 
 #Gaussianas
 def gaussian(x, amp, mu, sig):
+    if (amp < 0) or (sig < 0):
+        return np.inf
     return amp * np.exp(-(x-mu)**2 / (2*sig**2))
 
 def two_gaussian(x, amp1, mu1, sig1,
                     amp2, mu2, sig2):
-    return (gaussian(x, amp1, mu1, sig1, 0) +
-            gaussian(x, amp2, mu2, sig2, 0))
+    return (gaussian(x, amp1, mu1, sig1) +
+            gaussian(x, amp2, mu2, sig2))
 
 def three_gaussian(x, amp1, mu1, sig1,
                       amp2, mu2, sig2,
@@ -76,8 +81,13 @@ def three_gaussian(x, amp1, mu1, sig1,
     gaussian(x, amp2, mu2, sig2) +
     gaussian(x, amp3, mu3, sig3))
 
+if args.comp == 2:
+    gf = two_gaussian
+elif args.comp == 3:
+    gf = three_gaussian
+
 #Plot
-bins  = np.arange(-15,15,1)
+bins  = np.arange(-15,15,0.5)
 cmap  = cm.get_cmap('jet')
 color = cmap(np.linspace(0, 1, cmap.N))
 
@@ -95,33 +105,44 @@ xx  = np.arange(-15, 15, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
 
 a0  = np.exp(kde.score_samples(x[:,np.newaxis]))
-p0  = [a0[0], x[0], 3, a0[1], x[1], 3, a0[2], x[2], 3]
-popt, pcov = curve_fit(three_gaussian, xx, yy, p0=p0, maxfev=10000)
-x0g = popt[1::3]
 
-hist(pmx[mask], ax=axu, bins='blocks', range=(-15,15), histtype='stepfilled', normed=True, color=cmap(0), alpha=.8)
-axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.25), lw=2)
-axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.50), lw=2)
-axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.75), lw=2)
-axu.plot(xx,yy, dashes=(5,5), color=cmap(1))
+if args.comp == 3:
+    p0  = [a0[0]/2.0, x[0], 3, a0[1]/2.0, x[1], 3, a0[2]/2.0, x[2], 3]
+elif args.comp == 2:
+    p0  = [a0[0]/2.0, x[0], 3, a0[1]/2.0, x[1], 3]
+popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
+x0g = popt[1::3]
+x0e = np.sqrt(np.diag(pcov)[1::3])
+
+axu.hist(pmx[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75)
+axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.6), lw=2.5)
+axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.4), lw=2.5)
+#axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.2), lw=2)
+axu.plot(xx,yy, color=cmap(0.8), lw=1.5, alpha=.75)
 
 kde = KernelDensity(kernel='gaussian').fit((pmy[mask])[:,np.newaxis])
 xx  = np.arange(-15, 15, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
 
 a0  = np.exp(kde.score_samples(y[:,np.newaxis]))
-p0  = [a0[0], y[0], 3, a0[1], y[1], 3, a0[2], y[2], 3]
-popt, pcov = curve_fit(three_gaussian, xx, yy, p0=p0, maxfev=10000)
+if args.comp == 3:
+    p0  = [a0[0]/2.0, y[0], 3, a0[1]/2.0, y[1], 3, a0[2]/2.0, y[2], 3]
+elif args.comp == 2:
+    p0  = [a0[0]/2.0, y[0], 3, a0[1]/2.0, y[1], 3]
+popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
 y0g = popt[1::3]
+y0e = np.sqrt(np.diag(pcov)[1::3])
 
-hist(pmy[mask], ax=axd, bins='blocks', range=(-15,15), histtype='stepfilled', normed=True, color=cmap(0), alpha=.8, orientation='horizontal')
-axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.25), lw=2)
-axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.50), lw=2)
-axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.75), lw=2)
-axd.plot(yy,xx, dashes=(5,5), color=cmap(1))
+axd.hist(pmy[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75, orientation='horizontal')
+axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.6), lw=2.5)
+axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.4), lw=2.5)
+#axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
+axd.plot(yy,xx, color=cmap(0.8), lw=1.5, alpha=.75)
 
-
-print(x0g, y0g)
+print('X Y')
+print(np.transpose([x0g, y0g]))
+print('X_err Y_err')
+print(np.transpose([x0e, y0e]))
 
 if args.hexbins != None:
     h = ax.hexbin(data.T[0], data.T[1], gridsize=args.hexbins)
@@ -132,7 +153,7 @@ else:
     ax.grid(linestyle='-', color='white', lw=.5, which='both', alpha=.2)
     ax.minorticks_on()
 
-#ax.plot(x, y, 'ow')
+#ax.plot(x, y, 'og')
 ax.plot(x0g, y0g, 'ow')
 div = make_axes_locatable(ax)
 #cax = div.append_axes("right", size="5%", pad=0.2)
