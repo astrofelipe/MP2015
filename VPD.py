@@ -17,8 +17,8 @@ parser = argparse.ArgumentParser(description='VPD Plot')
 parser.add_argument('<Input List>', help='Catalogo final -> Fotometria + PMs')
 parser.add_argument('--max-mag', type=float, default=20.0, help='Corte superior en magnitud (Default 20)')
 parser.add_argument('--min-mag', type=float, default=8.0, help='Corte inferior en magnitud (Default 8)')
-parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a considerar (Default 1)')
-parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 3)')
+parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a considerar (Default 2)')
+parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
 parser.add_argument('--no-save', action='store_true', help='Mostrar plot en pantalla en vez de guardar')
@@ -85,6 +85,8 @@ if args.comp == 2:
     gf = two_gaussian
 elif args.comp == 3:
     gf = three_gaussian
+elif args.comp == 1:
+    gf = gaussian
 
 #Plot
 bins  = np.arange(-15,15,0.5)
@@ -110,6 +112,9 @@ if args.comp == 3:
     p0  = [a0[0]/2.0, x[0], 3, a0[1]/2.0, x[1], 3, a0[2]/2.0, x[2], 3]
 elif args.comp == 2:
     p0  = [a0[0]/2.0, x[0], 3, a0[1]/2.0, x[1], 3]
+elif args.comp == 1:
+    p0  = [a0[0]/2.0, x[0], 3]
+
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
 x0g = popt[1::3]
 x0e = np.sqrt(np.diag(pcov)[1::3])
@@ -129,6 +134,9 @@ if args.comp == 3:
     p0  = [a0[0]/2.0, y[0], 3, a0[1]/2.0, y[1], 3, a0[2]/2.0, y[2], 3]
 elif args.comp == 2:
     p0  = [a0[0]/2.0, y[0], 3, a0[1]/2.0, y[1], 3]
+elif args.comp == 1:
+    p0  = [a0[0]/2.0, x[0], 3]
+    
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
 y0g = popt[1::3]
 y0e = np.sqrt(np.diag(pcov)[1::3])
