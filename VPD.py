@@ -121,8 +121,10 @@ x0e = np.sqrt(np.diag(pcov)[1::3])
 
 axu.hist(pmx[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75)
 axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.6), lw=2.5)
-axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.4), lw=2.5)
-#axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.2), lw=2)
+if args.comp == 2:
+    axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.4), lw=2.5)
+if args.comp == 3:
+    axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.2), lw=2)
 axu.plot(xx,yy, color=cmap(0.8), lw=1.5, alpha=.75)
 
 kde = KernelDensity(kernel='gaussian').fit((pmy[mask])[:,np.newaxis])
@@ -136,15 +138,17 @@ elif args.comp == 2:
     p0  = [a0[0]/2.0, y[0], 3, a0[1]/2.0, y[1], 3]
 elif args.comp == 1:
     p0  = [a0[0]/2.0, x[0], 3]
-    
+
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
 y0g = popt[1::3]
 y0e = np.sqrt(np.diag(pcov)[1::3])
 
 axd.hist(pmy[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75, orientation='horizontal')
 axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.6), lw=2.5)
-axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.4), lw=2.5)
-#axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
+if args.comp == 2:
+    axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.4), lw=2.5)
+if args.comp == 3:
+    axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
 axd.plot(yy,xx, color=cmap(0.8), lw=1.5, alpha=.75)
 
 print('X Y')
