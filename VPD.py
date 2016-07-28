@@ -155,6 +155,7 @@ else:
 
 #ax.plot(x, y, 'og')
 ax.plot(x0g, y0g, 'ow')
+ax.plot([0], [0], '+', color='k', ms=15, mew=1.5)
 div = make_axes_locatable(ax)
 #cax = div.append_axes("right", size="5%", pad=0.2)
 

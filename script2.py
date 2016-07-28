@@ -61,6 +61,8 @@ def three_gaussian(x, amp1, mu1, sig1,
     gaussian(x, amp2, mu2, sig2) +
     gaussian(x, amp3, mu3, sig3))
 
+if args.peak == 1:
+    gf = gaussian
 if args.peak == 2:
     gf = two_gaussian
 if args.peak == 3:
@@ -170,6 +172,8 @@ if continua:
             p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3, a0[2]/2.0, xg[2], 3]
         elif args.peak == 2:
             p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
+        elif args.peak == 1:
+            p0  = [a0[0]/2.0, xg[0], 3]
 
         popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
         x0g = popt[1::3]
@@ -183,6 +187,8 @@ if continua:
             p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3, a0[2]/2.0, yg[2], 3]
         elif args.peak == 2:
             p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
+        elif args.peak == 1:
+            p0  = [a0[0]/2.0, yg[0], 3]
 
         popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
         y0g = popt[1::3]
@@ -265,7 +271,12 @@ for i in range(itera):
         xx  = np.arange(-15, 15, 0.05)
         yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
         a0  = np.exp(kde.score_samples(xg[:,np.newaxis]))
-        p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
+        if args.peak == 3:
+            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3, a0[2]/2.0, xg[2], 3]
+        elif args.peak == 2:
+            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
+        elif args.peak == 1:
+            p0  = [a0[0]/2.0, xg[0], 3]
 
         popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
         x0g = popt[1::3]
@@ -275,7 +286,12 @@ for i in range(itera):
         kde = KernelDensity(kernel='gaussian').fit(XG[:,1][:, np.newaxis])
         yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
         a0  = np.exp(kde.score_samples(yg[:,np.newaxis]))
-        p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
+        if args.peak == 3:
+            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3, a0[2]/2.0, yg[2], 3]
+        elif args.peak == 2:
+            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
+        elif args.peak == 1:
+            p0  = [a0[0]/2.0, yg[0], 3]
 
         popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
         y0g = popt[1::3]

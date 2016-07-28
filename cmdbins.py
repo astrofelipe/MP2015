@@ -7,7 +7,7 @@ import sys
 
 #README
 parser = argparse.ArgumentParser(description='CMD Bins')
-parser.add_argument('INPUT', help='Catalogo final de PMs')
+parser.add_argument('INPUT', help='Catalogo final -> Fotometria + PMs')
 parser.add_argument('x0', type=float, help='Coordenada X para elegir estrellas')
 parser.add_argument('y0', type=float, help='Coordenada Y para elegir estrellas')
 parser.add_argument('--filter', type=str, default='J', help='Segundo filtro para confeccionar color (Default J)')
