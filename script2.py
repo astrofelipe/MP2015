@@ -21,7 +21,7 @@ print
 parser = argparse.ArgumentParser(description='Script PM VVV')
 parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
-parser.add_argument('-c', '--continua', action='store_true', help='Continua desde la ultima iteracion')
+parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
 parser.add_argument('-p', '--peak', type=int, help='Usa el peak de los PM para calcular nuevas refstars')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 
@@ -35,7 +35,10 @@ stilts_folder = os.path.dirname(os.path.realpath(__file__))
 #continua = False
 #if (len(sys.argv) > 3) and (sys.argv[3]=='-C'):
 #    continua = True
-continua = args.continua
+#continua = args.continua
+if args.continua is not None:
+    continua = True
+    itera    = args.continua
 
 def makedir(directory):
     if not os.path.exists(directory):
