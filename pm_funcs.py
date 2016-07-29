@@ -33,7 +33,7 @@ def linear_regression(x, y, w):
 
 def get_script():
     radio, itera, max_err = np.array(params['SCRIPT.PY'].values())
-    radio = int(radio)
+    radio = float(radio)
     itera = int(itera)
     max_err = float(max_err)
     output  = str(params['TLINEAL_1a1.PY']['output'])
@@ -71,14 +71,13 @@ def get_tlineal():
 
 def get_CMD():
 
-    cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf, show_ref = params['CMD.PY'].values()
+    cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf = params['CMD.PY'].values()
     col1, col2, mag1, mag2 = np.array([col1, col2, mag1, mag2]).astype(float)
     cmd_modo = str(cmd_modo)
     match    = str(match)
     cmd_pdf  = str(cmd_pdf) == 'True'
-    show_ref = str(show_ref) == 'True'
 
-    return cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf, show_ref
+    return cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf
 
 def get_master_stilts():
     match_tol = float(params['MASTER_STILTS.PY']['match_tol'])

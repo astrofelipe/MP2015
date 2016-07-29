@@ -3,28 +3,27 @@ import sys
 import glob
 import numpy as np
 import pm_funcs
+import argparse
 import matplotlib.pyplot as plt
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
-#####Informacion extra
-if len(sys.argv) == 1:
+parser = argparse.ArgumentParser(description='CMD Bins')
+parser.add_argument('K', type=int, help='Numero de epoca en Ks')
+parser.add_argument('J', type=int, help='Numero de epoca en J')
+parser.add_argument('--refstars', '-r', type=str, default=None, help='Destaca las estrellas en el archivo de refstars indicado')
+parser.add_argument('--show-plot', '-p', action='store_true', help='Muestra el plot del CMD')
 
-    print
-    print 'Como ejecutar:', sys.argv[0]
-    print 'python', sys.argv[0], 'Numero de epoca en Ks', 'Numero de epoca en J'
-    print
-    print 'Output: CMD_*-*.dat match de las epocas en J y Ks '
-    print 'Opcionalmente hace el plot del CMD si esta la opcion "-p" luego de la epoca en J'
-    print
+args = parser.parse_args()
 
-    sys.exit(1)
-
-cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf, show_ref = pm_funcs.get_CMD()
+cmd_modo, match, col1, col2, mag1, mag2, cmd_pdf = pm_funcs.get_CMD()
 
 #Numero de epocas a usar
-k_epoch = int(sys.argv[1])
-j_epoch = int(sys.argv[2])
+k_epoch = args.K
+j_epoch = args.J
+
+#Refstars
+refst = args.refstars
 
 if match=='RA DEC':
     match   = "RA DEC"
@@ -56,8 +55,8 @@ os.system('java -jar %s/stilts.jar tmatch2 \
 if cmd_pdf:
     ids, K, J = np.genfromtxt(output,unpack=True,usecols=(0,5,12))
 
-    fig, ax = plt.subplots()
-    ax.plot(J-K,K,'.k',ms=2,alpha=.5, rasterized=False)
+    fig, ax = plt.subplots(figsize=[4,6])
+    ax.plot(J-K,K,'.k',ms=1, alpha=1, rasterized=False)
     ax.set_xlabel('$J-K$')
     ax.set_ylabel('$K$')
     if cmd_modo=='manual':
@@ -65,11 +64,13 @@ if cmd_pdf:
         ax.set_ylim(mag1,mag2)
     else:
         ax.invert_yaxis()
-    if show_ref:
-        idr = np.genfromtxt('refstars0.gc', unpack=True, usecols=(0,))
+    if refst is not None:
+        idr = np.genfromtxt(refst, unpack=True, usecols=(0,))
         idx = np.in1d(ids, idr)
-        ax.plot((J-K)[idx], K[idx], '.r', ms=2, alpha=.5, rasterized=False)
+        ax.plot((J-K)[idx], K[idx], '.r', ms=1, alpha=1, rasterized=False)
 
-    print '\nGuardando PS...'
-    fig.savefig(output.replace('.dat', '.ps'), dpi=200, bbox_inches='tight')
+    print '\nGuardando PNG...'
+    fig.savefig(output.replace('.dat', '.png'), dpi=200, bbox_inches='tight')
+    if args.show_plot:
+        plt.show()
 print '\nDone!'

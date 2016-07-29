@@ -22,9 +22,6 @@ mag2     = 8
 #Genera PDF
 cmd_pdf  = True
 
-#Muestra las estrellas en refstars0.gc
-show_ref = False
-
 [MASTER_STILTS.PY]
 #Tolerancia para el modo a usar (ID no usa este parametro)
 match_tol     = .3
