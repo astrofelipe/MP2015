@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gs
 import argparse
+import subprocess
 from matplotlib import rc
 import numpy as np
 import sys
@@ -26,6 +27,7 @@ args = parser.parse_args()
 # PARAMETROS #
 ##############
 file1 = args.INPUT
+ext   = file1.split('.')[-1]
 
 b2nam            = args.filter
 min_mag, max_mag = args.mags
@@ -133,18 +135,23 @@ fi.set(xlim=(col_min, col_max), ylim=(max_mag, min_mag), ylabel='$K_s$', xlabel=
 
 #Guarda catalogos
 fmt  = '%d %.6f %.6f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.4f %.3f %.2f %.3f %.2f %d'
-hdr  = 'ID L B Ks EKs H EH J EJ Y EY Z EZ ULCOSB EULCOSB UB EUB NFRAMES'
+#hdr  = 'ID L B Ks EKs H EH J EJ Y EY Z EZ ULCOSB EULCOSB UB EUB NFRAMES'
 data = np.genfromtxt(file1)
 
 data_in  = data[maskerr][filtro]
 data_out = data[maskerr][~filtro]
-np.savetxt(file1.replace('.gale', '_in.gale'), data_in, fmt=fmt, header=hdr)
-np.savetxt(file1.replace('.gale', '_out.gale'), data_out, fmt=fmt, header=hdr)
+file_in  = open(file1.replace('.%s' % ext, '_in.%s' % ext), 'ab')
+file_out = open(file1.replace('.%s' % ext, '_out.%s' % ext), 'ab')
 
+subprocess.call("grep '#' %s > %s" % (file1, file_in.name), shell=True)
+subprocess.call("grep '#' %s > %s" % (file1, file_out.name), shell=True)
+
+np.savetxt(file_in, data_in, fmt=fmt)
+np.savetxt(file_out, data_out, fmt=fmt)
 
 #Cambios finales
 grid.update(hspace=0, wspace=0.8)            #Espacio vertical nulo, horizontal mayor
 if args.no_save:
     plt.show()
 else:
-    fig.savefig(file1.replace('.gale', '.png'), dpi=200, bbox_inches='tight')
+    fig.savefig(file1.replace('.%s' % ext, '.png'), dpi=200, bbox_inches='tight')
