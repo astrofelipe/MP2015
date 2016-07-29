@@ -42,7 +42,7 @@ x0, y0  = args.x0, args.y0
 #x0, y0  = 10.52710485, 6.82687392  #Centro para la seleccion
 
 #Plots
-rc('text', usetex=True) #Usa TeX para las fuentes
+#rc('text', usetex=True) #Usa TeX para las fuentes
 rc('xtick', labelsize=15) #Tamano fuente ticks en x
 rc('ytick', labelsize=15) #Tamano fuente ticks en y
 rc('xtick.major', size=7.5) #Tamano fuente ticks en x
@@ -115,16 +115,17 @@ for i in range(nint):
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_b$  $\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_b$   $\mathrm{(mas\ yr^{-1})}$')
         else:
-            pm[i].set_ylabel('$\mu_b$  $\mathrm{mas\ yr^{-1}}$')
+            pm[i].set_ylabel('$\mu_b$   $\mathrm{(mas\ yr^{-1})}$')
 
 
     #Plotea en el panel derecho
     to.plot((magB-magK)[maskmag][maskred], magK[maskmag][maskred], '.k', ms=cmd_psize)#, rasterized=True)
     fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize)#, rasterized=True)
 
-pm[-1].set_xlabel('$\mu_\ell\cos b$  $\mathrm{mas\ yr^{-1}}$')
+#pm[-1].set_xlabel('$\mu_\ell\cos b$   $\mathrm{(mas\ yr^{-1})}$')
+pm[-1].set_xlabel('$\mu_\ell\cos b$')
 
 #to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
