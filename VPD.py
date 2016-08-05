@@ -21,6 +21,7 @@ parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a c
 parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
+parser.add_argument('--levels', type=int, default=7, help='Numero de niveles para el contour plot')
 parser.add_argument('--hist2d', action='store_true', help='Hace el histograma en 2D en vez del KDE')
 parser.add_argument('--no-save', action='store_true', help='Mostrar plot en pantalla en vez de guardar')
 parser.add_argument('--output', type=str, default='VPDbins.png', help='Cambiar nombre del file de output')
@@ -194,7 +195,7 @@ else:
 
     #h = ax.matshow(np.rot90(Z), extent=[-15, 15, -15, 15])
     h = ax.contourf(Y,X,Z)
-    #h = ax.contourf(Y,X,Z, levels=np.linspace(0, h.levels[-1], ))
+    h = ax.contourf(Y,X,Z, levels=np.linspace(0, h.levels[-1], args.levels+1))
     ax.minorticks_on()
 
 ax.plot(x, y, 'xw', mew=1.5)
