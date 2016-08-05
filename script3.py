@@ -24,6 +24,7 @@ parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_
 parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
 parser.add_argument('-p', '--peak', action='store_true', help='Usa el peak de los PM para calcular nuevas refstars')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
+parser.add_argument('-mr2', type=float, default=None, help='Llama a tlineal2 con -mr2')
 
 args = parser.parse_args()
 
@@ -142,7 +143,19 @@ if continua:
     if args.peak:
         print '\tCalculando peak para centrar refstars'
         XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
-        XX  = np.linspace(-30, 30, 10000)[:, np.newaxis]
+        XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+
+        #KDE 2D
+        k2d  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY)
+        X, Y = np.meshgrid(XX, XX, sparse=False)
+        xy   = np.vstack([Y.ravel(), X.ravel()]).T
+        logd = k2d.score_samples(xy)
+        Z    = np.exp(logd).reshape(X.shape)
+
+        x0   = Y.ravel()[np.argmax(Z)]
+        y0   = X.ravel()[np.argmax(Z)]
+
+        '''
 
         #PMX
         kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
@@ -155,6 +168,7 @@ if continua:
         logd = kde.score_samples(XX)
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
+        '''
 
         print '\t', x0, y0
     else:
@@ -185,7 +199,10 @@ for i in range(itera):
     makedir('iter_%d' % (last_idx+i+1))
 
     color_print('\tEjecutando tlineal_1a1.py', 'cyan')
-    subprocess.call('python -u %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
+    if (args.mr2 != None) & ((i>0) or continua):
+        subprocess.call('python -u %s/tlineal2.py %s -mr2 %f' % (stilts_folder, inputs, args.mr2), shell=True)
+    else:
+        subprocess.call('python -u %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
 
     color_print('\tEjecutando pm_1a1.py', 'cyan')
     subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)
@@ -224,7 +241,19 @@ for i in range(itera):
     if args.peak:
         print '\tCalculando peak para centrar refstars'
         XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
-        XX  = np.linspace(-30, 30, 10000)[:, np.newaxis]
+        XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+
+        #KDE 2D
+        k2d  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY)
+        X, Y = np.meshgrid(XX, XX, sparse=False)
+        xy   = np.vstack([Y.ravel(), X.ravel()]).T
+        logd = k2d.score_samples(xy)
+        Z    = np.exp(logd).reshape(X.shape)
+
+        x0   = Y.ravel()[np.argmax(Z)]
+        y0   = X.ravel()[np.argmax(Z)]
+
+        '''
 
         #PMX
         kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
@@ -237,6 +266,7 @@ for i in range(itera):
         logd = kde.score_samples(XX)
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
+        '''
 
         print '\t', x0, y0
     else:
