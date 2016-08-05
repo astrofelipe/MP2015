@@ -21,6 +21,7 @@ parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a c
 parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
+parser.add_argument('--hist2d', action='store_true', help='Hace el histograma en 2D en vez del KDE')
 parser.add_argument('--no-save', action='store_true', help='Mostrar plot en pantalla en vez de guardar')
 parser.add_argument('--output', type=str, default='VPDbins.png', help='Cambiar nombre del file de output')
 
@@ -55,11 +56,21 @@ print('\tTotal de estrellas:                %d' % len(mask))
 print('\tNumero de estrellas seleccionadas: %d' % mask.sum())
 
 #Calcula centros
-g    = mixture.GMM(n_components=n_comp, covariance_type='full').fit(data)
+g    = mixture.GMM(n_components=n_comp, covariance_type='spherical', min_covar=1e-4).fit(data)
 x, y = np.transpose(g.means_)
 print('X_guess Y_guess')
+modulo = np.sum(g.means_**2, axis=1)**0.5
+ormod  = np.argsort(modulo)
+g.means_ = g.means_[ormod]
+#g.means_[0] = np.array([0,0])
 print(g.means_)
 idx  = np.argmin((x**2 + y**2)**0.5)
+
+##XDGMM
+#XD = XDGMM(n_components=n_comp, n_iter=10).fit(data, data_err)
+#xd_x, xd_y = np.transpose(XD.mu)
+#print('X_XD Y_XD')
+#print(XD.mu)
 
 #radio = ((pmx[mask] - x[idx])**2 + (pmy[mask] - y[idx])**2)**0.5 < 3
 
@@ -117,6 +128,7 @@ elif args.comp == 1:
 
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=100000)
 x0g = popt[1::3]
+x0s = popt[2::3]
 x0e = np.sqrt(np.diag(pcov)[1::3])
 
 axu.hist(pmx[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75)
@@ -141,6 +153,7 @@ elif args.comp == 1:
 
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=100000)
 y0g = popt[1::3]
+y0s = popt[2::3]
 y0e = np.sqrt(np.diag(pcov)[1::3])
 
 axd.hist(pmy[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75, orientation='horizontal')
@@ -155,24 +168,48 @@ print('X Y')
 print(np.transpose([x0g, y0g]))
 print('X_err Y_err')
 print(np.transpose([x0e, y0e]))
+print('sig_X sig_Y')
+print(np.transpose([x0s, y0s]))
 
 if args.hexbins != None:
     h = ax.hexbin(data.T[0], data.T[1], gridsize=args.hexbins)
-else:
+
+elif args.hist2d:
     H, xedges, yedges, img = ax.hist2d(data.T[0], data.T[1], bins=bins)
     extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
     h = ax.matshow(np.rot90(H), extent=extent, cmap=cmap)
     ax.grid(linestyle='-', color='white', lw=.5, which='both', alpha=.2)
     ax.minorticks_on()
 
+else:
+    print('\nCalculando KDE 2D...')
+    xy  = np.transpose([pmx, pmy])[mask]
+    k2d = KernelDensity(kernel='gaussian', bandwidth=0.4).fit(xy)
+
+    xg   = np.linspace(-15, 15, 100)
+    X, Y = np.meshgrid(xg, xg)
+    XY   = np.vstack([Y.ravel(), X.ravel()]).T
+    logd = k2d.score_samples(XY)
+    Z    = np.exp(logd).reshape(X.shape)
+
+    #h = ax.matshow(np.rot90(Z), extent=[-15, 15, -15, 15])
+    h = ax.contourf(Y,X,Z)
+    #h = ax.contourf(Y,X,Z, levels=np.linspace(0, h.levels[-1], ))
+    ax.minorticks_on()
+
 ax.plot(x, y, 'xw', mew=1.5)
+#ax.plot(xd_x, xd_y, 'x', color='gray', mew=1.5)
 ax.plot(x0g, y0g, 'ow')
 ax.plot([0], [0], '+', color='k', ms=15, mew=1.5)
 div = make_axes_locatable(ax)
 #cax = div.append_axes("right", size="5%", pad=0.2)
 
-#fig.colorbar(h, cax=cax)
-ax.set_aspect('equal')
+co = fig.add_axes([0.29, 0.16, 0.25, 0.01])
+cb = fig.colorbar(h, cax=co, orientation='horizontal')
+#ax.add_patch(patches.Rectangle((-10, -22.1), 20, 1.5, alpha=.66, color='w', lw=0))
+cb.ax.tick_params(labelcolor='#000000', pad=7.5, length=4)
+plt.setp(plt.xticks()[1], rotation=45)
+#ax.set_aspect('equal')
 
 if args.no_save:
     plt.show()
