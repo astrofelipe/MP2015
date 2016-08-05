@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Script PM VVV')
 parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
-parser.add_argument('-p', '--peak', type=int, help='Usa el peak de los PM para calcular nuevas refstars')
+parser.add_argument('-p', '--peak', action='store_true', help='Usa el peak de los PM para calcular nuevas refstars')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 
 args = parser.parse_args()
@@ -45,32 +45,6 @@ else:
 def makedir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
-
-def gaussian(x, amp, mu, sig):
-    if (amp < 0) or (sig < 0):
-        return np.inf
-    return amp * np.exp(-(x-mu)**2 / (2*sig**2))
-
-def two_gaussian(x, amp1, mu1, sig1,
-                    amp2, mu2, sig2):
-    return (gaussian(x, amp1, mu1, sig1) +
-            gaussian(x, amp2, mu2, sig2))
-
-def three_gaussian(x, amp1, mu1, sig1,
-                      amp2, mu2, sig2,
-                      amp3, mu3, sig3):
-    return (gaussian(x, amp1, mu1, sig1) +
-    gaussian(x, amp2, mu2, sig2) +
-    gaussian(x, amp3, mu3, sig3))
-
-if args.peak == 1:
-    gf = gaussian
-if args.peak == 2:
-    gf = two_gaussian
-if args.peak == 3:
-    gf = three_gaussian
-
-
 
 #PIPELINE
 #output = subprocess.check_output('grep "PDF de Output" %s/tlineal_1a1.py' % stilts_folder, shell=True)
@@ -157,56 +131,35 @@ if continua:
         id_mask = ~np.in1d(ids, rej_ids)
     else:
         id_mask = np.ones(len(ids)).astype(bool)
+
+    #Filtro refstars
+    if args.refstars:
+        pm0 = np.in1d(ids, idsr)
+    else:
+        pm0 = True
+
     #Centrar PMs
-    if args.peak != None:
+    if args.peak:
         print '\tCalculando peak para centrar refstars'
-        from sklearn import mixture
-        XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
-        gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        xg,yg = np.transpose(gmm.means_)
+        XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
+        XX  = np.linspace(-30, 30, 10000)[:, np.newaxis]
 
-        #Centros x
-        kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
-        xx  = np.arange(-15, 15, 0.05)
-        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
-        a0  = np.exp(kde.score_samples(xg[:,np.newaxis]))
-        if args.peak == 3:
-            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3, a0[2]/2.0, xg[2], 3]
-        elif args.peak == 2:
-            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
-        elif args.peak == 1:
-            p0  = [a0[0]/2.0, xg[0], 3]
+        #PMX
+        kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
+        logd = kde.score_samples(XX)
+        ykde = np.exp(logd)
+        x0   = XX[:,0][np.argmax(ykde)]
 
-        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
-        x0g = popt[1::3]
-        x0e = np.sqrt(np.diag(pcov)[1::3])
+        #PMY
+        kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,1][:, np.newaxis])
+        logd = kde.score_samples(XX)
+        ykde = np.exp(logd)
+        y0   = XX[:,0][np.argmax(ykde)]
 
-        #Centros y
-        kde = KernelDensity(kernel='gaussian').fit(XG[:,1][:, np.newaxis])
-        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
-        a0  = np.exp(kde.score_samples(yg[:,np.newaxis]))
-        if args.peak == 3:
-            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3, a0[2]/2.0, yg[2], 3]
-        elif args.peak == 2:
-            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
-        elif args.peak == 1:
-            p0  = [a0[0]/2.0, yg[0], 3]
-
-        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
-        y0g = popt[1::3]
-        y0e = np.sqrt(np.diag(pcov)[1::3])
-
-        cen = np.transpose([x0g, y0g])
-        idx = np.argmin(np.sum(cen**2, axis=1))
-
-        if np.sum(cen[idx]**2) > 3:
-            x0,y0 = gmm.means_[idx]
-            print '\tCentros muy grandes, volviendo a los guess'
-        else:
-            x0,y0 = cen[idx]
         print '\t', x0, y0
     else:
         x0,y0 = 0,0
+
     #Filtro por radio en PM
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
 
@@ -260,53 +213,31 @@ for i in range(itera):
         id_mask = ~np.in1d(ids, rej_ids)
     else:
         id_mask = np.ones(len(ids)).astype(bool)
+
+    #Filtro refstars
+    if args.refstars:
+        pm0 = np.in1d(ids, idsr)
+    else:
+        pm0 = True
+
     #Centrar PMs
-    if args.peak != None:
+    if args.peak:
         print '\tCalculando peak para centrar refstars'
-        from sklearn import mixture
-        XG    = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1)]
-        gmm   = mixture.GMM(n_components=args.peak, covariance_type='full').fit(XG)
-        xg,yg = np.transpose(gmm.means_)
+        XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
+        XX  = np.linspace(-30, 30, 10000)[:, np.newaxis]
 
-        #Centros x
-        kde = KernelDensity(kernel='gaussian').fit(XG[:,0][:, np.newaxis])
-        xx  = np.arange(-15, 15, 0.05)
-        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
-        a0  = np.exp(kde.score_samples(xg[:,np.newaxis]))
-        if args.peak == 3:
-            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3, a0[2]/2.0, xg[2], 3]
-        elif args.peak == 2:
-            p0  = [a0[0]/2.0, xg[0], 3, a0[1]/2.0, xg[1], 3]
-        elif args.peak == 1:
-            p0  = [a0[0]/2.0, xg[0], 3]
+        #PMX
+        kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
+        logd = kde.score_samples(XX)
+        ykde = np.exp(logd)
+        x0   = XX[:,0][np.argmax(ykde)]
 
-        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
-        x0g = popt[1::3]
-        x0e = np.sqrt(np.diag(pcov)[1::3])
+        #PMY
+        kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,1][:, np.newaxis])
+        logd = kde.score_samples(XX)
+        ykde = np.exp(logd)
+        y0   = XX[:,0][np.argmax(ykde)]
 
-        #Centros y
-        kde = KernelDensity(kernel='gaussian').fit(XG[:,1][:, np.newaxis])
-        yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
-        a0  = np.exp(kde.score_samples(yg[:,np.newaxis]))
-        if args.peak == 3:
-            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3, a0[2]/2.0, yg[2], 3]
-        elif args.peak == 2:
-            p0  = [a0[0]/2.0, yg[0], 3, a0[1]/2.0, yg[1], 3]
-        elif args.peak == 1:
-            p0  = [a0[0]/2.0, yg[0], 3]
-
-        popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=10000)
-        y0g = popt[1::3]
-        y0e = np.sqrt(np.diag(pcov)[1::3])
-
-        cen = np.transpose([x0g, y0g])
-        idx = np.argmin(np.sum(cen**2, axis=1))
-
-        if np.sum(cen[idx]**2) > 3:
-            x0,y0 = gmm.means_[idx]
-            print '\tCentros muy grandes, volviendo a los guess'
-        else:
-            x0,y0 = cen[idx]
         print '\t', x0, y0
     else:
         x0,y0 = 0,0
