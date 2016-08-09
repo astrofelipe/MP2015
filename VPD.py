@@ -18,6 +18,7 @@ parser.add_argument('<Input List>', help='Catalogo final -> Fotometria + PMs')
 parser.add_argument('--max-mag', type=float, default=20.0, help='Corte superior en magnitud (Default 20)')
 parser.add_argument('--min-mag', type=float, default=8.0, help='Corte inferior en magnitud (Default 8)')
 parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a considerar (Default 2)')
+parser.add_argument('--lim', type=float, default=15, help='Limite en PM para el plot (cuadrado)')
 parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
@@ -33,6 +34,7 @@ max_mag = args.max_mag
 min_mag = args.min_mag
 max_err = args.max_err
 n_comp  = args.comp
+lim     = args.lim
 
 #Lee datos
 if 'PM_final' in inputs:
@@ -101,7 +103,7 @@ elif args.comp == 1:
     gf = gaussian
 
 #Plot
-bins  = np.arange(-15,15,0.5)
+bins  = np.arange(-lim,lim,0.5)
 cmap  = cm.get_cmap('jet')
 color = cmap(np.linspace(0, 1, cmap.N))
 
@@ -115,8 +117,9 @@ axd = plt.subplot(gs[1:,-1])
 
 #KDE
 kde = KernelDensity(kernel='gaussian').fit((pmx[mask])[:,np.newaxis])
-xx  = np.arange(-15, 15, 0.05)
+xx  = np.arange(-lim, lim, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+x2d = xx[np.argmax(yy)]
 
 a0  = np.exp(kde.score_samples(x[:,np.newaxis]))
 
@@ -141,8 +144,9 @@ if args.comp >= 3:
 axu.plot(xx,yy, color=cmap(0.8), lw=1.5, alpha=.75)
 
 kde = KernelDensity(kernel='gaussian').fit((pmy[mask])[:,np.newaxis])
-xx  = np.arange(-15, 15, 0.05)
+xx  = np.arange(-lim, lim, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
+y2d = xx[np.argmax(yy)]
 
 a0  = np.exp(kde.score_samples(y[:,np.newaxis]))
 if args.comp == 3:
@@ -165,12 +169,16 @@ if args.comp >= 3:
     axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
 axd.plot(yy,xx, color=cmap(0.8), lw=1.5, alpha=.75)
 
-print('X Y')
+print('\nX_2D Y_2D')
 print(np.transpose([x0g, y0g]))
-print('X_err Y_err')
+print('X_err_2D Y_err_2D')
 print(np.transpose([x0e, y0e]))
-print('sig_X sig_Y')
+print('sig_X_2D sig_Y_2D')
 print(np.transpose([x0s, y0s]))
+
+print('\n\nMaximos:')
+print('\nX2D Y2D')
+print(x2d, y2d)
 
 if args.hexbins != None:
     h = ax.hexbin(data.T[0], data.T[1], gridsize=args.hexbins)
@@ -183,25 +191,32 @@ elif args.hist2d:
     ax.minorticks_on()
 
 else:
-    print('\nCalculando KDE 2D...')
+    #print('\nCalculando KDE 2D...')
     xy  = np.transpose([pmx, pmy])[mask]
     k2d = KernelDensity(kernel='gaussian', bandwidth=0.4).fit(xy)
 
-    xg   = np.linspace(-15, 15, 100)
+    xg   = np.linspace(-lim, lim, 100)
     X, Y = np.meshgrid(xg, xg)
     XY   = np.vstack([Y.ravel(), X.ravel()]).T
     logd = k2d.score_samples(XY)
     Z    = np.exp(logd).reshape(X.shape)
+
+    x3d  = Y.ravel()[np.argmax(Z)]
+    y3d  = X.ravel()[np.argmax(Z)]
+    print('\nX_3D Y_3D')
+    print(x3d, y3d)
 
     #h = ax.matshow(np.rot90(Z), extent=[-15, 15, -15, 15])
     h = ax.contourf(Y,X,Z)
     h = ax.contourf(Y,X,Z, levels=np.linspace(0, h.levels[-1], args.levels+1))
     ax.minorticks_on()
 
+ax.plot([0], [0], '+', color='k', ms=15, mew=1.5)
 ax.plot(x, y, 'xw', mew=1.5)
 #ax.plot(xd_x, xd_y, 'x', color='gray', mew=1.5)
 ax.plot(x0g, y0g, 'ow')
-ax.plot([0], [0], '+', color='k', ms=15, mew=1.5)
+ax.plot(x2d, y2d, 'sw', ms=3)
+ax.plot(x3d, y3d, '^w', ms=7)
 div = make_axes_locatable(ax)
 #cax = div.append_axes("right", size="5%", pad=0.2)
 
