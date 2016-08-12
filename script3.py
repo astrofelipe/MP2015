@@ -177,7 +177,7 @@ if continua:
         x0,y0 = 0,0
 
     elif args.med > 0:
-        mtol = 1e-3
+        mtol = 1e-5
         xm   = pmx[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
         ym   = pmy[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
 
@@ -202,6 +202,7 @@ if continua:
 
             x0 = xmed
             y0 = ymed
+            print x0,y0
 
             if modd <= mtol:
                 print '\tNro iteraciones: %d' % im
