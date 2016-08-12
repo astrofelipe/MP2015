@@ -4,6 +4,8 @@ import glob
 import numpy as np
 import pm_funcs
 import argparse
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
