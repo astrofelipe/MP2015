@@ -59,14 +59,19 @@ print('\tTotal de estrellas:                %d' % len(mask))
 print('\tNumero de estrellas seleccionadas: %d' % mask.sum())
 
 #Calcula centros
-g    = mixture.GMM(n_components=n_comp, covariance_type='spherical', min_covar=1e-4).fit(data)
+g    = mixture.GMM(n_components=n_comp, covariance_type='full').fit(data)
 x, y = np.transpose(g.means_)
-print('X_guess Y_guess')
+print('\nX_3D Y_3D    (cruces blancas)')
 modulo = np.sum(g.means_**2, axis=1)**0.5
 ormod  = np.argsort(modulo)
 g.means_ = g.means_[ormod]
 #g.means_[0] = np.array([0,0])
 print(g.means_)
+
+print('sig_X_3D sig_Y_3D')
+for cov in g.covars_:
+    print(np.diag(cov))
+
 idx  = np.argmin((x**2 + y**2)**0.5)
 
 ##XDGMM
@@ -169,7 +174,7 @@ if args.comp >= 3:
     axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
 axd.plot(yy,xx, color=cmap(0.8), lw=1.5, alpha=.75)
 
-print('\nX_2D Y_2D')
+print('\nX_2D Y_2D    (puntos blancos)')
 print(np.transpose([x0g, y0g]))
 print('X_err_2D Y_err_2D')
 print(np.transpose([x0e, y0e]))
@@ -177,7 +182,7 @@ print('sig_X_2D sig_Y_2D')
 print(np.transpose([x0s, y0s]))
 
 print('\n\nMaximos:')
-print('\nX2D Y2D')
+print('\nMax 2D    (cuadrado blanco)')
 print(x2d, y2d)
 
 if args.hexbins != None:
@@ -203,7 +208,7 @@ else:
 
     x3d  = Y.ravel()[np.argmax(Z)]
     y3d  = X.ravel()[np.argmax(Z)]
-    print('\nX_3D Y_3D')
+    print('\nMax 3D    (triangulo blanco)')
     print(x3d, y3d)
 
     #h = ax.matshow(np.rot90(Z), extent=[-15, 15, -15, 15])
