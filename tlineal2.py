@@ -233,8 +233,8 @@ for i in xrange(nro_arch):
             #print 'Distancias de las refstars por estrella:\n', dist[0]
             #sys.exit()
 
-            mednbors, minnbors,maxnbors = np.median(nbors),nbors.min(),nbors.max()
-            print'valor min,medio,max de refstars:',minnbors,mednbors,maxnbors
+            mednbors, minnbors, maxnbors, signbors = np.median(nbors),nbors.min(),nbors.max(),np.nanstd(nbors)
+            print'valor min,medio,sig,max de refstars: ',minnbors,mednbors,signbors,maxnbors
             #sys.exit()
 
             print '\nElegimos para cada estrella las %d refstars...' %(nrefstars-1)

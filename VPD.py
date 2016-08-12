@@ -19,6 +19,7 @@ parser.add_argument('--max-mag', type=float, default=20.0, help='Corte superior 
 parser.add_argument('--min-mag', type=float, default=8.0, help='Corte inferior en magnitud (Default 8)')
 parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a considerar (Default 2)')
 parser.add_argument('--lim', type=float, default=15, help='Limite en PM para el plot (cuadrado)')
+parser.add_argument('--pm-cut', type=float, default=30, help='No considerar PM mayor al valor (Default 30)')
 parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
@@ -47,7 +48,7 @@ else:
 mag_mask = (magK < max_mag) & (magK > min_mag)
 err_mask = (pmex**2 + pmey**2)**0.5 < max_err
 nfr_mask = (nframes >= 8)
-pm_mask  = (pmx**2 + pmy**2)**0.5 < 30
+pm_mask  = (pmx**2 + pmy**2)**0.5 < args.pm_cut
 mask     = mag_mask & err_mask & nfr_mask & pm_mask
 
 data     = np.transpose([pmx, pmy])[mask]
@@ -57,6 +58,7 @@ data_err[:, diag, diag] = np.vstack([pmex**2, pmey**2]).T[mask]
 
 print('\tTotal de estrellas:                %d' % len(mask))
 print('\tNumero de estrellas seleccionadas: %d' % mask.sum())
+print('\tEstrellas con PM sobre %.2f: %d' % (args.pm_cut, (~pm_mask).sum()))
 
 #Calcula centros
 g    = mixture.GMM(n_components=n_comp, covariance_type='full').fit(data)
@@ -108,7 +110,7 @@ elif args.comp == 1:
     gf = gaussian
 
 #Plot
-bins  = np.arange(-lim,lim,0.5)
+bins  = np.arange(-lim,lim+0.5,0.5)
 cmap  = cm.get_cmap('jet')
 color = cmap(np.linspace(0, 1, cmap.N))
 
@@ -205,7 +207,7 @@ if args.hexbins != None:
 elif args.hist2d:
     H, xedges, yedges, img = ax.hist2d(data.T[0], data.T[1], bins=bins)
     extent = [yedges[0], yedges[-1], xedges[0], xedges[-1]]
-    h = ax.matshow(np.rot90(H), extent=extent, cmap=cmap)
+    h = ax.matshow(np.rot90(H), cmap=cmap,extent=extent)
     ax.grid(linestyle='-', color='white', lw=.5, which='both', alpha=.2)
     ax.minorticks_on()
 
@@ -221,6 +223,7 @@ ax.plot(x, y, 'xw', mew=1.5)
 ax.plot(x0g, y0g, 'ow')
 ax.plot(x2d, y2d, 'sw', ms=3)
 ax.plot(x3d, y3d, '^w', ms=7)
+ax.set_xlim(-lim, lim)
 div = make_axes_locatable(ax)
 #cax = div.append_axes("right", size="5%", pad=0.2)
 
@@ -234,7 +237,7 @@ plt.setp(plt.xticks()[1], rotation=45)
 if args.no_save:
     plt.show()
 else:
-    fig.savefig(args.output, dpi=200, bbox_inches='tight')
+    fig.savefig(args.output, dpi=100, bbox_inches='tight')
 
 import sys
 sys.exit(1)

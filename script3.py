@@ -13,8 +13,9 @@ radio, itera, output, refer, nframes, min_ep, max_err = pm_funcs.get_script()
 
 print 'Iniciando script con...'
 print 'linea de comando: %s' % ' '.join(sys.argv)
-print 'radio: %d' % radio
-print 'itera: %d' % itera
+print 'radio para seleccionar refstars:   %d' % radio
+print 'itera:   %d' % itera
+print 'max_err en PM para seleccionar refstars: %f' % max_err
 print
 
 #ARGUMENTOS
@@ -22,7 +23,7 @@ parser = argparse.ArgumentParser(description='Script PM VVV')
 parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
-parser.add_argument('-p', '--peak', type=int, default=3, help='Calcula el peak en 2D o 3D (usar 2 o 3, default 3)')
+parser.add_argument('-p', '--peak', type=int, default=0, help='Calcula el peak en 2D o 3D (usar 0, 2 o 3, default 0)')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 parser.add_argument('-mr2', type=float, default=None, help='Llama a tlineal2 con -mr2')
 
@@ -171,9 +172,10 @@ if continua:
         y0   = XX[:,0][np.argmax(ykde)]
 
     else:
+        print '\tNo se calcula peak central'
         x0,y0 = 0,0
 
-    print '\t', x0, y0
+    print 'x0y0\t', x0, y0
 
     #Filtro por radio en PM
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
