@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser(description='Script PM VVV')
 parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
-parser.add_argument('-p', '--peak', action='store_true', help='Usa el peak de los PM para calcular nuevas refstars')
+parser.add_argument('-p', '--peak', type=int, default=3, help='Calcula el peak en 2D o 3D (usar 2 o 3, default 3)')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 parser.add_argument('-mr2', type=float, default=None, help='Llama a tlineal2 con -mr2')
 
@@ -140,10 +140,10 @@ if continua:
         pm0 = True
 
     #Centrar PMs
-    if args.peak:
-        print '\tCalculando peak para centrar refstars'
-        XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
-        XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+    XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
+    XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+    if args.peak == 3:
+        print '\tCalculando peak para centrar refstars (3D)'
 
         #KDE 2D
         k2d  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY)
@@ -155,7 +155,8 @@ if continua:
         x0   = Y.ravel()[np.argmax(Z)]
         y0   = X.ravel()[np.argmax(Z)]
 
-        '''
+    elif args.peak == 2:
+        print '\tCalculando peak para centrar refstars (2D)'
 
         #PMX
         kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
@@ -168,11 +169,11 @@ if continua:
         logd = kde.score_samples(XX)
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
-        '''
 
-        print '\t', x0, y0
     else:
         x0,y0 = 0,0
+
+    print '\t', x0, y0
 
     #Filtro por radio en PM
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
@@ -238,10 +239,10 @@ for i in range(itera):
         pm0 = True
 
     #Centrar PMs
-    if args.peak:
-        print '\tCalculando peak para centrar refstars'
-        XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
-        XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+    XY  = np.transpose([pmx, pmy])[(nf >= nframes) * (pme <= max_err) * (id_mask) * (pm1) * (pm0)]
+    XX  = np.linspace(-30, 30, 500)[:, np.newaxis]
+    if args.peak == 3:
+        print '\tCalculando peak para centrar refstars (3D)'
 
         #KDE 2D
         k2d  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY)
@@ -253,7 +254,8 @@ for i in range(itera):
         x0   = Y.ravel()[np.argmax(Z)]
         y0   = X.ravel()[np.argmax(Z)]
 
-        '''
+    elif args.peak == 2:
+        print '\tCalculando peak para centrar refstars (2D)'
 
         #PMX
         kde  = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(XY[:,0][:, np.newaxis])
@@ -266,11 +268,11 @@ for i in range(itera):
         logd = kde.score_samples(XX)
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
-        '''
 
-        print '\t', x0, y0
     else:
         x0,y0 = 0,0
+
+    print '\t', x0, y0
 
     pmr = np.sqrt((pmx-x0)**2 + (pmy-y0)**2)
 
