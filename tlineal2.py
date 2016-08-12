@@ -234,7 +234,7 @@ for i in xrange(nro_arch):
             #sys.exit()
 
             mednbors, minnbors, maxnbors, signbors = np.median(nbors),nbors.min(),nbors.max(),np.nanstd(nbors)
-            print'valor min,medio,sig,max de refstars: ',minnbors,mednbors,signbors,maxnbors
+            print'valor min,medio,sig,max de refstars: ',minnbors,mednbors,int(signbors),maxnbors
             #sys.exit()
 
             print '\nElegimos para cada estrella las %d refstars...' %(nrefstars-1)
