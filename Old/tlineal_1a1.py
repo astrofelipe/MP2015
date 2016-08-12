@@ -99,8 +99,13 @@ def quadratic(coords,a,b,c,d,e,f):
     x,y = coords
     return a + b*x + c*y + d*np.square(x) + e*np.multiply(x,y) + f*np.square(y)
 
-def recta(x,a,b):
+def recta(x, a, b):
     return a*x + b
+
+def elinear(coords, ea, eb, ec):
+    x,y = coords
+    f = (ea*x)**2 + (eb*y)**2 + ec**2
+    return np.sqrt(f)
 
 def makedir(directory):
     if not os.path.exists(directory):
@@ -132,6 +137,7 @@ stdy_fie   = np.zeros(nro_arch)
 #ad = np.ravel(ax_delta)
 #print 'ad', ad.shape
 #sys.exit()
+'''
 if nro_arch < 100:
     fig, ax = plt.subplots(nrows=nro_rows,ncols=3,figsize=[3.5*3,3.5*nro_rows])
     altura = 3.5*nro_rows
@@ -147,10 +153,11 @@ else:
     seor = np.argsort(se[3:])[::-1]
     seor = seor[:96]
     print 'Epocas a plotear: ', nro_epoca[seor]
+'''
 
 
 #aca empieza el for para todos los catalogos de input
-axes = np.ravel(ax)
+#axes = np.ravel(ax)
 ii   = 0
 for i in xrange(nro_arch):
 
@@ -300,7 +307,7 @@ for i in xrange(nro_arch):
             nnek = len(nei[k])
 
             if len(nei[k]) < min_nei:
-                return np.nan, np.nan, nnek
+                return np.nan, np.nan, np.nan, np.nan, nnek
 
             coords = np.transpose([rx2, ry2])[nei[k]].T
             ep1_x  = rx1[nei[k]]
@@ -309,14 +316,20 @@ for i in xrange(nro_arch):
             poptx, pcovx = curve_fit(linear,coords,ep1_x)
             popty, pcovy = curve_fit(linear,coords,ep1_y)
 
+            errx = np.sqrt(np.diag(pcovx))
+            erry = np.sqrt(np.diag(pcovy))
+
             ctxk = linear([x2[k],y2[k]],*poptx)
             ctyk = linear([x2[k],y2[k]],*popty)
 
-            return ctxk, ctyk, nnek
+            ctxe = elinear([x2[k], y2[k]], *errx)
+            ctye = elinear([x2[k], y2[k]], *erry)
+
+            return np.array([ctxk, ctyk, ctxe, ctye, nnek])
 
         results = barra(local_tlineal, xrange(x1.size), nprocs)
         results = np.transpose(results)
-        ctx, cty, nne = results
+        ctx, cty, ctxe, ctye, nne = results
 
 
         #Version original sin paralelo
@@ -411,11 +424,11 @@ for i in xrange(nro_arch):
     #se guarda id, delta_x y delta_y
     ctx[np.isnan(ctx)] = x1[np.isnan(ctx)] - 888.8
     cty[np.isnan(cty)] = y1[np.isnan(cty)] - 888.8
-    data = np.transpose([id1,x1-ctx,y1-cty, nne])
+    data = np.transpose([id1,x1-ctx,y1-cty, nne, ctxe, ctye])
     #print'\ndata', data.shape
     #print'\nid delta_x delta_y \n', data
     #sys.exit()
-    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI', fmt='%d %f %f %d')
+    np.savetxt('./PMs/PM_%03d.dat' % nro_epoca[i], data, header='ID DX DY NEI DXE DYE', fmt='%d %f %f %d %f %f')
     del data
 
     #PLOT OUTPUT.PSF
@@ -479,6 +492,7 @@ for i in xrange(nro_arch):
     stdx_ref[i]   += xstd_r
     stdy_ref[i]   += ystd_r
 
+    '''
     if np.any(i==seor) or i<3:
         #####PTOS AZULES (CATALOGO-REFSTARS)
         axes[ii].scatter((x1-ctx)[~ref],(y1-cty)[~ref],s=1,rasterized=True,edgecolor='',color='#0055FF',lw=.5)
@@ -505,6 +519,7 @@ for i in xrange(nro_arch):
         axes[ii].tick_params(axis='both', which='major', labelsize=8)
 
         ii += 1
+        '''
 
     #Comentado para que no haga los Plots
     '''
@@ -540,16 +555,16 @@ for i in xrange(nro_arch):
 
 #Aca termina el for para todos los catalogos de input
 
-print '\nGuardando plot final...'
+#print '\nGuardando plot final...'
 
 #HEADER PLOT OUTPUT.PSF
-fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f; Mag ref_plot:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2))
-fig.tight_layout()
-fig.subplots_adjust(top=1.00 - tophdr/2.0)
-if not muygrande:
-    if plot_ep:
-        fig.savefig(output+'.pdf',dpi=200)
-        fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
+#fig.suptitle('Refstars:%3d; Radios:%3d,%4d; Mag stars:%2.1f,%2.1f; Mag refstars:%2.1f,%2.1f; Mag ref_plot:%2.1f,%2.1f' % (nrefstars, rad_int, rad_ext, ma1, ma2, mr1, mr2, mp1, mp2))
+#fig.tight_layout()
+#fig.subplots_adjust(top=1.00 - tophdr/2.0)
+#if not muygrande:
+#    if plot_ep:
+#        fig.savefig(output+'.pdf',dpi=200)
+#        fig_delta.savefig(output+'_del_xy.pdf',dpi=200)
 
 yrs = (yr-yr[0])/365.25
 eff_yrs = yrs[eff_ep]
@@ -558,6 +573,7 @@ eff_yrs = yrs[eff_ep]
 #sys.exit()
 
 #PLOT DELTAS VS TIEMPO
+'''
 if plot_del_ep:
     if len(nro_epoca) < 2:
         print "Hay solo un catalogo. El plot de delta vs tiempo no se genera."
@@ -604,5 +620,5 @@ if plot_del_ep:
     fig.subplots_adjust(top=0.85)
     fig.savefig(output+'_del_ep.pdf',dpi=200)
 
-
+'''
 print 'Done!'
