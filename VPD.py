@@ -70,7 +70,7 @@ print(g.means_)
 
 print('sig_X_3D sig_Y_3D')
 for cov in g.covars_:
-    print(np.diag(cov))
+    print(np.sqrt(np.diag(cov)))
 
 idx  = np.argmin((x**2 + y**2)**0.5)
 
@@ -181,9 +181,23 @@ print(np.transpose([x0e, y0e]))
 print('sig_X_2D sig_Y_2D')
 print(np.transpose([x0s, y0s]))
 
-print('\n\nMaximos:')
 print('\nMax 2D    (cuadrado blanco)')
 print(x2d, y2d)
+
+#print('\nCalculando KDE 2D...')
+xy  = np.transpose([pmx, pmy])[mask]
+k2d = KernelDensity(kernel='gaussian', bandwidth=0.4).fit(xy)
+
+xg   = np.linspace(-lim, lim, 100)
+X, Y = np.meshgrid(xg, xg)
+XY   = np.vstack([Y.ravel(), X.ravel()]).T
+logd = k2d.score_samples(XY)
+Z    = np.exp(logd).reshape(X.shape)
+
+x3d  = Y.ravel()[np.argmax(Z)]
+y3d  = X.ravel()[np.argmax(Z)]
+print('\nMax 3D    (triangulo blanco)')
+print(x3d, y3d)
 
 if args.hexbins != None:
     h = ax.hexbin(data.T[0], data.T[1], gridsize=args.hexbins)
@@ -196,21 +210,6 @@ elif args.hist2d:
     ax.minorticks_on()
 
 else:
-    #print('\nCalculando KDE 2D...')
-    xy  = np.transpose([pmx, pmy])[mask]
-    k2d = KernelDensity(kernel='gaussian', bandwidth=0.4).fit(xy)
-
-    xg   = np.linspace(-lim, lim, 100)
-    X, Y = np.meshgrid(xg, xg)
-    XY   = np.vstack([Y.ravel(), X.ravel()]).T
-    logd = k2d.score_samples(XY)
-    Z    = np.exp(logd).reshape(X.shape)
-
-    x3d  = Y.ravel()[np.argmax(Z)]
-    y3d  = X.ravel()[np.argmax(Z)]
-    print('\nMax 3D    (triangulo blanco)')
-    print(x3d, y3d)
-
     #h = ax.matshow(np.rot90(Z), extent=[-15, 15, -15, 15])
     h = ax.contourf(Y,X,Z)
     h = ax.contourf(Y,X,Z, levels=np.linspace(0, h.levels[-1], args.levels+1))
