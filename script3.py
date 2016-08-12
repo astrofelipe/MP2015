@@ -24,6 +24,7 @@ parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
 parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
 parser.add_argument('-c', '--continua', type=int, default=None, help='Realiza n iteraciones partiendo desde la ultima hecha anteriormente')
 parser.add_argument('-p', '--peak', type=int, default=0, help='Calcula el peak en 2D o 3D (usar 0, 2 o 3, default 0)')
+parser.add_argument('-med', type=float, default=0, help='Utiliza la mediana para calcular centros')
 parser.add_argument('-r', '--refstars', action='store_true', help='Usa VPD + refstars0, sino solo VPD')
 parser.add_argument('-mr2', type=float, default=None, help='Llama a tlineal2 con -mr2')
 
@@ -171,9 +172,40 @@ if continua:
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
 
-    else:
+    elif (args.peak == 0) and (args.med == 0):
         print '\tNo se calcula peak central'
         x0,y0 = 0,0
+
+    elif args.med > 0:
+        mtol = 1e-8
+        xm   = pmx[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
+        ym   = pmy[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
+
+        x0 = np.nanmedian(xm)
+        y0 = np.nanmedian(ym)
+
+        print '\tCalculando peak con mediana (init = %f %f)' % (x0, y0)
+
+
+        for im in xrange(10000):
+            radm = ((xm - x0)**2 + (ym - y0)**2)**0.5 < args.med
+            xmm  = xm[radm]
+            ymm  = ym[radm]
+
+            xmed = np.nanmedian(xmm)
+            ymed = np.nanmedian(ymm)
+
+            xmd  = np.abs(xmed - x0)
+            ymd  = np.abs(ymed - y0)
+
+            modd = (xmd**2 + ymd**2)**0.5
+
+            x0 = xmed
+            y0 = ymed
+
+            if modd <= mtol:
+                print '\tNro iteraciones: %d' % im
+                break
 
     print 'x0y0\t', x0, y0
 
@@ -271,8 +303,40 @@ for i in range(itera):
         ykde = np.exp(logd)
         y0   = XX[:,0][np.argmax(ykde)]
 
-    else:
+    elif (args.peak == 0) and (args.med == 0):
+        print '\tNo se calcula peak central'
         x0,y0 = 0,0
+
+    elif args.med > 0:
+        mtol = 5e-2
+        xm   = pmx[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
+        ym   = pmy[(nf >= nframes) * (id_mask) * (pm1) * (pm0)]
+
+        x0 = np.nanmedian(xm)
+        y0 = np.nanmedian(ym)
+
+        print '\tCalculando peak con mediana (init = %f %f)' % (x0, y0)
+
+        for im in xrange(10000):
+            radm = ((xm - x0)**2 + (ym-y0)**2)**0.5 < args.med
+            xmm  = xm[radm]
+            ymm  = ym[radm]
+
+            xmed = np.nanmedian(xmm)
+            ymed = np.nanmedian(ymm)
+
+            xmd  = np.abs(xmed - x0)
+            ymd  = np.abs(ymed - y0)
+
+            modd = (xmd**2 + ymd**2)**0.5
+
+            x0 = xmed
+            y0 = ymed
+
+            if modd <= mtol:
+                print '\tNro iteraciones: %d' % im
+                break
+
 
     print '\t', x0, y0
 
