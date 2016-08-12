@@ -29,6 +29,8 @@ color_print('Parametros:', 'lightgray')
 print('\tnframes: %d' % nframes)
 print('\tnbins:   %d' % nbins)
 print('\tnprocs:  %d' % nprocs)
+if weight:
+    print('\tSe utilizaran los errores como pesos')
 
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 cpun = multiprocessing.cpu_count()
