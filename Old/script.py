@@ -1,4 +1,5 @@
 import sys
+import argparse
 import os
 import subprocess
 import numpy as np
@@ -11,15 +12,26 @@ radio, itera, output, refer, nframes, min_ep, max_err = pm_funcs.get_script()
 print 'Iniciando script con...'
 print 'radio: %d' % radio
 print 'itera: %d' % itera
+print
+
+#ARGUMENTOS
+parser = argparse.ArgumentParser(description='Script PM VVV')
+parser.add_argument('<Input List>', help='Lista con inputs (para tlineal)')
+parser.add_argument('<Ref Catalog>', help='Catalogo de referencia (usado por PM_1a1)')
+parser.add_argument('-C', action='store_true', help='Continua desde la ultima iteracion')
+
+args = parser.parse_args()
 
 #FUNCIONES Y OTROS PARAMETROS
-inputs        = sys.argv[1]
-ref_cat       = sys.argv[2]
+inputs        = vars(args)['<Input List>']#sys.argv[1]
+ref_cat       = vars(args)['<Ref Catalog>']#sys.argv[2]
 stilts_folder = os.path.dirname(os.path.realpath(__file__))
 
-continua = False
-if (len(sys.argv) > 3) and (sys.argv[3]=='-C'):
-    continua = True
+#continua = False
+#if (len(sys.argv) > 3) and (sys.argv[3]=='-C'):
+#    continua = True
+continua = args.C
+print continua
 
 def makedir(directory):
     if not os.path.exists(directory):
