@@ -205,7 +205,7 @@ for i in range(itera):
     if (args.mr2 != None) & ((i>0) or continua):
         subprocess.call('python -u %s/tlineal2.py %s -mr2 %f' % (stilts_folder, inputs, args.mr2), shell=True)
     else:
-        subprocess.call('python -u %s/tlineal_1a1.py %s' % (stilts_folder, inputs), shell=True)
+        subprocess.call('python -u %s/tlineal2.py %s' % (stilts_folder, inputs), shell=True)
 
     color_print('\tEjecutando pm_1a1.py', 'cyan')
     subprocess.call('python %s/pm_1a1.py %s' % (stilts_folder, ref_cat), shell=True)

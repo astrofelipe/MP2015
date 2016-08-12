@@ -12,8 +12,8 @@ cmd_modo = manual
 match = ID
 
 #Limites en color
-col1     = -2
-col2     = 2
+col1     = 0
+col2     = 3
 
 #Limite en magnitud
 mag1     = 20
@@ -140,6 +140,9 @@ sig_iter = 1
 
 #Numero de sigmas para hacer el clip
 nsigma = 3
+
+#Pesar por errores
+weight = True
 
 [VPDHmag.PY]
 #Limites del plot (bineado) en mas/yr

@@ -105,12 +105,15 @@ def get_match1a1():
     return modo_ma, tol, nprocs_m1a1
 
 def get_pm1a1():
-    nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma = np.array(params['PM_1a1.PY'].values()).astype(float)
+    nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma, weight = params['PM_1a1.PY'].values()
+    nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma = np.array([nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma]).astype(float)
     nprocs_pm = int(nprocs_pm)
     sig_iter  = int(sig_iter)
     nsigma    = int(nsigma)
 
-    return nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma
+    weight = str(weight) == 'True'
+
+    return nframes, nbins, limplotpm, nprocs_pm, sig_iter, nsigma, weight
 
 def get_XYtoRADEC():
     nprocs = np.array(params['XYtoRADEC.PY'].values()).astype(float)

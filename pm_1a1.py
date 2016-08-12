@@ -15,12 +15,13 @@ from scipy.optimize import curve_fit
 from astropy.io import ascii
 from astropy.utils.console import ProgressBar, color_print
 from astropy.table import Table, join, hstack
+from astropy.stats import mad_std
 from pm_funcs import barra
 from linfit import linfit
 import pm_funcs
 
 #PARAMETROS
-nframes, nbins, limplotpm, nprocs, sig_iter, nsigma = pm_funcs.get_pm1a1()
+nframes, nbins, limplotpm, nprocs, sig_iter, nsigma, weight = pm_funcs.get_pm1a1()
 limplot = limplotpm
 
 color_print('[PM_1a1.py]', 'yellow')
@@ -76,7 +77,7 @@ if not os.path.isfile('PM.h5'):
 
     #Genera matriz donde van todos los catalogos
     #allcat    = np.zeros((maximo, len(todos)*4))
-    allcat    = np.memmap('allcat.temp', dtype='float32', mode='w+', shape=(maximo, len(todos)*4))
+    allcat    = np.memmap('allcat.temp', dtype='float32', mode='w+', shape=(maximo, len(todos)*6))
     allcat[:] = np.nan
 
 
@@ -88,7 +89,7 @@ if not os.path.isfile('PM.h5'):
         todos[i] = todos[i].T[orden].T
         com      = np.in1d(total_id, todos[i][0])
 
-        allcat[:,i*4:i*4+4][com] = todos[i].T
+        allcat[:,i*6:i*6+6][com] = todos[i].T
 
     del ids, orden, com
 
@@ -172,14 +173,18 @@ ids = dxdy_data[:,0]
 mag = dxdy_data[:,5]
 ra  = dxdy_data[:,1]
 dec = dxdy_data[:,2]
-nei = dxdy_data[:,10::4]
-dx  = dxdy_data[:,8::4]
-dy  = dxdy_data[:,9::4]
+nei = dxdy_data[:,10::6]
+dx  = dxdy_data[:,8::6]
+dy  = dxdy_data[:,9::6]
+dxe = dxdy_data[:,11::6]
+dye = dxdy_data[:,12::6]
 
 #Saca las columnas que no estan en el zinfo (no tendre informacion de yrs)
 nei = nei.T[eff_tengo].T
 dx  = dx.T[eff_tengo].T
 dy  = dy.T[eff_tengo].T
+dxe = dxe.T[eff_tengo].T
+dye = dye.T[eff_tengo].T
 
 #Obtengo el numero de vecinos usados y pongo 999 los que no cumplen la condicion
 nei_sum  = np.sum(np.isnan(nei), axis=1)
@@ -209,7 +214,9 @@ def PM_calc(i):
         #print yrs.shape, dx[i].shape, dy[i].shape, see.shape
         x   = yrs[ma]
         yx  = dx[i][ma]
+        yxe = dxe[i][ma]
         yy  = dy[i][ma]
+        yye = dye[i][ma]
         ss  = see[ma]
 
         #Algoritmo antiguo
@@ -251,11 +258,15 @@ def PM_calc(i):
         '''
 
         #Con linfit (rapido!)
-        fitx, cvm = linfit(x, yx)#, sigmay=ss)
+        if not weight:
+            yye = np.ones(len(x))
+            yye = np.ones(len(x))
+
+        fitx, cvm = linfit(x, yx, sigmay=yxe)
         pmxx = fitx[0]
         pmex = np.sqrt(cvm[0,0])
 
-        fity, cvm = linfit(x, yy)#, sigmay=ss)
+        fity, cvm = linfit(x, yy, sigmay=yye)
         pmyy = fity[0]
         pmey = np.sqrt(cvm[0,0])
 
@@ -265,22 +276,25 @@ def PM_calc(i):
             for si in range(sig_iter):
                 modelx = recta(x, *fitx)
                 resx   = yx - modelx
-                stdx   = np.nanstd(resx)
+                stdx   = mad_std(resx[np.isfinite(resx)])
 
                 modely = recta(x, *fity)
                 resy   = yy - modely
-                stdy   = np.nanstd(resy)
+                stdy   = mad_std(resy[np.isfinite(resy)])
 
                 res = np.sqrt(resx**2 + resy**2)
                 std = np.sqrt(stdx**2 + stdy**2)
                 clip = clip * (res <= nsigma*std)
 
+                if clip.sum() < nframes:
+                    continue
+
                 #Vuelve a calcular
-                fitx, cvm = linfit(x[clip], yx[clip])#, sigmay=ss)
+                fitx, cvm = linfit(x[clip], yx[clip], sigmay=yxe[clip])
                 pmxx = fitx[0]
                 pmex = np.sqrt(cvm[0,0])
 
-                fity, cvm = linfit(x[clip], yy[clip])#, sigmay=ss)
+                fity, cvm = linfit(x[clip], yy[clip], sigmay=yye[clip])
                 pmyy = fity[0]
                 pmey = np.sqrt(cvm[0,0])
 
@@ -302,8 +316,8 @@ PM_X, PM_Y = PMS
 PMXE, PMYE = PME
 
 #Plots
-pmxa = PM_X[np.isfinite(PM_X)]
-pmya = PM_Y[np.isfinite(PM_Y)]
+pmxa = PM_X[np.isfinite(PM_X)*np.isfinite(PM_Y)]
+pmya = PM_Y[np.isfinite(PM_X)*np.isfinite(PM_Y)]
 
 nbins = np.arange(-limplot, limplot+nbins, nbins)
 
@@ -314,6 +328,7 @@ ax.text(-15, 15, 'Nro estrellas: %d' % np.isfinite(PM_X).sum())
 print('Guardando VPD.png')
 plt.savefig('VPD.png', dpi=200)
 
+print(pmxa.shape, pmya.shape)
 H, xedges, yedges = np.histogram2d(pmxa, pmya, bins=nbins)
 H  = np.rot90(H)
 H  = np.flipud(H)
