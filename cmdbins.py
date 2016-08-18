@@ -19,9 +19,13 @@ parser.add_argument('--color', type=float, nargs=2, default=(0, 2), help='Limite
 parser.add_argument('--radios', type=float, nargs=2, default=(4, 9.5), help='Limite en radios para seleccionar (Default 4 9.5)', metavar=('min', 'max'))
 parser.add_argument('--dradio', type=float, default=0.5, help='Incremento en radio de seleccion por bin de magnitud (Default 0.5)', metavar='dr')
 parser.add_argument('--lim', type=float, nargs=2, default=(-24, 24), help='Limite en los ejes del VPD', metavar=('min', 'max'))
+parser.add_argument('--invert_pmx', '-i', action='store_true', help='Invierte el eje X del VPD')
 parser.add_argument('--no-save', action='store_true', help='Mostrar plot en pantalla en vez de guardar')
 
 args = parser.parse_args()
+
+ejex = '\ell'
+ejey = 'b'
 
 ##############
 # PARAMETROS #
@@ -111,13 +115,17 @@ for i in range(nint):
     pm[i].plot(xr, yr, '.r', ms=pmd_psize)#, rasterized=True)
     pm[i].plot(xc, yc, '-', c='lime', lw=1.5)
 
-    pm[i].set(xlim=(pm_min, pm_max), ylim=(pm_min, pm_max), yticks=pm_ticks, xticks=pm_ticks, aspect='equal', adjustable='box')
+    if args.invert_pmx:
+        pm[i].set(xlim=(pm_min, pm_max), ylim=(pm_min, pm_max), yticks=pm_ticks, xticks=pm_ticks, aspect='equal', adjustable='box')
+    else:
+        pm[i].set(xlim=(pm_max, pm_min), ylim=(pm_min, pm_max), yticks=pm_ticks, xticks=pm_ticks, aspect='equal', adjustable='box')
+
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_b$   $\mathrm{(mas\ yr^{-1})}$')
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_%d$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
         else:
-            pm[i].set_ylabel('$\mu_b$   $\mathrm{(mas\ yr^{-1})}$')
+            pm[i].set_ylabel('$\mu_%d$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
 
 
     #Plotea en el panel derecho
@@ -125,7 +133,7 @@ for i in range(nint):
     fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize)#, rasterized=True)
 
 #pm[-1].set_xlabel('$\mu_\ell\cos b$   $\mathrm{(mas\ yr^{-1})}$')
-pm[-1].set_xlabel('$\mu_\ell\cos b$')
+pm[-1].set_xlabel('$\mu_%d\cos %d$' % (ejex, ejey))
 
 #to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
