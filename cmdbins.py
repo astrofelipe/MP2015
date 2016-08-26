@@ -123,9 +123,9 @@ for i in range(nint):
 
     if i == int(nint/2):
         if nint%2 == 0:
-            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_%d$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
+            pm[i].set_ylabel('$\_ \quad\quad\quad\ \mu_%s$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
         else:
-            pm[i].set_ylabel('$\mu_%d$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
+            pm[i].set_ylabel('$\mu_%s$   $\mathrm{(mas\ yr^{-1})}$' % ejey)
 
 
     #Plotea en el panel derecho
@@ -133,7 +133,7 @@ for i in range(nint):
     fi.plot((magB-magK)[maskmag][~maskred], magK[maskmag][~maskred], '.k', ms=cmd_psize)#, rasterized=True)
 
 #pm[-1].set_xlabel('$\mu_\ell\cos b$   $\mathrm{(mas\ yr^{-1})}$')
-pm[-1].set_xlabel('$\mu_%d\cos %d$' % (ejex, ejey))
+pm[-1].set_xlabel('$\mu_%s\cos %s$' % (ejex, ejey))
 
 #to.plot(magB-magK, magK, '.k', ms=cmd_psize, rasterized=True)
 #min_mag -= 0.2
