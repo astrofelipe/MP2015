@@ -21,6 +21,7 @@ parser.add_argument('--max-err', type=float, default=2.0, help='Maximo error a c
 parser.add_argument('--lim', type=float, default=16, help='Limite en PM para el plot (cuadrado)')
 parser.add_argument('--pm-cut', type=float, default=30, help='No considerar PM mayor al valor (Default 30)')
 parser.add_argument('--comp', type=int, default=2, help='Nro de componentes para el Gaussian Mixture (Default 2)')
+parser.add_argument('--kernel', type=str, default='linear', help='Kernel para el KDE (gaussian, tophat, epanechnikov, exponential, linear, cosine)')
 parser.add_argument('--center', nargs=2, default=None, help='Forzar centro a las coordenadas entregadas')
 parser.add_argument('--hexbins', type=int, default=None, help='Usa bines hexagonales, se debe especificar tamano grilla')
 parser.add_argument('--levels', type=int, default=7, help='Numero de niveles para el contour plot')
@@ -59,6 +60,8 @@ data_err[:, diag, diag] = np.vstack([pmex**2, pmey**2]).T[mask]
 print('\tTotal de estrellas:                %d' % len(mask))
 print('\tNumero de estrellas seleccionadas: %d' % mask.sum())
 print('\tEstrellas con PM sobre %.2f: %d' % (args.pm_cut, (~pm_mask).sum()))
+print('\tPromedios (x,y): %f, %f' % (np.mean(pmx[mask]), np.mean(pmy[mask])))
+print('\tDesviacion estandar: %f, %f' % (np.std(pmx[mask]), np.std(pmy[mask])))
 
 #Calcula centros
 g    = mixture.GMM(n_components=n_comp, covariance_type='full').fit(data)
@@ -110,7 +113,8 @@ elif args.comp == 1:
     gf = gaussian
 
 #Plot
-bins  = np.arange(-lim,lim+0.5,0.5)
+bins  = np.arange(-lim, lim+0.5, 0.5)
+binc  = (bins[:-1] + bins[1:])/2.
 cmap  = cm.get_cmap('jet')
 color = cmap(np.linspace(0, 1, cmap.N))
 
@@ -123,7 +127,7 @@ axu = plt.subplot(gs[0,:-1])
 axd = plt.subplot(gs[1:,-1])
 
 #KDE
-kde = KernelDensity(kernel='gaussian').fit((pmx[mask])[:,np.newaxis])
+kde = KernelDensity(kernel=args.kernel).fit((pmx[mask])[:,np.newaxis])
 xx  = np.arange(-lim, lim, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
 x2d = xx[np.argmax(yy)]
@@ -142,15 +146,23 @@ x0g = popt[1::3]
 x0s = popt[2::3]
 x0e = np.sqrt(np.diag(pcov)[1::3])
 
-axu.hist(pmx[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75)
-axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.6), lw=2.5)
+naxu, _, _ = axu.hist(pmx[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75)
+axu.plot(xx, gaussian(xx, *popt[0:3]), color=cmap(0.6), lw=2.5, alpha=.9)
 if args.comp >= 2:
-    axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.4), lw=2.5)
+    axu.plot(xx, gaussian(xx, *popt[3:6]), color=cmap(0.4), lw=2.5, alpha=.9)
 if args.comp >= 3:
-    axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.2), lw=2)
-axu.plot(xx,yy, color=cmap(0.8), lw=1.5, alpha=.75)
+    axu.plot(xx, gaussian(xx, *popt[6:9]), color=cmap(0.2), lw=2, alpha=.9)
+axu.plot(xx,yy, color=cmap(0.8), lw=2, alpha=.9)
 
-kde = KernelDensity(kernel='gaussian').fit((pmy[mask])[:,np.newaxis])
+bpop, bcov = curve_fit(gf, binc, naxu, p0=p0, maxfev=100000)
+x0b = bpop[1::3]
+xsb = bpop[2::3]
+xbe = np.sqrt(np.diag(bcov)[1::3])
+axu.plot(xx, gaussian(xx, *bpop[0:3]), color=cmap(0.3), lw=2.5, alpha=.9)
+
+axu.set_xlim(-lim ,lim)
+
+kde = KernelDensity(kernel=args.kernel).fit((pmy[mask])[:,np.newaxis])
 xx  = np.arange(-lim, lim, 0.05)
 yy  = np.exp(kde.score_samples(xx[:,np.newaxis]))
 y2d = xx[np.argmax(yy)]
@@ -166,15 +178,23 @@ elif args.comp == 1:
 popt, pcov = curve_fit(gf, xx, yy, p0=p0, maxfev=100000)
 y0g = popt[1::3]
 y0s = popt[2::3]
-y0e = np.sqrt(np.diag(pcov)[1::3])
+ybe = np.sqrt(np.diag(pcov)[1::3])
 
-axd.hist(pmy[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75, orientation='horizontal')
-axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.6), lw=2.5)
+naxd, _, _ = axd.hist(pmy[mask], bins=bins, histtype='stepfilled', normed=True, color=cmap(0), alpha=.75, orientation='horizontal')
+axd.plot(gaussian(xx, *popt[0:3]), xx, color=cmap(0.6), lw=2.5, alpha=.9)
 if args.comp >= 2:
-    axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.4), lw=2.5)
+    axd.plot(gaussian(xx, *popt[3:6]), xx, color=cmap(0.4), lw=2.5, alpha=.9)
 if args.comp >= 3:
-    axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2)
-axd.plot(yy,xx, color=cmap(0.8), lw=1.5, alpha=.75)
+    axd.plot(gaussian(xx, *popt[6:9]), xx, color=cmap(0.2), lw=2, alpha=.9)
+axd.plot(yy,xx, color=cmap(0.8), lw=2, alpha=.9)
+
+bpop, bcov = curve_fit(gf, binc, naxd, p0=p0, maxfev=100000)
+y0b = bpop[1::3]
+ysb = bpop[2::3]
+y0e = np.sqrt(np.diag(bcov)[1::3])
+axd.plot(gaussian(xx, *bpop[0:3]), xx, color=cmap(0.3), lw=2.5, alpha=.9)
+
+axd.set_ylim(-lim ,lim)
 
 print('\nX_2D Y_2D    (puntos blancos)')
 print(np.transpose([x0g, y0g]))
@@ -183,12 +203,19 @@ print(np.transpose([x0e, y0e]))
 print('sig_X_2D sig_Y_2D')
 print(np.transpose([x0s, y0s]))
 
+print('\nX_bin Y_bin')
+print(np.transpose([x0b, y0b]))
+print('X_err_bin Y_err_bin')
+print(np.transpose([xbe, ybe]))
+print('sig_X_bin sig_Y_bin')
+print(np.transpose([xsb, ysb]))
+
 print('\nMax 2D    (cuadrado blanco)')
 print(x2d, y2d)
 
 #print('\nCalculando KDE 2D...')
 xy  = np.transpose([pmx, pmy])[mask]
-k2d = KernelDensity(kernel='gaussian', bandwidth=0.4).fit(xy)
+k2d = KernelDensity(kernel=args.kernel, bandwidth=0.4).fit(xy)
 
 xg   = np.linspace(-lim, lim, 100)
 X, Y = np.meshgrid(xg, xg)
@@ -198,6 +225,13 @@ Z    = np.exp(logd).reshape(X.shape)
 
 x3d  = Y.ravel()[np.argmax(Z)]
 y3d  = X.ravel()[np.argmax(Z)]
+
+#from scipy.stats import norm
+#mu, sigma = norm.fit(pmx[mask])
+#axu.plot(xx, norm.pdf(xx, mu, sigma), '-k')
+#mu, sigma = norm.fit(pmy[mask])
+#axd.plot(norm.pdf(xx, mu, sigma), xx, '-k')
+
 print('\nMax 3D    (triangulo blanco)')
 print(x3d, y3d)
 
