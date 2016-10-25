@@ -21,6 +21,11 @@ def linear(coords, a, b, c):
     x, y = coords
     return a*x + b*y + c
 
+def promedio(m, e):
+    num = np.nansum(m / e, axis=1)
+    den = np.nansum(1.0 / e, axis=1)
+    return num/den
+
 #PIPELINE
 print '\nUsando...'
 print 'min_epochs:  %d' % min_epochs
@@ -68,11 +73,15 @@ ys  = data[:, 4::7][rej]
 ms  = data[:, 5::7][rej]
 es  = data[:, 6::7][rej]
 
-
-
 def transformacion(ep):
     magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
     common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, ep])
+    totst  = np.sum(magcon*common*id_mask)
+
+    if totst < 500:
+        print 'NUMERO DE ESTRELLAS MENOR A 500! Usando 0.1 como error maximo en magnitud'
+        magcon  = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < 0.1)
+
     print 'Numero de estrellas utilizadas para transformar en %d: %d/%d' % (ep, np.sum(magcon*common*id_mask), np.sum(np.isfinite(ids[:,ep])))
 
     x1 = xs[:, 0]
@@ -107,9 +116,9 @@ def transformacion(ep):
 
     return tx, ty, mm2
 
-xx = np.empty_like(xs)
-yy = np.empty_like(ys)
-mm = np.empty_like(ms)
+xx = np.empty_like(xs)*np.nan
+yy = np.empty_like(ys)*np.nan
+mm = np.empty_like(ms)*np.nan
 ee = np.copy(es)
 
 xx[:, 0] = xs[:, 0]
@@ -138,8 +147,10 @@ ys[:,0] = np.nanmean(yy, axis=1)
 print 'Valores de XY despues:'
 print np.transpose([xs[:,0], ys[:,0]])
 
-msmask  = np.ma.array(mm, mask=np.isnan(mm))
-ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+#magma   = np.isnan(mm) + (mm > 30)
+#msmask  = np.ma.array(mm, mask=magma)
+#ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+ms[:,0] = promedio(mm, ee)
 
 if iteracion2=='global':
     for i in xrange(iteraciones-1):
@@ -160,8 +171,10 @@ if iteracion2=='global':
         print 'Valores de XY despues:'
         print np.transpose([xs[:,0], ys[:,0]])
 
-        msmask  = np.ma.array(mm, mask=np.isnan(mm))
-        ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+        #magma   = np.isnan(mm) + (mm > 30)
+        #msmask  = np.ma.array(mm, mask=magma)
+        #ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+        ms[:,0] = promedio(mm, ee)
 
 if iteracion2=='local':
     for i in xrange(iteraciones-1):
@@ -217,8 +230,9 @@ if iteracion2=='local':
             mm[:,j]      = mm2
         xs[:,0] = np.nanmean(xx, axis=1)
         ys[:,0] = np.nanmean(yy, axis=1)
-        msmask  = np.ma.array(mm, mask=np.isnan(mm))
-        ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+        #msmask  = np.ma.array(mm, mask=np.isnan(mm))
+        #ms[:,0] = np.ma.average(msmask, axis=1, weights=1.0/ee)
+        ms[:,0] = promedio(mm, ee)
 
 ids_iguales = True
 for i in xrange(len(ids)):
