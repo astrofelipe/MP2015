@@ -73,16 +73,22 @@ ys  = data[:, 4::7][rej]
 ms  = data[:, 5::7][rej]
 es  = data[:, 6::7][rej]
 
+magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
+
+if (magcon*id_mask) < 500:
+    print 'NUMERO DE ESTRELLAS MENOR A 500! Usando 0.1 como error maximo en magnitud'
+    magcon  = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < 0.1)
+
+    if (magcon*id_mask) < 500:
+        print 'NUMERO DE ESTRELLAS MUY BAJO TODAVIA!'
+        sys.exit(1)
+
+
 def transformacion(ep):
-    magcon = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < max_err)
     common = np.isfinite(ids[:, 0]) * np.isfinite(ids[:, ep])
     totst  = np.sum(magcon*common*id_mask)
 
-    if totst < 500:
-        print 'NUMERO DE ESTRELLAS MENOR A 500! Usando 0.1 como error maximo en magnitud'
-        magcon  = (ms[:, 0] > min_mag) * (ms[:, 0] < max_mag) * (es[:, 0] < 0.1)
-
-    print 'Numero de estrellas utilizadas para transformar en %d: %d/%d' % (ep, np.sum(magcon*common*id_mask), np.sum(np.isfinite(ids[:,ep])))
+    print 'Numero de estrellas utilizadas para transformar en %d: %d/%d' % (ep, np.sum(common*magcon*id_mask), np.sum(np.isfinite(ids[:,ep])))
 
     x1 = xs[:, 0]
     y1 = ys[:, 0]
