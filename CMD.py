@@ -61,6 +61,8 @@ if cmd_pdf:
     ax.plot(J-K,K,'.k',ms=1, alpha=1, rasterized=False)
     ax.set_xlabel('$J-K$')
     ax.set_ylabel('$K$')
+    ax.set_title(k_catalog)
+
     if cmd_modo=='manual':
         ax.set_xlim(col1,col2)
         ax.set_ylim(mag1,mag2)
